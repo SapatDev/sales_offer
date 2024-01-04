@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+      <title> Flask Project
+        {% block title %}
+            
+        {% endblock title %}
+      </title>
+      <!-- <link rel="stylesheet" href="css/"> -->
+
+      <link rel="stylesheet" text="text/css" href="{{ url_for('static', filename='style.css') }}">
+      <link rel="stylesheet" text="text/css" href="{{ url_for('static', filename='themify-icons.css') }}">
+      <link rel="stylesheet" text="text/css" href="{{ url_for('static', filename='icofont.css') }}">
+      <link rel="stylesheet" text="text/css" href="{{ url_for('static', filename='jquery.mCustomScrollbar.css') }}">
+      <link rel="stylesheet" text="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+      <!-- <link rel="/assets/css/style.css">  -->
+
+      <!-- <link rel="stylesheet" type="text/css" href="assets/css/style.css"> -->
+      <!-- <link rel="stylesheet" href="assets/css/style.css">
+      <link rel="stylesheet" href="assets/css/icofont.css">
+      <link rel="stylesheet" href="assets/css/jquery.mCustomScrollbar.css">
+      <link rel="stylesheet" href="assets/css/themify-icons.css"> -->
+
+	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+<body>  
+  {% block content %}
+
+    
+  {% endblock content %}
+
+  <script type="text/javascript">
+      window.onpageshow = function(event) {
+          if (event.persisted) {
+              window.location.reload();
+          }
+      };
+  </script>
+  <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+</body>
+</html>
