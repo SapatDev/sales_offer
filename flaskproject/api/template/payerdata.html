@@ -67,7 +67,7 @@
 
 
                                    <th>outletId</th>
-                                   <th>Outlet_type</th>
+                                   <!-- <th>Outlet_type</th> -->
                                    <th>Beatname</th>
                                     <th>OutletName</th>
 
@@ -95,10 +95,10 @@
                                     <tr>
                                         <td>{{outlet}}</td>
     
-                                        <td>
+                                        <!-- <td>
                                             {% set outlet_type = dict_list|selectattr('outletId', 'eq',outlet)|map(attribute='outlet_type')|list|first %}
                                             {{ outlet_type if outlet_type is defined else '' }}
-                                        </td>
+                                        </td> -->
                                         <td>
                                             {% set beatname = dict_list|selectattr('outletId', 'eq',outlet)|map(attribute='beatname')|list|first %}
                                             {{ beatname if beatname is defined else '' }}
@@ -133,7 +133,7 @@
                                     <!--  total sum in type_Id realetd -->
 
                                      <tr>
-                                    <td colspan="4"></td> 
+                                    <td colspan="3"></td> 
                                     {% for type_id in unique_type %}
                                         <td>{{ coupon_sums[type_id] }}</td>
                                     {% endfor %}

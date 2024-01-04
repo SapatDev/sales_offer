@@ -301,7 +301,7 @@ def SSC2(offerID,pkey):
             result_wso_count.close()
             counts.append(count)
         elif offerID == 'NYD':
-            result_wso_count = db.session.execute(text('CALL GetEkSeBadhkarEkOffer()'))
+            result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
             count = result_wso_count.fetchone()[0]
             result_wso_count.close()
             counts.append(count)
@@ -360,7 +360,7 @@ def salesgroup(salesgroup,pkey):
             resultType.close()
             dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
             type_ids = [item['type_Id'] for item in dict_list_type]
-            # print("Type IDs:", type_ids)
+            print("Type IDs:", type_ids)
         
 
 
@@ -443,7 +443,7 @@ def PayerId(payer,pkey):
                 resultType.close()
                 dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
                 type_ids = [item['type_Id'] for item in dict_list_type]
-                # print("Type IDs:", type_ids)
+                print("Type IDs:", type_ids)
             
 
 
@@ -483,11 +483,12 @@ def PayerId(payer,pkey):
                 outletId = df['outletId'].unique()
             else:
                 outletId = []
+            print("outletIdssssss",outletId)
             # payerId = df['payerId'].unique()
             scheme_count=df['scheme_count']
             unique_type = df2['type_Id'].unique()
             unique_beatname=df['beatname']
-            unique_outlet_type_ids = df['outlet_type']
+            # unique_outlet_type_ids = df['outlet_type']
             unique_outletName=df['outletName']
             unique_coupon_type = df['coupon_type'].unique()
             
@@ -506,7 +507,7 @@ def PayerId(payer,pkey):
             html_table = result_df.to_html()
             
         
-            return render_template('payerdata.html',unique_outletName=unique_outletName,unique_outlet_type_ids=unique_outlet_type_ids,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+            return render_template('payerdata.html',unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
         except KeyError as e:
                         error_message = f"KeyError: {str(e)} occurred."
                         return render_template('payerdata.html', error_message=error_message)
@@ -666,7 +667,7 @@ def monsoonoffer():
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
-        result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1ByPayerId('NIM001')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
+        result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('PRA009')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEkSeBadhkarEkOfferSeason1();"))
         # result =db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1BySalesgroup('KHANDESH - 1');"))
         # result.count()
