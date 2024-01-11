@@ -1,52 +1,79 @@
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-# from encode import encrypt_message
+import pandas as pd
+from urllib.parse import quote
 
-def encrypt_message(message, key):
-    # Pad the message to be a multiple of the block size (16 bytes for AES)
-    block_size = algorithms.AES.block_size // 8
-    padded_message = message.ljust(len(message) + (block_size - len(message) % block_size))
 
-    # Generate a random Initialization Vector (IV)
-    # iv = os.urandom(block_size)
-    # print(iv)
-    cipher = Cipher(algorithms.AES(key), modes.CBC(b'RRF5D8C71B39E4C0'), backend=default_backend())
-    encryptor = cipher.encryptor()
-    ciphertext = encryptor.update(padded_message.encode('utf-8')) + encryptor.finalize()
 
-    # Combine the IV and ciphertext and base64 encode the result
-    encrypted_message = base64.b64encode(b'RRF5D8C71B39E4C0' + ciphertext)
+def pad_message(message):
+    block_size = algorithms.AES.block_size // 8  # Block size in bytes (AES uses 128 bits)
+    padding_length = block_size - (len(message) % block_size)
+    padding = bytes([padding_length]) * padding_length
+    return message + padding
 
-    return encrypted_message
-
-def decrypt_message(encrypted_message, key):
-    # Extract IV from the first block
-    iv = encrypted_message[:algorithms.AES.block_size // 8]
-    ciphertext = encrypted_message[algorithms.AES.block_size // 8:]
-
+def encrypt_message(message, key, iv):
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
-    decrypted = decryptor.update(ciphertext) + decryptor.finalize()
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(message) + encryptor.finalize()
+    return ct
 
-    # Remove padding
-    unpadded = decrypted.rstrip(b'\0')
+# Convert the key and IV to bytes
+key = b"35b49627ee3ef324580b5c2248ac31d3"
+iv = "RRF5D8C71B39E4C0".encode('utf-8')  
 
-    return unpadded
+# Read data from Excel file
+file_path = r'c:\Users\admin\Downloads\Untitled spreadsheet (5).xlsx'  # Replace with your file path
+data = pd.read_excel(file_path)
+
+# Encrypt and save each row
+# encrypted_rows = []
+encoded_encrypted_rows=[]
+
+for index, row in data.iterrows():
+    row_data = (str(row.iloc[0]) + "-" + row.iloc[1]+ "-" + row.iloc[2]).encode("utf-8") #(str(row.iloc[0]) + "-" + row.iloc[1]).encode("utf-8") ,,,,(str(row.iloc[0]) + "-" + row.iloc[1]+ "-" + row.iloc[2]).encode("utf-8")
+    padded_row_data = pad_message(row_data)
+    encrypted_row = encrypt_message(padded_row_data, key, iv)
 
 
-if __name__ == '__main__':
-    key = b'35b49627ee3ef324580b5c2248ac31d3'
-    message = "SAPAT INTERNATIONAL MUMBAI RISHABH"
 
-    # Encrypt the message
-    encrypted_message = encrypt_message(message, key)
-    encode_message = encrypted_message.decode('utf-8')
-    # print("Encrypted Message:", encrypted_message)
-    print("Encrypted Message:", encode_message)
+    encrypted_data = base64.b64encode(encrypted_row).decode('utf-8')
+    # print("encrypted_datammmmmmm",encrypted_data)
+    
+    # Encode the encrypted data
+    encoded_encrypted_data = quote(encrypted_data)
+    # print("encoded_encrypted_datadddddddddd",encoded_encrypted_data)
+    encoded_encrypted_rows.append(encoded_encrypted_data)
+    # print("encoded_encrypted_rowsssssssssssss",encoded_encrypted_rows)
 
-    # Decrypt the message
-    decrypted_message = decrypt_message(base64.b64decode(b'UlJGNUQ4QzcxQjM5RTRDMFvfhrVpxMipPsR6b2sbayi+HE6/3vAs8EpIo8u/Iy89iN4lZ9xUfHcyKV1GnQ0X1WfUfYp+OGp9ZZOGQ4379EmSQCuuRr44WIvB5OjG0yyxltyTk8c5oe1mYgT8B+uDz4vIti1+7MRwDgqcwQ9JdQfhWIJdM27v3+47pAsGMBzA'), key)
 
-    # Print the decrypted message as a raw byte sequence
-    print("Decrypted Message:", decrypted_message.decode('utf-8'))
+
+
+data['EncryptedData'] = encoded_encrypted_rows
+    
+
+
+######### this only encrytp data regarding     
+#     encrypted_rows.append(base64.b64encode(encrypted_row).decode('utf-8'))
+#     print("encrypted_row",encrypted_rows)
+
+# data['EncryptedData'] = encrypted_rows
+    
+############### end this encrytp
+
+######### this funcation get in encode code regarding 
+# def encode_row(row):
+#     return quote('-'.join(str(cell) for cell in row))
+
+# # Encode all rows in the DataFrame and store in a new column 'Encode'
+# data['Encode'] = data.apply(encode_row, axis=1)
+
+
+
+
+# Save the modified DataFrame back to the Excel file
+data.to_excel('encryptedexcel_data222.xlsx', index=False)
+
+# Save encrypted rows to a new Excel file
+# encrypted_df = pd.DataFrame({'EncryptedData': encrypted_rows})
+# encrypted_df.to_excel('encrypted_data.xlsx', index=False)

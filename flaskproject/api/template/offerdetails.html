@@ -29,10 +29,14 @@
             <main>
                 <div class="container-fluid px-4 mt-4">
                     <div class="card mb-4">
-                        <div class="card-header">
+                        <div class="card-header" style="background-color:  rgb(248, 250, 250)">
                             <i class="fas fa-table me-1"></i>
                             Offer
+                            <a href="/sales" style="margin-left: 10px;" class="offer-link">SaleData</a>
+                            <a href="/employee" style="margin-left: 10px;" class="offer-link">Employee</a>
                         </div>
+
+                        
                        
 
     
@@ -53,21 +57,30 @@
                         <div class="row mx-2 mt-3">
                             {% for item in dict_list %}
                             <div class="col-xl-3 col-md-6">
+                                <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)" href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}" class="card-link offer-link">
                                 <div class="card bg-white text-black mb-4">
                                     <div class="card-body" style="font-size: 15px;">
-                                        <div class="float-start">ID:{{ item['id'] }}</div>
-                                        <div class="float-end">Offer:{{ item['offer_name'] }}</div>
+                                        <!-- <div class="float-start">ID:{{ item['id'] }}</div> -->
+                                        <div class="float-start">Offer:{{ item['offer_name'] }}</div>
                                     </div>
-                                    <p style="margin: 0px;" class="card-footer d-flex align-items-center justify-content-between text-warning">
-                                        <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)" href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}">offer_id: {{ item['offer_id'] }}</a>
+                                    <img src="http://142.93.208.119/media/{{ item['image'] }}" alt="Offer Image" class="img-fluid" style="width: 300px; height: 200px;">
+                                   
+                                    <!-- <p style="margin: 0px; background-color:  rgb(248, 250, 250);" class="card-footer d-flex align-items-center justify-content-between text-warning">
+                                        <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)" href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}">OfferID:{{ item['offer_id'] }}</a>
+                                    </p> -->
+                                    <p style="margin: 0px; background-color: rgb(248, 250, 250);" class="card-footer d-flex align-items-center justify-content-between text-warning">
+                                        <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)" href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}" class="offer-link">OfferID:{{ item['offer_id'] }}</a>
                                     </p>
+                                    
                                 </div>
                             </div>
                             {% endfor %}
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-white text-black mb-4" style="width: 270px; height: 115px;">
+
+
+                            <!-- <div class="col-xl-3 col-md-6">
+                                <div class="card bg-white text-black mb-4" style="width: 270px; height: 115px; ">
                                     <div class="card-body">
-                                        <h5 style="font-size: 20px;">Sales</h5>
+                                        <h5 style="font-size: 20px; ">Sales</h5>
                                         <div>
                                             <p style="margin: 10px;" class="card-footer d-flex align-items-center justify-content-between text-warning">
                                                 <a href="/sales">SalesData</a>
@@ -75,18 +88,20 @@
                                         </div>
                                     </div>
                                 </div>
-<!--                             
-                                <div class="card bg-white text-black" style="width: 250px; height: 120px;">
-                                    <div class="card-body">
-                                        <h5 style="font-size: 20px;">Sales</h5>
-                                        <div>
-                                            <p style="margin: 10px;" class="card-footer d-flex align-items-center justify-content-between text-warning">
-                                                <a href="/sales">SalesData</a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div> -->
                         </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card bg-white text-black mb-4" style="width: 270px; height: 115px;">
+                                <div class="card-body">
+                                    <h5 style="font-size: 20px;">Employe Data</h5>
+                                    <div>
+                                        <p style="margin: 10px;" class="card-footer d-flex align-items-center justify-content-between text-warning">
+                                            <a href="/employee">employee</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                    </div> -->
                        
                        
 
@@ -95,11 +110,7 @@
                 </div>
             </main>
 
-<!--            
-            <div>
-                <h2>Bar Chart for Specific Offer</h2>
-                <img src="data:image/png;base64,{{ plot_data }}" alt="Bar Chart">
-            </div> -->
+
         </div>
     </div>
 

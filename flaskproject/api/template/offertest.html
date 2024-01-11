@@ -29,24 +29,14 @@
             <main>
                 <div class="container-fluid px-4 mt-4">
                     <div class="card mb-4">
-                        <div class="card-header" id="offerName">
+                        <div class="card-header">
                             <i class="fas fa-table me-1"></i>
-                            
+                            EMPLOYEE DATA
                         </div>
                         <!-- <button onclick="tableToExcel()">Download as Excel</button> -->
                         <div style="display: flex;align-items: center;gap: 5px;">
                             <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
                         </div>
-
-                        <div>
-                            <ul>
-                                {% for count in counts %}
-                                  <li>Distinct Outlet Count: {{ count }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-
-                        
 
     
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
@@ -65,88 +55,31 @@
                             <table id="datatablesSimple">
                                 <thead>
                                     <tr>
-                                      
-                                        <th>Salesgroup</th>
-                                       
-                                        {% for item_type in dict_list_type %}
-                                          <th>{{ item_type['type_Id'] }}</th>
-
-                                        {% endfor %}
-
-
-                                       
+                                        <th>PayerID</th>
+                                        <th>Employee</th>
+                                        
+                                        <th>Stocklist</th> 
+                                    
                                     </tr>
                                 </thead>
                 
                                 <tbody>
-                                  
-                                    {% for salesgroup in salesgroups %}
-                                    
-                                    <tr>
-                                        
-                                        
-                                        <td><a href="/offer_details/{{ salesgroup }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ salesgroup }}</a></td>
-                                    
-                                        <!-- <td>{{ salesgroup }}</td> -->
-                                    
-                                        {% set scheme_counts = {} %}
-                                        {% for item in dict_list %}
-                                            {% if item['salesgroup'] == salesgroup %}
-                                                {% set scheme_counts = scheme_counts|default({}) %}
-                                                {% set _ = scheme_counts.update({item['type_Id']: item['scheme_count']}) %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% for type_id in unique_type_ids %}
-                                            {% if type_id in scheme_counts %}
-                                                <td>{{ scheme_counts[type_id] }}</td>
-                                            {% else %}
-                                                <td>0</td>
-                                            {% endif %}
-                                        
-                                        {% endfor %}
-                                    </tr>
-                                    {% endfor %}
-                                   
-
-
-                               
-
-
-                                    <!-- {% for item in dict_list %}
+                                    {% for item in dict_list %}
 
                                     <tr>
-                                        <td>{{ item['salesgroup'] }}</td>
+                                        
+                                        <td>{{ item['id'] }}</td>
+                                      
+                                        <td>{{ item['image']}}</td>
 
-                                        {% for item_type in dict_list_type %}
-                                      {% if item['type_Id']==item_type['type_Id'] %}
-
-                                            <td>{{ item['scheme_count'] }}</td>
-
-                                            {% else %}
-                                            <td>{{ 0 }}</td>
-
-                                       {% endif %}
-                                        {% endfor %}
+                                        <td>{{ item['offer_id']}}</td>
+                                        
                                         
                                     </tr>
-                                {% endfor %} -->
-                          
+                                {% endfor %}
+                         
                                 </tbody>
                             </table>
-
-                            <!-- {% for salesgroup in salesgroups %}
-                            <img src="{{ url_for('static', filename='salesgroup_' + salesgroup + '_chart.png') }}" alt="Sales Group {{ salesgroup }} Chart" width="400" height="300">
-                        {% endfor %} -->
-
-                        <body>
-                            <img src="{{ url_for('static', filename='sales_groups_comparison_chart.png') }}" alt="Sales Groups Comparison Chart" width="800" height="600">
-                        </body>
-                            <!-- <h1>Pandas DataFrame as HTML Table</h1>
-                            {{ html_table | safe }} -->
-                            <!-- <table border="1">
-                                {{ html_table | safe }}
-                            </table> -->
-
                         </div>
 
                     </div>
@@ -155,7 +88,6 @@
 
         </div>
     </div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
    
@@ -188,12 +120,7 @@ function tableToExcel() {
         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'table_data.xlsx');
     }
 
-    //  this change heading name realeted
-    document.getElementById("offerName").innerText = localStorage.getItem("offername")
-
         </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2/dist/FileSaver.min.js"></script>
 </body>

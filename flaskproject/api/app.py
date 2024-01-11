@@ -1,11 +1,13 @@
 from config import *
 from view import *
 from decode import *
+from encryt import *
+from encodeurls import *
 # from flask import Flask ,request, jsonify
 # # from flask_mysqldb import MySQL
 # # import mysql.connector
 
-# app = Flask(__name__)
+# app = Flask(__name__,static_folder='static')
 
 # # app.config['MYSQL_HOST'] = '142.93.208.119'
 # # app.config['MYSQL_USER'] = 'mandar'

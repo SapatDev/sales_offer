@@ -11730,3 +11730,17 @@ body {
     -0.125rem -0.125rem 1rem rgba(239, 71, 101, 0.5),
     0.125rem 0.125rem 1rem rgba(255, 154, 90, 0.5);
 }
+
+/* this click wise hover */
+
+.offer-link {
+    color: black; /* Default text color */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s ease; /* Transition effect for color change */
+}
+
+.offer-link:hover {
+    color: blue; /* Change text color on hover */
+    text-decoration: underline; /* Underline text on hover */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}

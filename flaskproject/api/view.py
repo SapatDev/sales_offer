@@ -1,4 +1,6 @@
 from sqlalchemy import text
+from decode import encrypt_message
+# from encryt import encrypt_data
 from config import *
 from flask import Flask, render_template
 import pandas
@@ -15,6 +17,15 @@ from flask import render_template, request
 import io
 import base64
 
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import secrets
+import string
+import os
+
+
+app.config['UPLOAD_FOLDER'] = '/flaskproject/api/static'
 
 @app.route('/GetSalesDataPerYearPerMonthUsingParameter')
 def hello():
@@ -107,16 +118,45 @@ def getOfferCouponType():
 
 #################################### OfferDetails 
 
+
 @app.route('/')
 def OfferDetailsdisplay():
     result = db.session.execute(text('CALL OfferDetails();'))
     datakey = result.keys()
     data = result.fetchall()
     result.close()
+ 
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
     return render_template('offerdetails.html',dict_list=dict_list)
+
     
+
+# @app.route('/ofeerdetails')
+# def OfferDetailsssss():
+#     result = db.session.execute(text('CALL OfferDetails();'))
+#     datakey = result.keys()
+#     data = result.fetchall()
+#     result.close()
+ 
+#     # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+#     dict_list = []
+#     for tup in data:
+#         item_dict = {item: tup[i] for i, item in enumerate(datakey)}
+
+#         # Assuming your database has a column named 'image_path' containing the path to the image
+#         image_path = item_dict.get('image')  # Update 'image_path' based on your database column
+#         print("image_path",image_path)
+
+#         if image_path:
+#             # Add the image URL to the dictionary
+#             item_dict['image_url'] = url_for('static', filename=image_path)
+
+#         dict_list.append(item_dict)
+
+   
+   
+#     return render_template('offertest.html',dict_list=dict_list)
 
 
 @app.route('/api/offerdetails', methods=['GET'])
@@ -183,7 +223,63 @@ def salesmonth():
     except Exception as e:
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400
     
+########################################### Employee Name Display #############
+@app.route('/employee')
+def employeename():
+        result = db.session.execute(text('CALL GetEmployeeData();'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
+        return render_template('employee_name.html',dict_list=dict_list)
+
+
+@app.route('/employee_info')
+def employee_info():
+    employee_id = request.args.get('empId')
+    result = db.session.execute(text(f"CALL GetEmployeeInfo('{employee_id}');"))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    
+    # return jsonify(dict_data)
+    return render_template('employee_Id.html', dict_list=dict_list)
+
+
+
+@app.route('/employee_payerId')
+def employee_payerId():
+    payer_id = request.args.get('payerId')
+    result = db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('{payer_id}');"))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    # print("PayerIdDatannnnnnnnnnnn",dict_list)
+    
+    # return jsonify(dict_data)
+    return render_template('employeepayerId.html', dict_list=dict_list)
+
+
+@app.route('/api/emp', methods=['GET'])
+def employeelist():
+    try:
+        # result=db.session.execute(text(f"CALL GetEmployeeData()"))
+        result=db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('GAU006')"))      #text("CALL GetEmployeePayerInfo('S2284');"))
+        datakey=result.keys()
+        data=result.fetchall()
+        result.close()
+        dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+        # print("ddtat",dict_list)
+        return jsonify({"code": 200, "status": True, "result": dict_list}), 200
+    except Exception as e:
+        return jsonify({"code": 400, "status": False, "error": str(e)}), 400
+    
+
+
+#######################################
 
 ######################  Totalsales
 @app.route('/totalsales')
@@ -258,18 +354,24 @@ def SSC2(offerID,pkey):
         df2=pd.DataFrame(dict_list_type)
         salesgroups = df['salesgroup'].unique()
         unique_type_ids = df2['type_Id'].unique()
+        scheme_count= df['scheme_count']
+      
+       
         
         # print("unique_type_ids",unique_type_ids)
 
         # Create an empty DataFrame with salesgroups as index and type_Ids as columns
         result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
+       
 
         # Fill the result_df with scheme_count values
         for index, row in df.iterrows():
             result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+            
 
         # Convert the DataFrame to HTML table
         html_table = result_df.to_html()
+        # print("html_table",html_table)
 
 
         counts = []
@@ -317,8 +419,9 @@ def SSC2(offerID,pkey):
         # Populate sales_group_data with sales groups and their Type ID counts
         for salesgroup in salesgroups:
             sales_data = result_df.loc[salesgroup].dropna()
-            sales_group_data[salesgroup] = sales_data.sum()
-
+            sales_group_data[salesgroup] = sales_data.unique().sum() 
+           
+       
         # Convert the sales_group_data dictionary to a DataFrame
         sales_group_df = pd.DataFrame.from_dict(sales_group_data, orient='index', columns=['Total_Type_ID_Count'])
 
@@ -330,11 +433,10 @@ def SSC2(offerID,pkey):
         plt.title('Total Type ID Count Across Sales Groups')
         plt.xticks(rotation=45)
         plt.tight_layout()
-
-        # Save the plot as an image
+       
         plt.savefig('static/sales_groups_comparison_chart.png')
-
-
+            
+      
 
         return render_template('sweetsummer.html',counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
 
@@ -667,7 +769,7 @@ def monsoonoffer():
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
-        result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('PRA009')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
+        result = db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('VIG001')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEkSeBadhkarEkOfferSeason1();"))
         # result =db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1BySalesgroup('KHANDESH - 1');"))
         # result.count()
@@ -681,3 +783,90 @@ def menulist():
         return jsonify({"code": 200, "status": True, "result": dict_list}), 200
     except Exception as e:
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400
+    
+
+@app.route('/get_encrypted_message')
+def get_encrypted_message():
+    key = b'35b49627ee3ef324580b5c2248ac31d3'
+    message = "1111-Yash-Sapat-Worli"
+
+    encrypted_message = encrypt_message(message, key)
+    encoded_message = encrypted_message.decode('utf-8')
+
+    return jsonify({'encrypted_message': encoded_message})
+
+
+
+################################# data encryt 
+# key = b'35b49627ee3ef324580b5c2248ac31d3'
+key = Fernet.generate_key()
+cipher_suite = Fernet(key)
+
+
+def encrypt_data(data):
+    encrypted_rows = []
+    encryption_codes = []  # To store encryption codes for each row
+    for index, row in data.iterrows():
+        row_data = row.to_csv(header=False, index=False).encode()
+        encrypted_row = cipher_suite.encrypt(row_data)
+        encrypted_rows.append(encrypted_row)
+        
+        # Store the encryption code in a list
+        encryption_codes.append(cipher_suite.encrypt(index.to_bytes(16, 'big')))
+    
+    return encrypted_rows, encryption_codes
+
+def decrypt_data(encrypted_rows, encryption_codes):
+    decrypted_rows = []
+    for encrypted_row, encryption_code in zip(encrypted_rows, encryption_codes):
+        decrypted_row = cipher_suite.decrypt(encrypted_row)
+        decrypted_rows.append(decrypted_row.decode())
+        # Print or use encryption code as needed
+        print("Encryption code for row", int.from_bytes(cipher_suite.decrypt(encryption_code), 'big'))
+    decrypted_df = pd.read_csv(BytesIO('\n'.join(decrypted_rows).encode()))
+    return decrypted_df
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part"
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return "No selected file"
+
+    if file:
+        df = pd.read_excel(file)
+        encrypted_rows, encryption_codes = encrypt_data(df)
+        print("Ssssssssssss",encrypted_rows)
+        print("encryption_codes",encryption_codes)
+        
+        # Save encrypted data and encryption codes to a new Excel file
+        encrypted_file_path = 'encrypted_data.xlsx'
+        with open(encrypted_file_path, 'wb') as f:
+            for encrypted_row, encryption_code in zip(encrypted_rows, encryption_codes):
+                f.write(encrypted_row + b'\n')  # Separating rows with newline
+                f.write(encryption_code + b'\n')  # Separating encryption codes with newline
+
+        return encrypted_file_path  # Return the path to the encrypted file
+
+    return "Error processing file"
+
+@app.route('/decrypt', methods=['GET'])
+def decrypt_file():
+    encrypted_file_path = 'encrypted_data.xlsx'
+    with open(encrypted_file_path, 'rb') as f:
+        lines = f.readlines()
+        encrypted_rows = lines[::2]  # Get encrypted rows
+        encryption_codes = lines[1::2]  # Get encryption codes
+        
+        decrypted_df = decrypt_data(encrypted_rows, encryption_codes)
+        decrypted_file_path = 'decrypted_data.xlsx'
+        print("decrypted_file_path",decrypted_file_path)
+        decrypted_df.to_excel(decrypted_file_path, index=False)
+        return send_file(decrypted_file_path, as_attachment=True)
+
+
+
+################################## ganthor method encryt
