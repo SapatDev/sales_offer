@@ -11744,3 +11744,18 @@ body {
     text-decoration: underline; /* Underline text on hover */
     cursor: pointer; /* Change cursor to pointer on hover */
 }
+.custom-table {
+  /* Add your custom styles here */
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.custom-table th, .custom-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.custom-table th {
+  background-color: #f2f2f2;
+}

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Dashboard</title>
+    <title>SalesOffer</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 
@@ -51,13 +51,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body table-responsive">
-                            <table id="datatablesSimple">
+                        <div class="card-body table-responsive" id="details-table">
+                            <table id="datatablesSimple" class="table">
                                 <thead>
                                     <tr>
                                         <th>PayerID</th>
-                                        <th>Employee_ID</th>
-                                        <th>EmployeeName</th>
+                                        <!-- <th>Employee_ID</th>
+                                        <th>EmployeeName</th> -->
                                         <th>Stocklist</th>
                                     
                                     </tr>
@@ -68,8 +68,8 @@
 
                                     <tr>
                                         <td><a href="/employee_payerId?payerId={{ item['payerId'] }}" class="offer-link">{{ item['payerId']}}</a></td>
-                                        <td>{{ item['empId'] }}</td>
-                                        <td>{{ item['name'] }}</td>
+                                        <!-- <td>{{ item['empId'] }}</td>
+                                        <td>{{ item['name'] }}</td> -->
                                         <td>{{ item['stokist_name']}}</td>
                                         
                                         

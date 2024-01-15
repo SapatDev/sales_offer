@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Dashboard</title>
+    <title>SalesOffer</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 
@@ -51,23 +51,26 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="card-body table-responsive">
                             <table id="datatablesSimple">
                                 <thead>
                                     <tr>
                                         <th>Employee_ID</th>
                                         <th>Employee_NAME</th>
+                                        <th>Employee_Designation</th>
                                     
                                     </tr>
                                 </thead>
                 
                                 <tbody>
                                     {% for item in dict_list %}
-
+                                   <!-- href="/employee_info?empId={{ item['empId'] }}" -->
                                     <tr>
-                                        <td><a  href="/employee_info?empId={{ item['empId'] }}" class="employee-link offer-link" data-id="{{ item['empId'] }}">{{ item['empId'] }}</a></td>
+                                        <td><a class="employee-link offer-link" data-id="{{ item['empId'] }}" onclick="fetchData('{{ item['empId'] }}')">{{ item['empId'] }}</a></td>
                                         <!-- <td><a href="/employee_info?empId={{ item['empId'] }}">{{ item['empId'] }}</a></td> -->
                                         <td>{{ item['name'] }}</td>
+                                        <td>{{item['desig']}}</td>
                                      
                                     </tr>
                                 {% endfor %}
@@ -76,51 +79,60 @@
                             </table>
                         </div>
 
+<!--                          this next table                         -->
+                        <div class="card-body table-responsive" id="details-table">
+                            <table id="datatablesSimple" class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>PayerID</th>
+                                        <th>Stocklist</th>
+                                        <th>desig</th>
+                                    
+                                    </tr>
+                                </thead>
+                
+                                <tbody>
+                               
+
+                                    <tr>
+                                        <td><a class="offer-link" id="payer-id"></a></td>
+                                
+                                        <td id="stockist-name"></td>
+                                        <td id="desig"></td>
+                                        
+                                        
+                                    </tr>
+                         
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- end  -->
                        
                     </div>
                 </div>
             </main>
 
+            
+
         </div>
     </div>
 
-   
-
-
-    <div id="employee-details">
-        <!-- Employee details will be displayed here -->
-    </div>
     
-    <script>
-        document.querySelectorAll('.employee-link').forEach(link => {
-            link.addEventListener('click', function (event) {
-                event.preventDefault(); // Prevent the default link behavior
     
-                const employeeId = this.getAttribute('data-id');
-                fetch(`/employee_info?empId=${employeeId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const employeeDetails = document.getElementById('employee-details');
-                        // Update the employee details div with the fetched content
-                        employeeDetails.innerHTML = `
-                            <p>Employee ID: ${data['empId']}</p>
-                            <p>Employee Name: ${data['name']}</p>
-                            <!-- Add other fields as needed -->
-                        `;
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-    </script>
-
+  
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
    
     <script src="{{ url_for('static', filename='js/datatables-simple-demo.js') }}"></script>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script> -->
+        <script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
@@ -128,7 +140,37 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
+
+        <script>
+
+            $("#details-table").hide()
+    
+            function fetchData(id){
+                $("#details-table").hide()
+                $.ajax({
+                    url: "/employee_info?empId=" + id,
+                    method: "GET",
+                }).then((data) => {
+                    
+                    $("#details-table").show()
+                    $("#payer-id").text(data["dict"][0]["payerId"])
+                    $("#payer-id").attr("href", "/employee_payerId?payerId=" + data["dict"][0]["payerId"])
+                    $("#stockist-name").text(data["dict"][0]["stokist_name"])
+                    $("#desig").text(data["dict"][0]["desig"])
+
+
+
+                })
+            }
+            // Move details-table to the top
+            $(document).ready(function () {
+                $("#details-table").prependTo("#layoutSidenav_content");
+            });
+        </script>
+
     <script>
+
+        
 function tableToExcel() {
         const table = document.getElementById('datatablesSimple');
         const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
@@ -145,6 +187,7 @@ function tableToExcel() {
     }
 
         </script>
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>

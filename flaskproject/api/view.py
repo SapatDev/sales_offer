@@ -25,7 +25,7 @@ import string
 import os
 
 
-app.config['UPLOAD_FOLDER'] = '/flaskproject/api/static'
+
 
 @app.route('/GetSalesDataPerYearPerMonthUsingParameter')
 def hello():
@@ -117,10 +117,35 @@ def getOfferCouponType():
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400 
 
 #################################### OfferDetails 
+def get_offer_count(offer_id):
+    if offer_id == 'SSC2':
+        result = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+    elif offer_id == 'SPD1':
+        result = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+    elif offer_id == 'MO':
+        result = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+    elif offer_id == 'WSO':
+        result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+    elif offer_id == 'EKS2':
+        result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))  #same function used because not count get table not proper
+    elif offer_id == 'NYD':
+        result = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()')) #same function used because not count get table not proper
+    
+        
+    # Add similar blocks for other offer IDs
+    else:
+        # Provide a default action or raise an exception for unknown offer IDs
+        raise ValueError(f"Unknown offer ID: {offer_id}")
 
+    count = result.fetchone()[0]
+    result.close()
+    return count
 
 @app.route('/')
 def OfferDetailsdisplay():
+
+    offer_id = request.args.get('offer_id', type=str)
+
     result = db.session.execute(text('CALL OfferDetails();'))
     datakey = result.keys()
     data = result.fetchall()
@@ -128,36 +153,55 @@ def OfferDetailsdisplay():
  
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    return render_template('offerdetails.html',dict_list=dict_list)
+    
+    counts = []
+    offer_ids = ['SSC2', 'SPD1', 'MO', 'WSO', 'EKS2', 'NYD']
+    counts = [get_offer_count(offer_id) for offer_id in offer_ids]
+    print("Sscounts",counts)
+
+    # # Fetch counts for different offers and append to the counts list
+    # if offer_id == 'SSC2':
+    #     result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+    #     count = result_ssc_count.fetchone()[0]  
+    #     result_ssc_count.close()
+    #     counts.append(count)
+    # elif offer_id == 'SPD1':
+    #     result_wso_count = db.session.execute(text('CALL GetSpdOfferDetails()'))
+    #     count = result_wso_count.fetchone()[0]
+    #     result_wso_count.close()
+    #     counts.append(count)
+    # elif offer_id == 'MO':
+    #     result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+    #     count = result_wso_count.fetchone()[0]
+    #     result_wso_count.close()
+    #     counts.append(count)
+    # elif offer_id == 'WSO':
+    #     result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+    #     count = result_wso_count.fetchone()[0]
+    #     result_wso_count.close()
+    #     counts.append(count)
+    # elif offer_id == 'EKS2':
+    #     result_wso_count = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1()'))
+    #     count = result_wso_count.fetchone()[0]
+    #     result_wso_count.close()
+    #     counts.append(count)
+    #     print("ncountsnnnnnn",counts)
+    # elif offer_id == 'NYD':
+    #     result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+    #     count = result_wso_count.fetchone()[0]
+    #     result_wso_count.close()
+    #     counts.append(count)
+    #     print("ncountsnnnnnn",counts)
+    # else:
+    #     result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
+    #     count = result_monsoon_count.fetchone()[0]
+    #     result_monsoon_count.close()
+    #     counts.append(count)
+    #     print("ncountsnnnnnn",counts)
+
+    return render_template('offerdetails.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
 
     
-
-# @app.route('/ofeerdetails')
-# def OfferDetailsssss():
-#     result = db.session.execute(text('CALL OfferDetails();'))
-#     datakey = result.keys()
-#     data = result.fetchall()
-#     result.close()
- 
-#     # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-#     dict_list = []
-#     for tup in data:
-#         item_dict = {item: tup[i] for i, item in enumerate(datakey)}
-
-#         # Assuming your database has a column named 'image_path' containing the path to the image
-#         image_path = item_dict.get('image')  # Update 'image_path' based on your database column
-#         print("image_path",image_path)
-
-#         if image_path:
-#             # Add the image URL to the dictionary
-#             item_dict['image_url'] = url_for('static', filename=image_path)
-
-#         dict_list.append(item_dict)
-
-   
-   
-#     return render_template('offertest.html',dict_list=dict_list)
-
 
 @app.route('/api/offerdetails', methods=['GET'])
 def OfferDetails():
@@ -244,8 +288,9 @@ def employee_info():
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
     
-    # return jsonify(dict_data)
-    return render_template('employee_Id.html', dict_list=dict_list)
+    return jsonify({"dict":dict_list})
+   
+    # return render_template('employee_Id.html', dict_list=dict_list)
 
 
 
@@ -329,6 +374,7 @@ def SSC2(offerID,pkey):
             resultType.close()
             dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
             type_ids = [item['type_Id'] for item in dict_list_type]
+      
             # print("Type IDs:", type_ids)
         
         if (offerID=='SSC2'):
@@ -354,7 +400,7 @@ def SSC2(offerID,pkey):
         df2=pd.DataFrame(dict_list_type)
         salesgroups = df['salesgroup'].unique()
         unique_type_ids = df2['type_Id'].unique()
-        scheme_count= df['scheme_count']
+        # scheme_count= df['scheme_count']
       
        
         
@@ -383,7 +429,7 @@ def SSC2(offerID,pkey):
             result_ssc_count.close()
             counts.append(count)
         elif offerID == 'SPD1':
-            result_wso_count = db.session.execute(text('CALL GetSpdOfferDetails()'))
+            result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
             count = result_wso_count.fetchone()[0]
             result_wso_count.close()
             counts.append(count)
@@ -398,12 +444,12 @@ def SSC2(offerID,pkey):
             result_wso_count.close()
             counts.append(count)
         elif offerID == 'EKS2':
-            result_wso_count = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1()'))
+            result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
             count = result_wso_count.fetchone()[0]
             result_wso_count.close()
             counts.append(count)
         elif offerID == 'NYD':
-            result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+            result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
             count = result_wso_count.fetchone()[0]
             result_wso_count.close()
             counts.append(count)
@@ -420,25 +466,26 @@ def SSC2(offerID,pkey):
         for salesgroup in salesgroups:
             sales_data = result_df.loc[salesgroup].dropna()
             sales_group_data[salesgroup] = sales_data.unique().sum() 
+          
            
-       
-        # Convert the sales_group_data dictionary to a DataFrame
-        sales_group_df = pd.DataFrame.from_dict(sales_group_data, orient='index', columns=['Total_Type_ID_Count'])
+        # this using python metropillo using
+        # # Convert the sales_group_data dictionary to a DataFrame
+        # sales_group_df = pd.DataFrame.from_dict(sales_group_data, orient='index', columns=['Total_Type_ID_Count'])
 
-        # Plotting a bar chart for Type ID counts across all sales groups
-        plt.figure(figsize=(10, 6))
-        plt.bar(sales_group_df.index, sales_group_df['Total_Type_ID_Count'])
-        plt.xlabel('Sales Groups')
-        plt.ylabel('Total Type ID Count')
-        plt.title('Total Type ID Count Across Sales Groups')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
+        # # Plotting a bar chart for Type ID counts across all sales groups
+        # plt.figure(figsize=(10, 6))
+        # plt.bar(sales_group_df.index, sales_group_df['Total_Type_ID_Count'])
+        # plt.xlabel('Sales Groups')
+        # plt.ylabel('Total Type ID Count')
+        # plt.title('Total Type ID Count Across Sales Groups')
+        # plt.xticks(rotation=45)
+        # plt.tight_layout()
        
-        plt.savefig('static/sales_groups_comparison_chart.png')
+        # plt.savefig('static/sales_groups_comparison_chart.png')
             
       
 
-        return render_template('sweetsummer.html',counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+        return render_template('sweetsummer.html',sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -518,11 +565,10 @@ def salesgroup(salesgroup,pkey):
         # Convert the DataFrame to HTML table
         html_table = result_df.to_html()
         
-        
        
         return render_template('newsweetsummer.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
 
-############################# same anthore payer funcation
+########################################## click on payerID releted data
 @app.route('/offer_payer/<payer>/<int:pkey>')
 def PayerId(payer,pkey):
         try:
@@ -614,115 +660,12 @@ def PayerId(payer,pkey):
                         error_message = f"KeyError: {str(e)} occurred."
                         return render_template('payerdata.html', error_message=error_message)
 
-########################################## click on payerID releted data
-@app.route('/offer_payer2/<payer2>/<int:pkey>') #@app.route('/offer/<payer>')
-def PayerId1(payer,pkey):
-        try:
-        # print("offer/<payer_id>", request.args.get('offer_id', type=int))
-            
-            offer_id = request.args.get('offer_id', type=int)
-            
-
-            resultType=db.session.execute(text('CALL GetOfferCouponType('+str(pkey)+');'))
-            datakey=resultType.keys()
-            data=resultType.fetchall()
-            resultType.close()
-            dict_list_type=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
-
-            
-            if offer_id == 1:
-                result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerId('{payer}');"))
-
-            elif offer_id == 2:
-                result = db.session.execute(text(f"CALL GetSpdOfferDetailsBypayerId('{payer}');"))
-            
-            elif offer_id == 3:
-                result = db.session.execute(text(f"CALL GetNewMonsoonOfferByPayerId('{payer}');"))
-
-            elif offer_id == 4:
-                result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
-
-            elif offer_id == 5:
-                result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
-
-            elif offer_id== 6:
-                 result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
-            else:
-                 result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerId('{payer}');"))
-
-
-        
-            datakey = result.keys()
-            data = result.fetchall()
-            
-            result.close()
-            dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-            # dict_length=len(dict_list)
-
-            df = pd.DataFrame(dict_list)
-            df2=pd.DataFrame(dict_list_type)
-            # print("df2",df)
-           
-            if 'outletId' in df.columns:
-                outletId = df['outletId'].unique()
-            else:
-                outletId = []
-            print("outletIdcccccccccccccccc",outletId)
-
-            # outletId = df['outletId'].unique()
-            scheme_count=df['scheme_count']
-            unique_outlet_type_ids = df['outlet_type']
-            unique_beatname=df['beatname']
-            unique_outletName=df['outletName']
-            unique_coupon_type = df['coupon_type'].unique()
-
-            unique_typeId = df2['type_Id'].unique()
-            print("unique_typessss",unique_typeId)
-        
-
-            # Create an empty DataFrame with salesgroups as index and type_Ids as columns
-            result_df = pd.DataFrame(index=outletId, columns=df2['type_Id'])
-            # result_df = pd.DataFrame(index=outletId, columns=df['coupon_type'])
-            # print("Dddddsss",result_df)
-
-            # Fill the result_df with scheme_count values
-            for index, row in df.iterrows():
-                result_df.loc[row['outletId'], row['type_Id']] = row['scheme_count']
-                # result_df.loc[row['outletId'], row['coupon_type']] = row['scheme_count']
-
-             # Convert the DataFrame to HTML table
-            html_table = result_df.to_html()
-           
-          #unique_coupon_type=unique_coupon_type,
-            # return render_template('payerIdshow.html',unique_typeId=unique_typeId,unique_coupon_type=unique_coupon_type,unique_outletName=unique_outletName,unique_beatname=unique_beatname,outletId=outletId,unique_outlet_type_ids=unique_outlet_type_ids,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
-            return render_template('payerdata.html',unique_typeId=unique_typeId,unique_coupon_type=unique_coupon_type,unique_outletName=unique_outletName,unique_beatname=unique_beatname,outletId=outletId,scheme_counts=scheme_count,unique_outlet_type_ids=unique_outlet_type_ids,offer_id=offer_id,html_table=html_table,dict_list=dict_list)
-        except KeyError as e:
-                error_message = f"KeyError: {str(e)} occurred."
-                return render_template('payerdata.html', error_message=error_message)
-                # return render_template('payerIdshow.html', error_message=error_message)
-        
-        
-# @app.route('/offer/EKS2')
-# def EKS2():
-#         result = db.session.execute(text('CALL SweetSummerOffer();'))
-#         datakey = result.keys()
-#         data = result.fetchall()
-#         result.close()
-#         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-#         return render_template('monsoonoffer.html',dict_list=dict_list)
-
-
 
 
 ####################### Saledata per year month
 @app.route('/saledata/<int:page>')
 def saledata(page=1):
-        # result = db.session.execute(text('CALL GetSalesDataPerYearPerMonth();'))
-        # datakey = result.keys()
-        # data = result.fetchall()
-        # result.close()
-        # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+       
         items_per_page = 20  # Define how many items to display per page
         result = db.session.execute(text('CALL GetSalesDataPerYearPerMonth();'))
         datakey = result.keys()
@@ -737,31 +680,6 @@ def saledata(page=1):
         
         return render_template('saledata.html', dict_list=dict_list, total_pages=total_pages)
 
-########### monsoonoffer 
-@app.route('/offer/monsoonoffer')
-def monsoonofferdata():
-        result = db.session.execute(text('CALL MonsoonOffer();'))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-        return render_template('monsoonoffer.html',dict_list=dict_list)
-
-
-@app.route('/api/monsoonoffer',methods=['GET'])
-def monsoonoffer():
-            try:
-                result = db.session.execute(text('CALL MonsoonOffer();'))
-                datakey = result.keys()
-                data = result.fetchall()
-                result.close()
-                dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-                return jsonify({"code": 200, "status": True, "result": dict_list}), 200
-            except Exception as e:
-                return jsonify({"code": 400, "status": False, "error": str(e)}), 400
-
-
 
 
 
@@ -769,9 +687,10 @@ def monsoonoffer():
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
-        result = db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('VIG001')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
-        # result = db.session.execute(text("CALL GetEkSeBadhkarEkOfferSeason1();"))
-        # result =db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1BySalesgroup('KHANDESH - 1');"))
+        result = db.session.execute(text(f"CALL GetSpdOfferDetails()"))
+        # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
+        # result = db.session.execute(text("CALL GetEmployeeData();"))
+        # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))
         # result.count()
         # print("result_data",result_data)
         datakey = result.keys()
@@ -822,7 +741,7 @@ def decrypt_data(encrypted_rows, encryption_codes):
         decrypted_row = cipher_suite.decrypt(encrypted_row)
         decrypted_rows.append(decrypted_row.decode())
         # Print or use encryption code as needed
-        print("Encryption code for row", int.from_bytes(cipher_suite.decrypt(encryption_code), 'big'))
+        # print("Encryption code for row", int.from_bytes(cipher_suite.decrypt(encryption_code), 'big'))
     decrypted_df = pd.read_csv(BytesIO('\n'.join(decrypted_rows).encode()))
     return decrypted_df
 
@@ -839,8 +758,8 @@ def upload_file():
     if file:
         df = pd.read_excel(file)
         encrypted_rows, encryption_codes = encrypt_data(df)
-        print("Ssssssssssss",encrypted_rows)
-        print("encryption_codes",encryption_codes)
+        # print("Ssssssssssss",encrypted_rows)
+        # print("encryption_codes",encryption_codes)
         
         # Save encrypted data and encryption codes to a new Excel file
         encrypted_file_path = 'encrypted_data.xlsx'
@@ -863,7 +782,7 @@ def decrypt_file():
         
         decrypted_df = decrypt_data(encrypted_rows, encryption_codes)
         decrypted_file_path = 'decrypted_data.xlsx'
-        print("decrypted_file_path",decrypted_file_path)
+        # print("decrypted_file_path",decrypted_file_path)
         decrypted_df.to_excel(decrypted_file_path, index=False)
         return send_file(decrypted_file_path, as_attachment=True)
 
