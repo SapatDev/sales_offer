@@ -127,9 +127,9 @@ def get_offer_count(offer_id):
     elif offer_id == 'WSO':
         result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
     elif offer_id == 'EKS2':
-        result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))  #same function used because not count get table not proper
+        result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))  #GetWinterOfferDistinctOutletCount()  same function used because not count get table not proper
     elif offer_id == 'NYD':
-        result = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()')) #same function used because not count get table not proper
+        result = db.session.execute(text('CALL GetSpdOfferDetails()')) #same function used because not count get table not proper
     
         
     # Add similar blocks for other offer IDs
@@ -591,7 +591,7 @@ def PayerId(payer,pkey):
                 resultType.close()
                 dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
                 type_ids = [item['type_Id'] for item in dict_list_type]
-                print("Type IDs:", type_ids)
+                # print("Type IDs:", type_ids)
             
 
 
@@ -631,7 +631,7 @@ def PayerId(payer,pkey):
                 outletId = df['outletId'].unique()
             else:
                 outletId = []
-            print("outletIdssssss",outletId)
+            # print("outletIdssssss",outletId)
             # payerId = df['payerId'].unique()
             scheme_count=df['scheme_count']
             unique_type = df2['type_Id'].unique()
