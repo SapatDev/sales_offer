@@ -67,7 +67,7 @@
                                     {% for item in dict_list %}
                                    <!-- href="/employee_info?empId={{ item['empId'] }}" -->
                                     <tr>
-                                        <td><a class="employee-link offer-link" data-id="{{ item['empId'] }}" onclick="fetchData('{{ item['empId'] }}')">{{ item['empId'] }}</a></td>
+                                        <td><a class="employee-link offer-link" data-id="{{ item['empId'] }}" onclick="fetchData('{{ item.empId }}')">{{ item['empId'] }}</a></td>  <!-- fetchData('{{ item['empId'] }}') -->
                                         <!-- <td><a href="/employee_info?empId={{ item['empId'] }}">{{ item['empId'] }}</a></td> -->
                                         <td>{{ item['name'] }}</td>
                                         <td>{{item['desig']}}</td>
