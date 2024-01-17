@@ -111,7 +111,7 @@
             </main>
 
 
-           
+           <h4 class="text-center">Sales Offer</h4>
             <div>
                 <canvas id="myDoughnutChart" width="400" height="400"></canvas>
             </div>
@@ -162,7 +162,7 @@ function tableToExcel() {
 
 <!--  chart js using doughnut-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<!-- <script>
     var counts = {{ counts|tojson|safe }};
     var offer_ids = {{ offer_ids|tojson|safe }};
 
@@ -181,6 +181,7 @@ function tableToExcel() {
                     'rgb(238, 130, 238)',
                     'rgb(255, 165, 0)',
                     'rgb(106, 90, 205)',
+                    // 'yellow', 'aqua', 'pink', 'lightgreen', 'lightblue', 'gold'
                     
                 ],
             }],
@@ -188,6 +189,46 @@ function tableToExcel() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            expandOnClick: false,
+   
+        },
+        
+    });
+</script> -->
+<script>
+    var counts = {{ counts|tojson|safe }};
+    var offer_ids = {{ offer_ids|tojson|safe }};
+
+  // Function to generate random color
+  function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    // Generate colors for each offer_id
+    var backgroundColors = offer_ids.map(function() {
+        return getRandomColor();
+    });
+    console.log("Ssssssssssssssss",backgroundColors)
+
+    var ctx = document.getElementById('myDoughnutChart').getContext('2d');
+    var myDoughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: offer_ids,
+            datasets: [{
+                data: counts,
+                backgroundColor: backgroundColors,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            expandOnClick: false,
         },
     });
 </script>
