@@ -52,19 +52,11 @@
                                 </div>
                             </div>
                         </div>
-                     
+                        <div class="card-body table-responsive">
                         <table id="datatablesSimple">
                             <thead>
                                 <tr>
-                                    <!-- {% set coupon_sums = {} %} 
-                                    {% for coupon_typeId in unique_coupon_type %}
-                                        {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
-                                    {% endfor %}
                                     
-                                   {% for type_id in unique_type %}
-                                    {% set coupon_sums = coupon_sums.update({type_id: (coupon_sums[type_id]|default(0)) + (scheme_counts[type_id]|default(0))}) %}
-                                    {% endfor %} -->
-
 
                                    <th>outletId</th>
                                    <!-- <th>Outlet_type</th> -->
@@ -75,7 +67,7 @@
                                    <th>{{type_id}}</th>
                                    {% endfor %}
                                  
-                                   <!-- <th>TOtal</th> -->
+                                 
                                    
                                     
                                 </tr>
@@ -133,7 +125,9 @@
                                     <!--  total sum in type_Id realetd -->
 
                                      <tr>
-                                    <td colspan="3"></td> 
+                                    <td></td> 
+                                    <td></td> 
+                                    <td></td> 
                                     {% for type_id in unique_type %}
                                         <td>{{ coupon_sums[type_id] }}</td>
                                     {% endfor %}
@@ -145,6 +139,7 @@
 
                          
                         </table>
+                    </div>
 
                     </div>
 
@@ -159,6 +154,8 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
 
     <script src="{{ url_for('static', filename='js/datatables-simple-demo.js') }}"></script>
+
+
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -194,8 +191,12 @@
         document.getElementById("offerName").innerText = localStorage.getItem("offername")
     </script>
 
+ 
+
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2/dist/FileSaver.min.js"></script>
+   
+    
 </body>
 
 </html>

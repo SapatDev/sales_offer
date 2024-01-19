@@ -81,7 +81,10 @@
 
 <!--                          this next table                         -->
                         <div class="card-body table-responsive" id="details-table">
-                            <table id="datatablesSimple" class="custom-table">
+                            <!-- <div style="display: flex;align-items: center;gap: 5px;">
+                                <button class="button-62" role="button"  onclick="tableToExcel1()">Download as Excel</button>
+                            </div> -->
+                            <table id="datatablesSimple1" class="custom-table">
                                 <thead>
                                     <tr>
                                         <th>PayerID</th>
@@ -187,6 +190,27 @@ function tableToExcel() {
     }
 
         </script>
+
+
+<!-- <script>
+
+        
+    function tableToExcel1() {
+            const table = document.getElementById('datatablesSimple1');
+            const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+    
+            function s2ab(s) {
+                const buf = new ArrayBuffer(s.length);
+                const view = new Uint8Array(buf);
+                for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+    
+            saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'table_data.xlsx');
+        }
+    
+            </script> -->
 
 
 
