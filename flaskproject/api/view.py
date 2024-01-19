@@ -48,21 +48,52 @@ def sales():
 
         # Check if both month and year are not empty strings
         if selected_month and selected_year:
-            result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);'), {'month': selected_month, 'year': selected_year})
+            query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);')
+            result = db.session.execute(query, {'month': selected_month, 'year': selected_year})
         else:
-            
             return "Please select both month and year"
 
     else:
         # Default query for initial page load
-        result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);'))
-   
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);')
+        result = db.session.execute(query)
 
-        return render_template('sales.html', dict_list=dict_list)
+    datakey = result.keys()
+    dict_list = []
+
+    # Use a server-side cursor to fetch data in chunks
+    while True:
+        chunk = result.fetchmany(500)  # Adjust the chunk size as needed
+        
+        if not chunk:
+            break
+        dict_list.extend([{item: tup[i] for i, item in enumerate(datakey)} for tup in chunk])
+
+    result.close()
+
+    return render_template('sales.html', dict_list=dict_list)
+# def sales():
+#     if request.method == 'POST':
+#         selected_month = request.form['month']
+#         selected_year = request.form['year']
+
+#         # Check if both month and year are not empty strings
+#         if selected_month and selected_year:
+#             result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);'), {'month': selected_month, 'year': selected_year})
+#         else:
+            
+#             return "Please select both month and year"
+
+#     else:
+#         # Default query for initial page load
+#         result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);'))
+   
+#         datakey = result.keys()
+#         data = result.fetchall()
+#         result.close()
+#         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+#         return render_template('sales.html', dict_list=dict_list)
 
 # @app.route('/sales')
 # def sales():
@@ -127,7 +158,7 @@ def get_offer_count(offer_id):
     elif offer_id == 'WSO':
         result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
     elif offer_id == 'EKS2':
-        result = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))  #GetWinterOfferDistinctOutletCount()  same function used because not count get table not proper
+        result = db.session.execute(text('CALL GetEkSeBadhkarEkDistinctOutletCount()'))  #GetWinterOfferDistinctOutletCount()  same function used because not count get table not proper
     elif offer_id == 'NYD':
         result = db.session.execute(text('CALL GetSpdOfferDetails()')) #same function used because not count get table not proper
     
@@ -687,7 +718,7 @@ def saledata(page=1):
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
-        result = db.session.execute(text(f"CALL GetSpdOfferDetails()"))
+        result = db.session.execute(text(f"CALL GetEkSeBadhkarEkDistinctOutletCount()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
         # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))
