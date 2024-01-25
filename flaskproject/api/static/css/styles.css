@@ -11680,27 +11680,23 @@ body {
   content: " ";
   display: table;
 }
-
 .btn-datatable {
   height: 20px !important;
   width: 20px !important;
   font-size: 0.75rem;
   border-radius: 0.25rem !important;
 }
-
-/* button 62 */
 .button-62 {
-  margin: 10px; 
+  margin: 20px 20px 0 20px;
 }
-
 #dataTable {
   margin-top: 20px;
 }
-
+#offerName{font-weight: 600;}
 .button-62 {
-  background: linear-gradient(to bottom right, #ef4765, #ff9a5a);
+  background: linear-gradient(to bottom right, #000000, #8e8e8e);
   border: 0;
-  border-radius: 12px;
+  border-radius: 5px;
   color: #ffffff;
   cursor: pointer;
   display: inline-block;
@@ -11758,4 +11754,55 @@ body {
 
 .custom-table th {
   background-color: #f2f2f2;
+}
+table {
+  overflow:hidden;
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px #000;
+  th, td {
+    padding:.25em .2em;
+    text-align:left;
+    vertical-align:top;
+  }
+  th {
+    background-color:#f1f1f1;
+    color:#000;
+  }
+  tr {
+    transition:all 1s ease-in-out;
+    &.slide-out {
+      transform:translateX(100%);
+    }
+  }
+}
+.pd2 {
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.mat {
+  margin-top: 32px;
+}
+
+.navbg {
+  margin-left: 20px;
+  float: right;
+  color: black;
+}
+.navbg:hover {
+  background: #ebebeb;
+  padding: 1px 5px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: black;
+}
+.offer-link:hover {
+  text-decoration: none;
+  color: #000;
+}
+.datatable-selector {
+  border-radius: 5px;
+}
+.datatable-sorter{
+  padding-left: 0px !important;
 }
