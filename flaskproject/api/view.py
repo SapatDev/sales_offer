@@ -23,28 +23,31 @@ from cryptography.hazmat.backends import default_backend
 import secrets
 import string
 import os
+from datetime import datetime
+from werkzeug.exceptions import BadRequestKeyError
 
 
-
-
-@app.route('/GetSalesDataPerYearPerMonthUsingParameter')
-def hello():
-    result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-  
-    return render_template('index.html',dict_list=dict_list)
-    
 
 
 ###################################### Sales data 
+
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
-    if request.method == 'POST':
-        selected_month = request.form['month']
-        selected_year = request.form['year']
+    global selected_date
+    if request.method == 'GET':
+        try:
+            selected_date = request.args.get('selectedDate')
+            print(selected_date)
+        except BadRequestKeyError:
+            selected_date = "2023-12"
+
+
+        # Parse the selected date string into a datetime object
+        selected_datetime = datetime.strptime(selected_date, '%Y-%m')
+
+        # Extract month and year
+        selected_month = selected_datetime.month
+        selected_year = selected_datetime.year
 
         # Check if both month and year are not empty strings
         if selected_month and selected_year:
@@ -64,7 +67,7 @@ def sales():
     # Use a server-side cursor to fetch data in chunks
     while True:
         chunk = result.fetchmany(500)  # Adjust the chunk size as needed
-        
+
         if not chunk:
             break
         dict_list.extend([{item: tup[i] for i, item in enumerate(datakey)} for tup in chunk])
@@ -72,38 +75,6 @@ def sales():
     result.close()
 
     return render_template('sales.html', dict_list=dict_list)
-# def sales():
-#     if request.method == 'POST':
-#         selected_month = request.form['month']
-#         selected_year = request.form['year']
-
-#         # Check if both month and year are not empty strings
-#         if selected_month and selected_year:
-#             result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);'), {'month': selected_month, 'year': selected_year})
-#         else:
-            
-#             return "Please select both month and year"
-
-#     else:
-#         # Default query for initial page load
-#         result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);'))
-   
-#         datakey = result.keys()
-#         data = result.fetchall()
-#         result.close()
-#         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-#         return render_template('sales.html', dict_list=dict_list)
-
-# @app.route('/sales')
-# def sales():
-#     result = db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);'))
-#     datakey = result.keys()
-#     data = result.fetchall()
-#     result.close()
-#     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-#     return render_template('sales.html',dict_list=dict_list)
 
 
 
@@ -368,29 +339,15 @@ def totalsales():
 
         return render_template('totalsales.html',dict_list=dict_list)
 
-
-
-
-@app.route('/api/TotalSales', methods=['GET'])
-def GetTotalSalesData():
-    try:
-        # result = db.session.execute(text(f'CALL GetSKUList();'))    
-        result = db.session.execute(text('CALL GetTotalSalesData();'))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-        # return render_template({"code": 200, "status": True, "result": dict_list}), 200
-        return jsonify({"code": 200, "status": True, "result": dict_list}), 200
-    except Exception as e:
-        return jsonify({"code": 400, "status": False, "error": str(e)}), 400
     
+
 ########### SweetSummerOffer  html template create only 
 @app.route('/offer/<offerID>/<int:pkey>')
 def SSC2(offerID,pkey):
-        # print("/offer/<offerID>/<int:pkey>", request.args.get('offer_name', type=int))
+    
+    # print("/offer/<offerID>/<int:pkey>", request.args.get('offer_name', type=int))
         offer_id = request.args.get('offer_name', type=int)
-        
+     
         resultType=db.session.execute(text('CALL GetOfferCouponType('+str(pkey)+');'))
         datakey=resultType.keys()
         data=resultType.fetchall()
@@ -405,21 +362,21 @@ def SSC2(offerID,pkey):
             resultType.close()
             dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
             type_ids = [item['type_Id'] for item in dict_list_type]
-      
+    
             # print("Type IDs:", type_ids)
         
         if (offerID=='SSC2'):
-             result = db.session.execute(text('CALL SweetSummerOffer();'))
+            result = db.session.execute(text('CALL SweetSummerOffer();'))
         elif(offerID=="SPD1"):
-             result = db.session.execute(text('CALL GetSpdOfferDetails();'))          
+            result = db.session.execute(text('CALL GetSpdOfferDetails();'))          
         elif(offerID=='MO'):
-             result = db.session.execute(text('CALL MonsoonOffer();'))
+            result = db.session.execute(text('CALL MonsoonOffer();'))
         elif(offerID=='WSO'):
-             result = db.session.execute(text('CALL NewOffer();')) 
+            result = db.session.execute(text('CALL NewOffer();')) 
         elif(offerID=="EKS2"):
-             result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1();'))
+            result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1();'))
         elif(offerID=="NYD"):
-             result = db.session.execute(text('CALL MonsoonOffer();'))
+            result = db.session.execute(text('CALL MonsoonOffer();'))
         else:
             result = db.session.execute(text('CALL MonsoonOffer();'))
 
@@ -427,19 +384,28 @@ def SSC2(offerID,pkey):
         data = result.fetchall()
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        # Extract year and month from created_at
+        for entry in dict_list:
+            entry['year'] = entry['created_at'].year
+            entry['month'] = entry['created_at'].month
+            
+
+
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
         salesgroups = df['salesgroup'].unique()
         unique_type_ids = df2['type_Id'].unique()
-        # scheme_count= df['scheme_count']
-      
-       
-        
-        # print("unique_type_ids",unique_type_ids)
+        df_year = df['year'].unique()
+        df_month =df['month'].unique()
+        print("df_month",df_month)
 
+        print("df_year",df_year)
+
+        
         # Create an empty DataFrame with salesgroups as index and type_Ids as columns
         result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
-       
+    
 
         # Fill the result_df with scheme_count values
         for index, row in df.iterrows():
@@ -489,7 +455,7 @@ def SSC2(offerID,pkey):
             count = result_monsoon_count.fetchone()[0]
             result_monsoon_count.close()
             counts.append(count)
-            print("ncountsnnnnnn",counts)
+            # print("ncountsnnnnnn",counts)
 
         sales_group_data = {}
 
@@ -497,26 +463,9 @@ def SSC2(offerID,pkey):
         for salesgroup in salesgroups:
             sales_data = result_df.loc[salesgroup].dropna()
             sales_group_data[salesgroup] = sales_data.unique().sum() 
-          
            
-        # this using python metropillo using
-        # # Convert the sales_group_data dictionary to a DataFrame
-        # sales_group_df = pd.DataFrame.from_dict(sales_group_data, orient='index', columns=['Total_Type_ID_Count'])
-
-        # # Plotting a bar chart for Type ID counts across all sales groups
-        # plt.figure(figsize=(10, 6))
-        # plt.bar(sales_group_df.index, sales_group_df['Total_Type_ID_Count'])
-        # plt.xlabel('Sales Groups')
-        # plt.ylabel('Total Type ID Count')
-        # plt.title('Total Type ID Count Across Sales Groups')
-        # plt.xticks(rotation=45)
-        # plt.tight_layout()
-       
-        # plt.savefig('static/sales_groups_comparison_chart.png')
-            
-      
-
-        return render_template('sweetsummer.html',sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+    
+        return render_template('sweetsummer.html',df_year=df_year,df_month=df_month,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -582,7 +531,8 @@ def salesgroup(salesgroup,pkey):
         unique_type_ids = df2['type_Id'].unique()
         stokist_name_Id=df['stokist_name'].unique()
         # unique_type_ids = df2['type_Id'].unique()
-       
+        # Get the selected month and year from the request parameters
+        
 
         # Create an empty DataFrame with salesgroups as index and type_Ids as columns
         result_df = pd.DataFrame(index=payerId, columns=df['type_Id'])
@@ -735,88 +685,7 @@ def menulist():
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400
     
 
-@app.route('/get_encrypted_message')
-def get_encrypted_message():
-    key = b'35b49627ee3ef324580b5c2248ac31d3'
-    message = "1111-Yash-Sapat-Worli"
-
-    encrypted_message = encrypt_message(message, key)
-    encoded_message = encrypted_message.decode('utf-8')
-
-    return jsonify({'encrypted_message': encoded_message})
 
 
 
-################################# data encryt 
-# key = b'35b49627ee3ef324580b5c2248ac31d3'
-key = Fernet.generate_key()
-cipher_suite = Fernet(key)
 
-
-def encrypt_data(data):
-    encrypted_rows = []
-    encryption_codes = []  # To store encryption codes for each row
-    for index, row in data.iterrows():
-        row_data = row.to_csv(header=False, index=False).encode()
-        encrypted_row = cipher_suite.encrypt(row_data)
-        encrypted_rows.append(encrypted_row)
-        
-        # Store the encryption code in a list
-        encryption_codes.append(cipher_suite.encrypt(index.to_bytes(16, 'big')))
-    
-    return encrypted_rows, encryption_codes
-
-def decrypt_data(encrypted_rows, encryption_codes):
-    decrypted_rows = []
-    for encrypted_row, encryption_code in zip(encrypted_rows, encryption_codes):
-        decrypted_row = cipher_suite.decrypt(encrypted_row)
-        decrypted_rows.append(decrypted_row.decode())
-        # Print or use encryption code as needed
-        # print("Encryption code for row", int.from_bytes(cipher_suite.decrypt(encryption_code), 'big'))
-    decrypted_df = pd.read_csv(BytesIO('\n'.join(decrypted_rows).encode()))
-    return decrypted_df
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return "No file part"
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return "No selected file"
-
-    if file:
-        df = pd.read_excel(file)
-        encrypted_rows, encryption_codes = encrypt_data(df)
-        # print("Ssssssssssss",encrypted_rows)
-        # print("encryption_codes",encryption_codes)
-        
-        # Save encrypted data and encryption codes to a new Excel file
-        encrypted_file_path = 'encrypted_data.xlsx'
-        with open(encrypted_file_path, 'wb') as f:
-            for encrypted_row, encryption_code in zip(encrypted_rows, encryption_codes):
-                f.write(encrypted_row + b'\n')  # Separating rows with newline
-                f.write(encryption_code + b'\n')  # Separating encryption codes with newline
-
-        return encrypted_file_path  # Return the path to the encrypted file
-
-    return "Error processing file"
-
-@app.route('/decrypt', methods=['GET'])
-def decrypt_file():
-    encrypted_file_path = 'encrypted_data.xlsx'
-    with open(encrypted_file_path, 'rb') as f:
-        lines = f.readlines()
-        encrypted_rows = lines[::2]  # Get encrypted rows
-        encryption_codes = lines[1::2]  # Get encryption codes
-        
-        decrypted_df = decrypt_data(encrypted_rows, encryption_codes)
-        decrypted_file_path = 'decrypted_data.xlsx'
-        # print("decrypted_file_path",decrypted_file_path)
-        decrypted_df.to_excel(decrypted_file_path, index=False)
-        return send_file(decrypted_file_path, as_attachment=True)
-
-
-
-################################## ganthor method encryt

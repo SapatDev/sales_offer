@@ -115,7 +115,7 @@
                                     <tr>
                                         <td></td> 
                                         <td></td> 
-                                        <td></td>
+                                        <td><h6>Grand-Total</h6></td>
                                         {% for type_id in unique_type_ids %}
                                         <td>{{ coupon_sums[type_id] }}</td>
                                         {% endfor %}
@@ -126,37 +126,6 @@
                             </table>
 
 
-                            <!-- <table id="datatablesSimple">
-                                <thead>
-                                    <tr>
-                                        <th>PayerId</th>
-                                        <th>Salesgroup</th>
-                                        <th>Scheme_count</th>
-                                        <th>Stokist_name</th>
-                                        <th>Type_Id</th>
-                                       
-                                    </tr>
-                                </thead>
-                
-                                <tbody>
-
-
-                                    {% for item in dict_list %}
-
-                                    <tr>
-                                        <td>{{ item['payerId'] }}</td>
-                                        <td>{{ item['salesgroup'] }}</td>
-                                        <td>{{ item['scheme_count'] }}</td>
-                                        <td>{{ item['stokist_name'] }}</td>
-                                        <td>{{ item['type_Id'] }}</td>
-
-
-                                        
-                                    </tr>
-                                {% endfor %}
-                         
-                                </tbody>
-                            </table> -->
 
                         </div>
 

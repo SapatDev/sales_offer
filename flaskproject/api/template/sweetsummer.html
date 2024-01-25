@@ -38,6 +38,7 @@
                             <button class="mx-4 mt-4 button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
                         </div>
 
+                       
                         <div>
                             <ul>
                                 {% for count in counts %}
@@ -46,8 +47,15 @@
                             </ul>
                         </div>
 
+                        <!-- <div>
+                            <label for="selectedDate">Select Date:</label>
+                            <input type="month" name="selectedDate">
                         
-
+                           
+                            <button type="submit">Get Data</button>
+                        </div> -->
+                            
+                    
     
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
                             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -67,11 +75,13 @@
                                     <tr>
                                       
                                         <th>Salesgroup</th>
+                                        
                                        
                                         {% for item_type in dict_list_type %}
                                           <th>{{ item_type['type_Id'] }}</th>
 
                                         {% endfor %}
+                                        
 
 
                                        
@@ -87,7 +97,7 @@
                                         
                                         <td><a href="/offer_details/{{ salesgroup }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ salesgroup }}</a></td>
                                     
-                                        <!-- <td>{{ salesgroup }}</td> -->
+                                        
                                     
                                         {% set scheme_counts = {} %}
                                         {% for item in dict_list %}
@@ -234,10 +244,14 @@ function tableToExcel() {
 </script>
 
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2/dist/FileSaver.min.js"></script>
+
+
 </body>
 
 </html>

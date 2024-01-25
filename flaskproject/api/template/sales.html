@@ -50,10 +50,10 @@
                             <button class="button-62" role="button" onclick="tableToExcel()">Download as Excel</button>
                         </div>
 
-                        <form method="post" action="/sales" onsubmit="return validateForm()">
+                        <!-- <form method="post" action="/sales" onsubmit="return validateForm()">
                             <label for="month">Select Month:</label>
                             <select id="month" name="month">
-                                <!-- Add options for all months -->
+                             
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -71,7 +71,21 @@
                             <input type="text" id="year" name="year" placeholder="Enter Year">
                         
                             <button type="submit">Get Data</button>
+                        </form> -->
+
+                        <form method="get" action="/sales" onsubmit="return validateForm()">
+                            <label for="selectedDate">Select Date:</label>
+                            <input type="month" id="selectedDate" name="selectedDate">
+                        
+                            <!-- Optionally, you can use a separate input for the year -->
+                            <!-- <label for="selectedYear">Select Year:</label>
+                            <input type="number" id="selectedYear" name="selectedYear" placeholder="Enter Year"> -->
+                        
+                            <button type="submit">DateSearch</button>
                         </form>
+
+
+                       
 
                         <!-- Modal -->
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
@@ -89,17 +103,22 @@
                             <table id="datatablesSimple">
                                 <thead>
                                     <tr>
-                                        <th>ACHIEVEMENTPERCENTAGE</th>
-                                        <th>LYSALES</th>
-                                        <th>LYVS TY GROWTH</th>
-                                        <th>MONTH</th>
-                                        <th>MONTH SALE</th>
-                                        <th>MONTH TRAGET</th>
-                                        <th>PAYREID</th>
                                         <th>SALESGROUP</th>
-                                        <th>STOCK MONTH</th>
-                                        <th>STOCKLIST NAME</th>
+                                        <th>PAYREID</th>
+                                        <th>STOCKLISTNAME</th>
+                                        <th>STOCKMONTH</th>
                                         <th>YEAR</th>
+                                        <th>MONTH</th>
+                                        <th>MONTHTRAGET</th>
+                                        <th>LYVSGROWTH</th>
+                                        <th>LYSALES</th>
+                                        <th>MONTHSALE</th>
+                                        <th>ACHIVE%</th>
+                                        
+                                        
+                                        
+                                        
+                                        
                                     </tr>
                                 </thead>
                                 
@@ -107,18 +126,20 @@
                                     {% for item in dict_list %}
 
                                     <tr>
-                                        <td>{{ item['AchievementPercentage'] }}</td>
-                                        <td>{{  "%.2f"|format(item['ly_sales']) }}</td>
-                                        <td>{{ item['ly_vs_ty_growth'] }}</td>
-                                        <td>{{ item['month'] }}</td>
-                                        <td>{{ "%.2f"|format(item['month_sale']) }}</td>
-                                        <!-- <td>{{ item['month_sale'] }}</td> -->
-                                        <td>{{ item['month_tgt'] }}</td>
-                                        <td>{{ item['payerId'] }}</td>
                                         <td>{{ item['salesgroup'] }}</td>
-                                        <td>{{ item['stock_month'] }}</td>
+                                        <td>{{ item['payerId'] }}</td>
                                         <td>{{ item['stokist_name'] }}</td>
+                                        <td>{{ item['stock_month'] }}</td>
                                         <td>{{ item['year'] }}</td>
+                                        <td>{{ item['month'] }}</td>
+                                        <td>{{ item['month_tgt'] }}</td>
+                                        <td>{{ item['ly_vs_ty_growth'] }}</td>
+                                        <td>{{  "%.2f"|format(item['ly_sales']) }}</td>
+                                        <td>{{ "%.2f"|format(item['month_sale']) }}</td>
+                                        <td>{{ item['AchievementPercentage'] }}</td>
+                                        
+                                     
+                                      
                                        
                                     </tr>
                                 {% endfor %}
