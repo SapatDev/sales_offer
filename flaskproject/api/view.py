@@ -41,6 +41,8 @@ def sales():
         except BadRequestKeyError:
             selected_date = "2023-12"
 
+        if not selected_date:
+            selected_date = "2023-12"
 
         # Parse the selected date string into a datetime object
         selected_datetime = datetime.strptime(selected_date, '%Y-%m')

@@ -72,18 +72,19 @@
                         
                             <button type="submit">Get Data</button>
                         </form> -->
-
+                        <div style="margin-top: 16px;
+                        margin-left: 21px;">
                         <form method="get" action="/sales" onsubmit="return validateForm()">
-                            <label for="selectedDate">Select Date:</label>
-                            <input type="month" id="selectedDate" name="selectedDate">
+                            <label for="selectedDate"><b>Select Month & Year:</b></label>
+                            <input style="border-radius: 5px;" value="2024-02" type="month" id="selectedDate" name="selectedDate">
                         
                             <!-- Optionally, you can use a separate input for the year -->
                             <!-- <label for="selectedYear">Select Year:</label>
                             <input type="number" id="selectedYear" name="selectedYear" placeholder="Enter Year"> -->
                         
-                            <button type="submit">DateSearch</button>
+                            <button style="border-radius: 5px;" type="submit">Search</button>
                         </form>
-
+                    </div>
 
                        
 

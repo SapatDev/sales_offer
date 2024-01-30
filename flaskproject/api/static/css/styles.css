@@ -11714,8 +11714,21 @@ body {
   touch-action: manipulation;
   white-space: nowrap;
 }
+.button-62::after {
+  height: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
 
-.button-62:not([disabled]):focus {
+.button-62:hover:after {
+  height: 100%;
+}
+button:hover {
+  color: #2ecc71;
+}
+
+/* .button-62:not([disabled]):focus {
   box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.5),
     -0.125rem -0.125rem 1rem rgba(239, 71, 101, 0.5),
     0.125rem 0.125rem 1rem rgba(255, 154, 90, 0.5);
@@ -11725,7 +11738,7 @@ body {
   box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.5),
     -0.125rem -0.125rem 1rem rgba(239, 71, 101, 0.5),
     0.125rem 0.125rem 1rem rgba(255, 154, 90, 0.5);
-}
+} */
 
 /* this click wise hover */
 
@@ -11805,4 +11818,13 @@ table {
 }
 .datatable-sorter{
   padding-left: 0px !important;
+}
+.datatable-top{
+  padding: 0px 2px 12px;
+}
+.rvs{
+  list-style: none;
+    padding: 20px 0 0 26px;
+    margin-bottom: 0px;
+    font-weight: 600;
 }
