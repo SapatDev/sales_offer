@@ -41,8 +41,6 @@ def sales():
         except BadRequestKeyError:
             selected_date = "2023-12"
 
-        if not selected_date:
-            selected_date = "2023-12"
 
         # Parse the selected date string into a datetime object
         selected_datetime = datetime.strptime(selected_date, '%Y-%m')
@@ -244,7 +242,7 @@ def newoffer():
 @app.route('/api/newoffer', methods=['GET'])
 def NewOffer():
     try:
-        result=db.session.execute(text('CALL NewOffer();'))
+        result=db.session.execute(text('CALL SweetSummerOffer();'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -349,7 +347,9 @@ def SSC2(offerID,pkey):
     
     # print("/offer/<offerID>/<int:pkey>", request.args.get('offer_name', type=int))
         offer_id = request.args.get('offer_name', type=int)
+        # selected_date = request.args.get('selectedDate')
      
+
         resultType=db.session.execute(text('CALL GetOfferCouponType('+str(pkey)+');'))
         datakey=resultType.keys()
         data=resultType.fetchall()
@@ -387,87 +387,155 @@ def SSC2(offerID,pkey):
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-        # Extract year and month from created_at
-        for entry in dict_list:
-            entry['year'] = entry['created_at'].year
-            entry['month'] = entry['created_at'].month
-            
-
-
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
-        salesgroups = df['salesgroup'].unique()
-        unique_type_ids = df2['type_Id'].unique()
-        df_year = df['year'].unique()
-        df_month =df['month'].unique()
-        print("df_month",df_month)
-
-        print("df_year",df_year)
-
         
-        # Create an empty DataFrame with salesgroups as index and type_Ids as columns
-        result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
-    
 
-        # Fill the result_df with scheme_count values
-        for index, row in df.iterrows():
-            result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+        # Extract year and month into new columns
+        if 'created_at' in df.columns and 'type_Id' in df.columns:
+            df_year= df['created_at'].dt.year
+            df_month= df['created_at'].dt.month
+            df_day =df['created_at'].dt.day
+            # print("df_day",df_day)
+
+            # selected_date = request.args.get('selectedDate')
+            # if selected_date:
+            #     # Filter the DataFrame based on the selected date
+            #     df = df[df['created_at'].dt.date == pd.to_datetime(selected_date).date()]
+
+            
             
 
-        # Convert the DataFrame to HTML table
-        html_table = result_df.to_html()
-        # print("html_table",html_table)
+         
+            # print('year',df_year)
+            # print('month',df_month)
+            
+            salesgroups = df['salesgroup'].unique()
+            unique_type_ids = df2['type_Id'].unique()
+            
 
 
-        counts = []
+            
+            # Create an empty DataFrame with salesgroups as index and type_Ids as columns
+            result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
 
-        # Fetch counts for different offers and append to the counts list
-        if offerID == 'SSC2':
-            result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
-            count = result_ssc_count.fetchone()[0]  
-            result_ssc_count.close()
-            counts.append(count)
-        elif offerID == 'SPD1':
-            result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-            count = result_wso_count.fetchone()[0]
-            result_wso_count.close()
-            counts.append(count)
-        elif offerID == 'MO':
-            result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-            count = result_wso_count.fetchone()[0]
-            result_wso_count.close()
-            counts.append(count)
-        elif offerID == 'WSO':
-            result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
-            count = result_wso_count.fetchone()[0]
-            result_wso_count.close()
-            counts.append(count)
-        elif offerID == 'EKS2':
-            result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-            count = result_wso_count.fetchone()[0]
-            result_wso_count.close()
-            counts.append(count)
-        elif offerID == 'NYD':
-            result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-            count = result_wso_count.fetchone()[0]
-            result_wso_count.close()
-            counts.append(count)
+
+            # Fill the result_df with scheme_count values
+            for index, row in df.iterrows():
+                result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+                
+
+            # Convert the DataFrame to HTML table
+            html_table = result_df.to_html()
+            # print("html_table",html_table)
+
+
+            counts = []
+
+            # Fetch counts for different offers and append to the counts list
+            if offerID == 'SSC2':
+                result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+                count = result_ssc_count.fetchone()[0]  
+                result_ssc_count.close()
+                counts.append(count)
+            elif offerID == 'SPD1':
+                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'MO':
+                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'WSO':
+                result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'EKS2':
+                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'NYD':
+                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            else:
+                result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
+                count = result_monsoon_count.fetchone()[0]
+                result_monsoon_count.close()
+                counts.append(count)
+                # print("ncountsnnnnnn",counts)
+
+            sales_group_data = {}
+
+            # Populate sales_group_data with sales groups and their Type ID counts
+            for salesgroup in salesgroups:
+                sales_data = result_df.loc[salesgroup].dropna()
+                sales_group_data[salesgroup] = sales_data.unique().sum() 
+
+
+            return render_template('sweetsummer.html',offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
         else:
-            result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
-            count = result_monsoon_count.fetchone()[0]
-            result_monsoon_count.close()
-            counts.append(count)
-            # print("ncountsnnnnnn",counts)
+            salesgroups = df['salesgroup'].unique()
+            unique_type_ids = df2['type_Id'].unique()
+         
+            result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
 
-        sales_group_data = {}
+            for index, row in df.iterrows():
+                result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+             
+            html_table = result_df.to_html()
+       
+            counts = []
 
-        # Populate sales_group_data with sales groups and their Type ID counts
-        for salesgroup in salesgroups:
-            sales_data = result_df.loc[salesgroup].dropna()
-            sales_group_data[salesgroup] = sales_data.unique().sum() 
-           
-    
-        return render_template('sweetsummer.html',df_year=df_year,df_month=df_month,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+            if offerID == 'SSC2':
+                result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+                count = result_ssc_count.fetchone()[0]  
+                result_ssc_count.close()
+                counts.append(count)
+            elif offerID == 'SPD1':
+                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'MO':
+                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'WSO':
+                result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'EKS2':
+                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            elif offerID == 'NYD':
+                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                count = result_wso_count.fetchone()[0]
+                result_wso_count.close()
+                counts.append(count)
+            else:
+                result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
+                count = result_monsoon_count.fetchone()[0]
+                result_monsoon_count.close()
+                counts.append(count)
+ 
+            sales_group_data = {}
+
+            for salesgroup in salesgroups:
+                sales_data = result_df.loc[salesgroup].dropna()
+                sales_group_data[salesgroup] = sales_data.unique().sum() 
+
+            # Render the template without the HTML table
+            return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -475,7 +543,7 @@ def salesgroup(salesgroup,pkey):
         # print("/offer/<offerID>/<string:pkey>", request.args.get('salesgroup', type=int))
         # print("/offer_details/<salesgroup>/<int:pkey>", request.args.get('offer_name', type=int))
         offer_id = request.args.get('offer_id', type=int)
-        # print("ss",offer_id)
+        print("ss",offer_id)
 
         resultType=db.session.execute(text('CALL GetOfferCouponType('+str(pkey)+');'))
         datakey=resultType.keys()

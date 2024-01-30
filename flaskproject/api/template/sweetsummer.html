@@ -19,7 +19,7 @@
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.html">Scheme</a>
+        <a class="navbar-brand ps-3" href="">Scheme</a>
   
     </nav>
 
@@ -47,13 +47,20 @@
                             </ul>
                         </div>
 
-                        <!-- <div>
+                     
+
+                       
+                       
+
+
+                        <form method="get" action="" id="myForm">
                             <label for="selectedDate">Select Date:</label>
-                            <input type="month" name="selectedDate">
+                            <input type="date" id="selectedDate" name="selectedDate">
                         
-                           
-                            <button type="submit">Get Data</button>
-                        </div> -->
+                            
+                        
+                            <button type="submit">Search</button>
+                        </form>
                             
                     
     
@@ -243,7 +250,12 @@ function tableToExcel() {
     });
 </script>
 
-
+<script>
+    function setOfferName(id) {
+        // Set the action of the form dynamically based on the clicked item's id
+        document.getElementById('myForm').action = "/offer/{{ offerID }}/" + id;
+    }
+</script>
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
