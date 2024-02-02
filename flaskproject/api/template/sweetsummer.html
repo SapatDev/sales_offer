@@ -44,23 +44,31 @@
                                 {% for count in counts %}
                                   <li>Total Count: {{ count }}</li>
                                 {% endfor %}
-                            </ul>
+                            </ul>               
                         </div>
 
                      
-
                        
-                       
-
-
                         <form method="get" action="" id="myForm">
+                            <label for="startDate">From Date:</label>
+                            <input type="date" id="startDate" name="startDate" value="{{selected_start_date}}">
+                        
+                            <label for="endDate">To Date:</label>
+                            <input type="date" id="endDate" name="endDate" value="{{selected_end_date}}">
+                    
+                            <input type="hidden"  name="offer_name" value="{{offer_id}}">
+                            <button type="submit">Search</button>
+                        </form>
+
+
+                        <!-- <form method="get" action="" id="myForm">
                             <label for="selectedDate">Select Date:</label>
                             <input type="date" id="selectedDate" name="selectedDate">
                         
                             
                         
                             <button type="submit">Search</button>
-                        </form>
+                        </form> -->
                             
                     
     
@@ -96,6 +104,11 @@
                                 </thead>
                 
                                 <tbody>
+
+                                    {% set coupon_sums = {} %}
+                                    {% for coupon_typeId in unique_type_ids %}
+                                    {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
+                                    {% endfor %}
                                   
                                     {% for salesgroup in salesgroups %}
                                     
@@ -119,34 +132,23 @@
                                             {% else %}
                                                 <td>0</td>
                                             {% endif %}
+                                            {% set coupon_sums = coupon_sums.update({type_id:
+                                                (coupon_sums[type_id]|default(0)) + (scheme_counts[type_id]|default(0))}) %}
                                         
                                         {% endfor %}
                                     </tr>
                                     {% endfor %}
                                    
 
-
-                               
-
-
-                                    <!-- {% for item in dict_list %}
-
                                     <tr>
-                                        <td>{{ item['salesgroup'] }}</td>
-
-                                        {% for item_type in dict_list_type %}
-                                      {% if item['type_Id']==item_type['type_Id'] %}
-
-                                            <td>{{ item['scheme_count'] }}</td>
-
-                                            {% else %}
-                                            <td>{{ 0 }}</td>
-
-                                       {% endif %}
+                                       
+                                        <td><h6>Grand-Total</h6></td>
+                                        {% for type_id in unique_type_ids %}
+                                        <td>{{ coupon_sums[type_id] }}</td>
                                         {% endfor %}
-                                        
+                                        <!--  total sum in type_Id realetd -->
                                     </tr>
-                                {% endfor %} -->
+
                           
                                 </tbody>
                             </table>
