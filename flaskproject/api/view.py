@@ -16,6 +16,7 @@ from flask import send_file
 from flask import render_template, request
 import io
 import base64
+from flask_sqlalchemy import Pagination
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -37,51 +38,79 @@ def sales():
     if request.method == 'GET':
         try:
             selected_date = request.args.get('selectedDate')
-            print(selected_date)
+
         except BadRequestKeyError:
             selected_date = "2023-12"
 
-
+        if selected_date is not None:
         # Parse the selected date string into a datetime object
-        selected_datetime = datetime.strptime(selected_date, '%Y-%m')
+            selected_datetime = datetime.strptime(selected_date, '%Y-%m')
 
-        # Extract month and year
-        selected_month = selected_datetime.month
-        selected_year = selected_datetime.year
+            # Extract month and year
+            selected_month = selected_datetime.month
+            selected_year = selected_datetime.year
 
-        # Check if both month and year are not empty strings
-        if selected_month and selected_year:
-            query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);')
-            result = db.session.execute(query, {'month': selected_month, 'year': selected_year})
+            # Check if both month and year are not empty strings
+            if selected_month and selected_year:
+                query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);')
+                result = db.session.execute(query, {'month': selected_month, 'year': selected_year})
+            else:
+                return "Please select both month and year"
+
         else:
-            return "Please select both month and year"
+            # Default query for initial page load
+            query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(1, 2024);')
+            result = db.session.execute(query)
 
-    else:
-        # Default query for initial page load
-        query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(12, 2023);')
-        result = db.session.execute(query)
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        # dict_list = []
 
+        # # Use a server-side cursor to fetch data in chunks
+        # while True:
+        #     chunk = result.fetchmany(500)  # Adjust the chunk size as needed
+
+        #     if not chunk:
+        #         break
+        #     dict_list.extend([{item: tup[i] for i, item in enumerate(datakey)} for tup in chunk])
+
+        # result.close()
+
+        return render_template('sales.html', dict_list=dict_list)
+
+
+################# try realted
+@app.route('/dailysale')
+def dailysales():
+    result = db.session.execute(text('CALL GetLatestDailysalesWithGradeCodeAndLatestUpdate();'))
     datakey = result.keys()
-    dict_list = []
-
-    # Use a server-side cursor to fetch data in chunks
-    while True:
-        chunk = result.fetchmany(500)  # Adjust the chunk size as needed
-
-        if not chunk:
-            break
-        dict_list.extend([{item: tup[i] for i, item in enumerate(datakey)} for tup in chunk])
-
+    data = result.fetchall()
     result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    return render_template('sales.html', dict_list=dict_list)
+    return render_template('dailysale.html',dict_list=dict_list)
+
+# @app.route('/dailysale', methods=['GET', 'POST'])
+# def dailysales():
+#     result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("2024-02-01");'))  
+#     datakey = result.keys()
+#     data = result.fetchall()
+#     result.close()
+
+#     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+#     return render_template('dailysale.html', dict_list=dict_list)
+
+
 
 
 
 @app.route('/api/GetSalesDataPerYearPerMonthUsingParameter', methods=['GET'])
 def GetSalesDataPerYearPerMonthUsingParameter():
     try:
-        result=db.session.execute(text('CALL GetSalesDataPerYearPerMonthUsingParameter(11, 2023);'))
+        result=db.session.execute(text('CALL GetSalesDataPerDateWithCreatedAtParameter("2024-01-01");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -90,12 +119,11 @@ def GetSalesDataPerYearPerMonthUsingParameter():
         return jsonify({"code": 200, "status": True, "result": dict_list}), 200
     except Exception as e:
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400
-    
 
 ###################################### GetOfferCouponType
 @app.route('/getOfferCouponType')
 def getOfferCouponTypedata():
-    result = db.session.execute(text('CALL GetOfferCouponType(5);'))
+    result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("20-01-2023");'))
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -108,7 +136,7 @@ def getOfferCouponTypedata():
 @app.route('/api/getOfferCouponType', methods=['GET'])
 def getOfferCouponType():
     try:
-        result=db.session.execute(text('CALL GetOfferCouponType(1);'))
+        result=db.session.execute(text('CALL GetLatestDailysalesWithGradeCodeAndLatestUpdate();'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -259,7 +287,7 @@ def NewOffer():
 @app.route('/api/salesmonth', methods=['GET'])
 def salesmonth():
     try:
-        result=db.session.execute(text('CALL GetSalesDataPerYearPerMonth();'))
+        result=db.session.execute(text('CALL GetSalesDataPerYearPerMonthWithCreatedAt();'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -341,7 +369,7 @@ def totalsales():
 
     
 
-########### SweetSummerOffer  html template create only 
+########### SweetSummerOffer  html template created only 
 @app.route('/offer/<offerID>/<int:pkey>')
 def SSC2(offerID,pkey):
     
@@ -398,17 +426,14 @@ def SSC2(offerID,pkey):
             df_day =df['created_at'].dt.day
             # print("df_day",df_day)
 
-            # selected_date = request.args.get('selectedDate')
-            # if selected_date:
-            #     # Filter the DataFrame based on the selected date
-            #     df = df[df['created_at'].dt.date == pd.to_datetime(selected_date).date()]
+            selected_start_date = request.args.get('startDate')
+            selected_end_date = request.args.get('endDate')
 
-            
-            
-
-         
-            # print('year',df_year)
-            # print('month',df_month)
+            if selected_start_date and selected_end_date:
+                # Filter the DataFrame based on the selected date range
+                df = df[(df['created_at'].dt.date >= pd.to_datetime(selected_start_date).date()) & 
+                        (df['created_at'].dt.date <= pd.to_datetime(selected_end_date).date())]
+          
             
             salesgroups = df['salesgroup'].unique()
             unique_type_ids = df2['type_Id'].unique()
@@ -478,7 +503,7 @@ def SSC2(offerID,pkey):
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
 
 
-            return render_template('sweetsummer.html',offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+            return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
         else:
             salesgroups = df['salesgroup'].unique()
             unique_type_ids = df2['type_Id'].unique()
