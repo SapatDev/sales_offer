@@ -23,7 +23,7 @@ key = b"35b49627ee3ef324580b5c2248ac31d3"
 iv = "RRF5D8C71B39E4C0".encode('utf-8')  
 
 # Read data from Excel file
-file_path = r'c:\Users\admin\Downloads\Magic Coupon Retaile (1).xlsx'  # Replace with your file path
+file_path = r'c:\Users\Admin\Downloads\Magic Coupon Retaile (1).xlsx'  # Replace with your file path
 data = pd.read_excel(file_path)
 
 # Encrypt and save each row

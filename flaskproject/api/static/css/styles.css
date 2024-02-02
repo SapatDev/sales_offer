@@ -11724,8 +11724,11 @@ body {
 .button-62:hover:after {
   height: 100%;
 }
+
 button:hover {
-  color: #2ecc71;
+    color: #060606;
+    background: #f7f7f7;
+    box-shadow: 1px 1px 5px #000;
 }
 
 /* .button-62:not([disabled]):focus {
@@ -11766,7 +11769,7 @@ button:hover {
 }
 
 .custom-table th {
-  background-color: #f2f2f2;
+  background-color: #000000;
 }
 table {
   overflow:hidden;
@@ -11778,10 +11781,12 @@ table {
     vertical-align:top;
   }
   th {
-    background-color:#f1f1f1;
-    color:#000;
+    background-color:#000000;
+    color:#ffffff;
+    font-size: 15px;
   }
   tr {
+    font-size: 14px;
     transition:all 1s ease-in-out;
     &.slide-out {
       transform:translateX(100%);
@@ -11828,3 +11833,5 @@ table {
     margin-bottom: 0px;
     font-weight: 600;
 }
+tr:nth-child(even) {background-color: #f1f1f1;}
+tr:hover {background-color: #c8c8c8;}
