@@ -84,7 +84,16 @@ def sales():
 ################# try realted
 @app.route('/dailysale')
 def dailysales():
-    result = db.session.execute(text('CALL GetLatestDailysalesWithGradeCodeAndLatestUpdate();'))
+    payerId = request.args.get('payerId')
+
+    if payerId:
+        result = db.session.execute(text('CALL GetTotalAchievementDataByPayerId(1, 2024, :payerId);').params(payerId=payerId))
+    else:
+      
+        result = db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))
+
+    
+    # result = db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))   # GetLatestDailysalesWithGradeCodeAndLatestUpdate()
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -92,16 +101,17 @@ def dailysales():
 
     return render_template('dailysale.html',dict_list=dict_list)
 
-# @app.route('/dailysale', methods=['GET', 'POST'])
-# def dailysales():
-#     result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("2024-02-01");'))  
-#     datakey = result.keys()
-#     data = result.fetchall()
-#     result.close()
+@app.route('/targetsale/<payerId>')
+def targetsales(payerId):
+    result = db.session.execute(text('CALL GetAchievementDataByPayerId(:payerId, 1, 2024);').params(payerId=payerId))
+    # result = db.session.execute(text('CALL GetAchievementData(1, 2024);'))  
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
 
-#     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-#     return render_template('dailysale.html', dict_list=dict_list)
+    return render_template('targetsale.html', dict_list=dict_list)
 
 
 
@@ -133,10 +143,25 @@ def getOfferCouponTypedata():
     
 
 
+@app.route('/api/targetcoupn', methods=['GET'])
+def totaltarget():
+    try:
+        result=db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))
+        datakey=result.keys()
+        data=result.fetchall()
+        result.close()
+        dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+        # print("ddtat",dict_list)
+        return jsonify({"code": 200, "status": True, "result": dict_list}), 200
+    except Exception as e:
+        return jsonify({"code": 400, "status": False, "error": str(e)}), 400 
+
+
+
 @app.route('/api/getOfferCouponType', methods=['GET'])
 def getOfferCouponType():
     try:
-        result=db.session.execute(text('CALL GetLatestDailysalesWithGradeCodeAndLatestUpdate();'))
+        result=db.session.execute(text('CALL GetTotalAchievementDataByPayerId(1, 2024, "ABH003");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -332,9 +357,6 @@ def employee_payerId():
     data = result.fetchall()
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-    # print("PayerIdDatannnnnnnnnnnn",dict_list)
-    
-    # return jsonify(dict_data)
     return render_template('employeepayerId.html', dict_list=dict_list)
 
 

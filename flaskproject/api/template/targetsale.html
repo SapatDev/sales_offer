@@ -45,15 +45,7 @@
                             <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
                         </div>
 
-                        <!-- <div style="margin-top: 16px;margin-left: 21px;">
-                           
-                                <form method="get" action="/dailysale">
-                                    Start Date: <input type="date" name="start_date">
-                                    End Date: <input type="date" name="end_date">
-                                    <button type="submit">Search</button>
-                                </form>
-                        </div> -->
-                 
+                   
     
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
                             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -72,11 +64,10 @@
                                 <thead>
                                     <tr>
                                        
-                                        <th>PayerId</th>
-                                        <th>Stokist_name</th>
-                                        <th>Month_tgt</th>
+                                        <th>Gradecode</th>
+                                        <th>Targetsale</th>
                                         <th>Monthsale</th>
-                                        <th>TgtGap</th>
+                                        <th>TGTGap</th>
                                         <th>Achive%</th>
                                        
                                         
@@ -90,14 +81,12 @@
 
                                     <tr>
                                         
-                                        <!-- <td>{{ item['payerId'] }}</td> -->
-                                        <td><a href="{{ url_for('targetsales', payerId=item['payerId']) }}">{{ item['payerId'] }}</a></td>
-                                        <!-- <td><a href="/targetsale?payerId={{ item['payerId'] }}" class="offer-link">{{ item['payerId'] }}</a></td> -->
-                                        <td>{{ item['stokist_name'] }}</td>
-                                        <td>{{ (item['Sum_of_Total_Target_Sale']|float)|int }}</td>
-                                        <td>{{ (item['Sum_of_Total_Month_Sale']|float)|int}}</td>
-                                        <td>{{ (item['Sum_of_Total_Target_Gap']|float)|int}}</td>
-                                        <td>{{ '%.1f'|format(item['Achievement_Percentage']) }}%</td>
+                                        <td>{{ item['gradecode'] }}</td>
+                                        <td>{{ (item['Total_Target_Sale']|float)|int }}</td>
+                                        <td>{{ (item['Total_Month_Sale']|float)|int }}</td>
+                                        <td>{{ (item['Target_Gap']|float)|int}}</td>
+                                        <!-- <td>{{ item['Sum_of_Total_Target_Gap']}}</td> -->
+                                        <td>{{ '%.1f'|format(item['Achievement_Percentage'])}}%</td>
                                         
                                        
                                       
