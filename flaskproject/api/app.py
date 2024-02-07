@@ -1,6 +1,6 @@
 from config import *
 from view import *
-from decode import *
+# from decode import *
 from encryt import *
 from encodeurls import *
 from excelfile import *
