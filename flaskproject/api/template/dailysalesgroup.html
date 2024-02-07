@@ -45,7 +45,21 @@
                             <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
                         </div>
 
-          
+
+                        <div style="margin-top: 16px;margin-left: 21px;">
+                           
+                         
+                        </div>
+
+                        <!-- <div style="margin-top: 16px;margin-left: 21px;">
+                           
+                                <form method="get" action="/dailysale">
+                                    Start Date: <input type="date" name="start_date">
+                                    End Date: <input type="date" name="end_date">
+                                    <button type="submit">Search</button>
+                                </form>
+                        </div> -->
+                 
     
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
                             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -59,60 +73,33 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body table-responsive">
-                            <table id="datatablesSimple" class="display">
-                                <thead>
-                                    <tr>
-                                       
-                                        <th>Gradecode</th>
-                                        <th>Salesgroup</th>
-                                        <th>Targetsale</th>
-                                        <th>Monthsale</th>
-                                        <th>LYsales</th>
-                                        <th>TGTGap</th>
-                                        <th>Achive%</th>
-                                       
-                                        
-                                 
-                                    
-                                    </tr>
-                                </thead>
-                
-                                <tbody>
-                                    {% for item in dict_list %}
 
-                                    <tr>
-                                        
-                                        <td>{{ item['gradecode'] }}</td>
-                                        <td>{{ item['salesgroup']}}</td>
-                                        <td>{{ (item['Total Target Sale']|float)|int }}</td>
-                                        <td>{{ (item['Total Month Sale']|float)|int }}</td>
-                                        <td>{{ (item['LY_Sales']|float)|int }}</td>
-                                        <td>{{ (item['Target Gap']|float)|int}}</td>
-                                        <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td>
-                                        
-                                       
-                                      
-                                        
-                                        
-                                    </tr>
-                                {% endfor %}
 
-                                <tr>
-                                    <td>Total:</td>
-                                    <td></td>
-                                    <td>{{ total_tgt_sale|int }}</td>
-                                    <td>{{ total_month_sale|int }}</td>
-                                    <td>{{ LY_Sales|int }}</td>
-                                    <td>{{ total_tgt_gap|int }}</td>
-                                    <td>{{ '%.2f'|format(average_achievement_percentage) }}%</td>
-                                </tr>
-                         
-                                </tbody>
-                            </table>
+                        <div class="row mx-2 mt-4">
+                            {% for item in dict_list %}
+                            <div class="card bg-white text-black mb-4" style="width: 270px; height: 115px; ">
+                                <div class="card-body">
+                                    <h5 style="font-size: 20px; ">Salesgroup</h5>
+                                    <div>
+                                        <p style="margin: 5px;" >
+                                            <a href="{{ url_for('dailysales', salesgroup=item['salesgroup']) }}">{{item['salesgroup']}}</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                    </div>
 
-                       
-                        </div>
+         
+
+                   
+
+
+
+
+
+
+
                         
                        
                     </div>

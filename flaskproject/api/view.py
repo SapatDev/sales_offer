@@ -82,28 +82,62 @@ def sales():
 
 
 ################# try realted
-@app.route('/dailysale')
-def dailysales():
-    payerId = request.args.get('payerId')
+@app.route('/dailysalesgroup')
+def dailysalesgroup():
+    # payer_id = request.args.get('payerId')
+    result = db.session.execute(text(f"CALL GetDistinctSalesgroup();"))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    return render_template('dailysalesgroup.html',dict_list=dict_list)
+    
 
-    if payerId:
-        result = db.session.execute(text('CALL GetTotalAchievementDataByPayerId(1, 2024, :payerId);').params(payerId=payerId))
-    else:
-      
-        result = db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))
+
+@app.route('/dailysale/<salesgroup>')
+def dailysales(salesgroup):
+   
+    month = request.args.get('month')
+    year = request.args.get('year')
 
     
+    if month and year :
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup,month=month,year=year))
+    else:
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup, month=datetime.now().month, year=datetime.now().year))
+        
+        
     # result = db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))   # GetLatestDailysalesWithGradeCodeAndLatestUpdate()
     datakey = result.keys()
     data = result.fetchall()
     result.close()
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    return render_template('dailysale.html',dict_list=dict_list)
+    total_tgt_sale = sum(item['Sum_of_Total_Target_Sale'] for item in dict_list)
+    total_month_sale = sum(item['Sum_of_Total_Month_Sale'] for item in dict_list)
+    total_tgt_gap = sum(item['Sum_of_Total_Target_Gap'] for item in dict_list)
+    Sum_of_LY_Sales = sum(item['Sum_of_LY_Sales'] for item in dict_list)
+    
+    average_achievement_percentage = sum(item['Achievement_Percentage'] for item in dict_list) / len(dict_list) if dict_list else 0
+
+    # Pass the totals to the template
+    return render_template('dailysale.html', dict_list=dict_list, 
+                        total_tgt_sale=total_tgt_sale, 
+                        total_month_sale=total_month_sale,
+                        total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
+                        average_achievement_percentage=average_achievement_percentage)
+
+
 
 @app.route('/targetsale/<payerId>')
 def targetsales(payerId):
-    result = db.session.execute(text('CALL GetAchievementDataByPayerId(:payerId, 1, 2024);').params(payerId=payerId))
+    month = request.args.get('month')
+    year = request.args.get('year')
+    
+    # print(month, year)
+  
+    # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(2, 2024,:payerId);').params(payerId=payerId))
+    result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
     # result = db.session.execute(text('CALL GetAchievementData(1, 2024);'))  
     datakey = result.keys()
     data = result.fetchall()
@@ -111,9 +145,20 @@ def targetsales(payerId):
 
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    return render_template('targetsale.html', dict_list=dict_list)
+    total_tgt_sale = sum(item['Total Target Sale'] for item in dict_list)
+    total_month_sale = sum(item['Total Month Sale'] for item in dict_list)
+    total_tgt_gap = sum(item['Target Gap'] for item in dict_list)
+    LY_Sales = sum(item['LY_Sales'] for item in dict_list)
+    # average_achievement_percentage = sum(item['Achievement Percentage'] for item in dict_list) 
+    average_achievement_percentage = sum(item['Achievement Percentage'] for item in dict_list) 
 
 
+    # Pass the totals to the template
+    return render_template('targetsale.html', dict_list=dict_list, 
+                        total_tgt_sale=total_tgt_sale, 
+                        total_month_sale=total_month_sale,
+                        total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
+                        average_achievement_percentage=average_achievement_percentage)
 
 
 
@@ -131,6 +176,18 @@ def GetSalesDataPerYearPerMonthUsingParameter():
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400
 
 ###################################### GetOfferCouponType
+    
+@app.route('/google')
+def google():
+    # result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("20-01-2023");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+  
+    return render_template('googlemap.html')
+
+
 @app.route('/getOfferCouponType')
 def getOfferCouponTypedata():
     result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("20-01-2023");'))
@@ -143,10 +200,10 @@ def getOfferCouponTypedata():
     
 
 
-@app.route('/api/targetcoupn', methods=['GET'])
+@app.route('/api/targetcoupn', methods=['GET'])  #GetTotalAchievementData(1, 2024)
 def totaltarget():
     try:
-        result=db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))
+        result=db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 2024, "Khandesh - 1");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -161,7 +218,7 @@ def totaltarget():
 @app.route('/api/getOfferCouponType', methods=['GET'])
 def getOfferCouponType():
     try:
-        result=db.session.execute(text('CALL GetTotalAchievementDataByPayerId(1, 2024, "ABH003");'))
+        result=db.session.execute(text('CALL GetAchievementDataByPayerIdUpdated(1, 2024, "ABH003");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -212,7 +269,7 @@ def OfferDetailsdisplay():
     counts = []
     offer_ids = ['SSC2', 'SPD1', 'MO', 'WSO', 'EKS2', 'NYD']
     counts = [get_offer_count(offer_id) for offer_id in offer_ids]
-    print("Sscounts",counts)
+    # print("Sscounts",counts)
 
     # # Fetch counts for different offers and append to the counts list
     # if offer_id == 'SSC2':
@@ -722,15 +779,13 @@ def PayerId(payer,pkey):
 
             df = pd.DataFrame(dict_list)
             df2=pd.DataFrame(dict_list_type)
-            # idtype=df['id'].unique()
-            # print("iddd",idtype)
+           
 
             if 'outletId' in df.columns:
                 outletId = df['outletId'].unique()
             else:
                 outletId = []
-            # print("outletIdssssss",outletId)
-            # payerId = df['payerId'].unique()
+           
             scheme_count=df['scheme_count']
             unique_type = df2['type_Id'].unique()
             unique_beatname=df['beatname']
@@ -747,8 +802,7 @@ def PayerId(payer,pkey):
             for index, row in df.iterrows():
                 result_df.loc[row['outletId'], row['coupon_type']] = row['scheme_count']
 
-            # print("----", result_df.to_dict())
-
+           
             # Convert the DataFrame to HTML table
             html_table = result_df.to_html()
             
