@@ -3,9 +3,9 @@ from view import *
 # from decode import *
 from encryt import *
 from encodeurls import *
-from excelfile import *
-from datafile import *
-from json_data import *
+# from excelfile import *
+# from datafile import *
+# from json_data import *
 # from flask import Flask ,request, jsonify
 # # from flask_mysqldb import MySQL
 # # import mysql.connector
