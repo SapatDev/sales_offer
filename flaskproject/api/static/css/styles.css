@@ -11834,6 +11834,16 @@ table {
     font-weight: 600;
 }
 tr:nth-child(even) {background-color: #f1f1f1;}
-tr:hover {background-color: #d9faff;
+tr:hover {background-color: #000000;
           cursor: pointer;
+          color: #ffffff;
+}
+a{
+  color: #00be82;
+}
+a:hover{
+  font-weight: 600;
+}
+input[type="search"] {
+  border-radius: 5px;
 }

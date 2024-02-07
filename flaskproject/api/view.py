@@ -41,21 +41,15 @@ def sales():
 
         except BadRequestKeyError:
             selected_date = "2023-12"
+        if  selected_date is not None:
+            
 
-        if selected_date is not None:
         # Parse the selected date string into a datetime object
             selected_datetime = datetime.strptime(selected_date, '%Y-%m')
-
+    
             # Extract month and year
             selected_month = selected_datetime.month
             selected_year = selected_datetime.year
-
-            # Check if both month and year are not empty strings
-            if selected_month and selected_year:
-                query = text('CALL GetSalesDataPerYearPerMonthUsingParameter(:month, :year);')
-                result = db.session.execute(query, {'month': selected_month, 'year': selected_year})
-            else:
-                return "Please select both month and year"
 
         else:
             # Default query for initial page load
