@@ -104,10 +104,11 @@ def dailysales(salesgroup):
     if month and year :
         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup,month=month,year=year))
     else:
+        # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup, month=datetime.now().month, year=datetime.now().year))
         
         
-    # result = db.session.execute(text('CALL GetTotalAchievementData(1, 2024);'))   # GetLatestDailysalesWithGradeCodeAndLatestUpdate()
+    
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -218,7 +219,7 @@ def totaltarget():
 @app.route('/api/getOfferCouponType', methods=['GET'])
 def getOfferCouponType():
     try:
-        result=db.session.execute(text('CALL GetAchievementDataByPayerIdUpdated(1, 2024, "ABH003");'))
+        result=db.session.execute(text('CALL GetAchievementDataByPayerIdNew(12, 2023, "ABH003");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
