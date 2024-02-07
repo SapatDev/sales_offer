@@ -11834,4 +11834,6 @@ table {
     font-weight: 600;
 }
 tr:nth-child(even) {background-color: #f1f1f1;}
-tr:hover {background-color: #c8c8c8;}
+tr:hover {background-color: #d9faff;
+          cursor: pointer;
+}
