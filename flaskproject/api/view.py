@@ -248,7 +248,7 @@ def get_offer_count(offer_id):
     result.close()
     return count
 
-@app.route('/')
+@app.route('/saleoffer')
 def OfferDetailsdisplay():
 
     offer_id = request.args.get('offer_id', type=str)
