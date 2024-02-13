@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="main-panel">
+  <div class="content-wrapper">
+
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Employee payerIddata</h4>
+
+          <div style="margin-top: 0px;margin-left: 21px;">
+            <form action="/dailysale/{{ salesgroup }}" method="get">
+                <label style="font-size: 17px; font-weight: 500;" for="month">Month:</label>
+                <input style="padding: 5px; border-radius: 4px;" type="text" id="month" name="month" placeholder="enter the month" >
+            
+                <label style="padding-left: 15px;font-size: 17px; font-weight: 500;" for="year">Year:</label>
+                <input style="padding: 5px; border-radius: 4px;" type="text" id="year" name="year" placeholder="enter the year" >
+            
+                <button class="button-62" type="submit">Search</button>
+            </form>
+        </div>
+      
+                     
+          <div class="table-responsive pt-3">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                     
+                      <th>PayerId</th>
+                      <th>Salesgroup</th>
+                      <th>Stokistname</th>
+                      <th>Monthtgt</th>
+                      <th>Monthsale</th>
+                      <th>Tgtgap</th>
+                      <th>Lysales</th>
+                      <th>Achive%</th>
+                      <th>Progress</th>
+                     
+                      
+               
+                  
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for item in dict_list %}
+
+                  <tr>
+                      
+                      <!-- <td>{{ item['payerId'] }}</td> -->
+                      <td><a href="{{ url_for('targetsales', payerId=item['payerId'], month=month, year=year, _external=True) }}">{{ item['payerId'] }}</a></td>
+
+                      <!-- <td><a href="{{ url_for('targetsales', payerId=item['payerId'],month=month, year=year) }}">{{ item['payerId'] }}</a></td> -->
+                      <td>{{item['salesgroup']}}</td>
+                      <td>{{ item['stokist_name'] }}</td>
+                      <td>{{ (item['Sum_of_Total_Target_Sale']|float)|int }}</td>
+                      <td>{{ (item['Sum_of_Total_Month_Sale']|float)|int}}</td>
+                      <td>{{ (item['Sum_of_Total_Target_Gap']|float)|int}}</td>
+                      <td>{{(item['Sum_of_LY_Sales']|float)|int}}</td>
+                      <td>{{ '%.1f'|format(item['Achievement_Percentage']) }}%</td>
+                      <td>
+                        <div class="progress">
+                            <div class="progress-bar {% if item['Sum_of_LY_Sales'] >= 150 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Sum_of_LY_Sales'] }}%;" aria-valuenow="{{ item['Sum_of_LY_Sales'] }}" aria-valuemin="0" aria-valuemax="100">
+                               
+                            </div>
+                        </div>
+                    </td>
+
+                   
+                      
+                     
+                    
+                      
+                      
+                  </tr>
+              {% endfor %}
+              <tr>
+                  <td>Total:</td>
+                <td></td>
+                  <td></td> <!-- This might be empty for PayerId, or you can put something like "Grand Total" -->
+                  <td>{{ total_tgt_sale|int }}</td>
+                  <td>{{ total_month_sale|int }}</td>
+                  <td>{{ total_tgt_gap|int }}</td>
+                  <td>{{ Sum_of_LY_Sales|int}}</td>
+                  <td>{{ '%.1f'|format(average_achievement_percentage) }}%</td>
+              </tr>
+       
+              </tbody>
+              </table>
+          </div>
+
+
+
+
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+    
+  </div>
+ 
+</div>
+{% endblock %}

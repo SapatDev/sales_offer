@@ -32,6 +32,34 @@ from werkzeug.exceptions import BadRequestKeyError
 
 ###################################### Sales data 
 
+
+@app.route('/employee_payerId1')
+def employee_payerId1():
+    result = db.session.execute(text('CALL GetEmployeeData();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    return render_template('index.html', dict_list=dict_list)
+# @app.route('/index')
+# def newedmpoffer():
+
+#         return render_template('index.html')
+
+@app.route('/empdaa')
+def newempoffer():
+        result = db.session.execute(text('CALL GetEmployeeData();'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        return render_template('empmain.html',dict_list=dict_list) 
+
+
+
+
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
     global selected_date
@@ -75,7 +103,62 @@ def sales():
         return render_template('sales.html', dict_list=dict_list)
 
 
-################# try realted
+
+########### Closing stock #######################
+@app.route('/closingstockpayerid')
+def closingstockpayerid():
+    # payer_id = request.args.get('payerId')
+    result = db.session.execute(text(f"CALL GetDistinctPayersWithStokistName();"))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    return render_template('closingstockpayer.html',dict_list=dict_list)
+
+@app.route('/closingstockgrade/<payerId>')
+def closingstockgrade(payerId):
+
+    date = request.args.get('date') 
+  
+    if date:
+        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(payerId=payerId, date=date))
+    else:
+        # If date is not provided, use today's date
+        today_date = "2024-01-31"
+        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(payerId=payerId, date=today_date))
+   
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+
+    if date:
+        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParams(:payerId, :date);').params(payerId=payerId, date=date))
+    else:
+        # If date is not provided, use today's date
+        today_date = "2024-01-31"
+        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParams(:payerId, :date);').params(payerId=payerId, date=today_date))
+   
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    total_Opening = sum(item['Opening'] for item in dict_list)
+    total_Primary_Stock = sum(item['Primary_Stock'] for item in dict_list)
+    total_Closing = sum(item['Closing'] for item in dict_list)
+    total_Secondary = sum(item['Secondary'] for item in dict_list)
+
+
+    return render_template('closingstockgrade.html',total_Opening=total_Opening,total_Primary_Stock=total_Primary_Stock,total_Closing=total_Closing,total_Secondary=total_Secondary, dict_list=dict_list,date=date,payerId=payerId,dict_list1=dict_list1)
+
+
+
+
+#################  Daily saledata
 @app.route('/dailysalesgroup')
 def dailysalesgroup():
     # payer_id = request.args.get('payerId')
@@ -85,6 +168,43 @@ def dailysalesgroup():
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
     return render_template('dailysalesgroup.html',dict_list=dict_list)
+
+
+@app.route('/dailysalesdata')
+def dailysalesgroupdata():
+  
+    month = request.args.get('month')
+    year = request.args.get('year')
+
+    
+    if month and year :
+        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:month, :year);').params(month=month,year=year))
+    else:
+        # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
+        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:month, :year);').params( month=datetime.now().month, year=datetime.now().year))
+  
+    # if date:
+    #     result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:date);').params(date=date))
+    # else:
+    #     # If date is not provided, use today's date
+    #     today_date = "02-2024"
+    #     result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:date);').params(date=today_date))
+        
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list1  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+
+
+    result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount();"))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    
+    return render_template('dailysaledata.html',dict_list=dict_list,month=month,year=year,dict_list1=dict_list1)
+
     
 
 
@@ -116,11 +236,16 @@ def dailysales(salesgroup):
     average_achievement_percentage = sum(item['Achievement_Percentage'] for item in dict_list) / len(dict_list) if dict_list else 0
 
     # Pass the totals to the template
-    return render_template('dailysale.html', dict_list=dict_list, 
+    # return render_template('dailysale.html', dict_list=dict_list, 
+    #                     total_tgt_sale=total_tgt_sale, 
+    #                     total_month_sale=total_month_sale,
+    #                     total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
+    #                     average_achievement_percentage=average_achievement_percentage)
+    return render_template('dailypayerid.html', dict_list=dict_list, 
                         total_tgt_sale=total_tgt_sale, 
                         total_month_sale=total_month_sale,
                         total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
-                        average_achievement_percentage=average_achievement_percentage)
+                        average_achievement_percentage=average_achievement_percentage)          
 
 
 
@@ -149,12 +274,17 @@ def targetsales(payerId):
 
 
     # Pass the totals to the template
-    return render_template('targetsale.html', dict_list=dict_list, 
-                        total_tgt_sale=total_tgt_sale, 
-                        total_month_sale=total_month_sale,
-                        total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
-                        average_achievement_percentage=average_achievement_percentage)
+    # return render_template('targetsale.html', dict_list=dict_list, 
+    #                     total_tgt_sale=total_tgt_sale, 
+    #                     total_month_sale=total_month_sale,
+    #                     total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
+    #                     average_achievement_percentage=average_achievement_percentage)
 
+    return render_template('dailyoutletid.html', dict_list=dict_list, 
+                            total_tgt_sale=total_tgt_sale, 
+                            total_month_sale=total_month_sale,
+                            total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
+                            average_achievement_percentage=average_achievement_percentage)
 
 
 @app.route('/api/GetSalesDataPerYearPerMonthUsingParameter', methods=['GET'])
@@ -222,6 +352,17 @@ def getOfferCouponType():
         return jsonify({"code": 200, "status": True, "result": dict_list}), 200
     except Exception as e:
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400 
+    
+################################ Dashboard 
+@app.route('/')
+def Dashboard():
+    # result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("20-01-2023");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+  
+    return render_template('dashboard.html')
 
 #################################### OfferDetails 
 def get_offer_count(offer_id):
@@ -306,7 +447,8 @@ def OfferDetailsdisplay():
     #     counts.append(count)
     #     print("ncountsnnnnnn",counts)
 
-    return render_template('offerdetails.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
+    # return render_template('offerdetails.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
+    return render_template('offerscheme.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
 
     
 
@@ -383,7 +525,8 @@ def employeename():
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-        return render_template('employee_name.html',dict_list=dict_list)
+        # return render_template('employee_name.html',dict_list=dict_list)
+        return render_template('empmain.html',dict_list=dict_list)
 
 
 @app.route('/employee_info')
@@ -409,7 +552,8 @@ def employee_payerId():
     data = result.fetchall()
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-    return render_template('employeepayerId.html', dict_list=dict_list)
+    # return render_template('employeepayerId.html', dict_list=dict_list)
+    return render_template('emp_payerid.html', dict_list=dict_list)
 
 
 @app.route('/api/emp', methods=['GET'])
@@ -577,7 +721,8 @@ def SSC2(offerID,pkey):
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
 
 
-            return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+            # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+            return render_template('salegroupdata.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
         else:
             salesgroups = df['salesgroup'].unique()
             unique_type_ids = df2['type_Id'].unique()
@@ -634,7 +779,8 @@ def SSC2(offerID,pkey):
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
 
             # Render the template without the HTML table
-            return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
+            # return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
+            return render_template('salegroupdata.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -716,7 +862,8 @@ def salesgroup(salesgroup,pkey):
         html_table = result_df.to_html()
         
        
-        return render_template('newsweetsummer.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+        # return render_template('newsweetsummer.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+        return render_template('salegrouppayerid.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
 
 ########################################## click on payerID releted data
 @app.route('/offer_payer/<payer>/<int:pkey>')
@@ -802,10 +949,14 @@ def PayerId(payer,pkey):
             html_table = result_df.to_html()
             
         
-            return render_template('payerdata.html',unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+        #     return render_template('payerdata.html',unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+        # except KeyError as e:
+        #                 error_message = f"KeyError: {str(e)} occurred."
+        #                 return render_template('payerdata.html', error_message=error_message)
+            return render_template('salegroupoutlet.html',unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
         except KeyError as e:
                         error_message = f"KeyError: {str(e)} occurred."
-                        return render_template('payerdata.html', error_message=error_message)
+                        return render_template('salegroupoutlet.html', error_message=error_message)
 
 
 
@@ -833,8 +984,10 @@ def saledata(page=1):
 ######################### menulist
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
-    try:
-        result = db.session.execute(text(f"CALL GetEkSeBadhkarEkDistinctOutletCount()"))
+    try: 
+        # result = db.session.execute(text(f"CALL  GetStockSummaryByGradeWithParams('ABH003', '2024-01-31')"))
+        result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
+        # result = db.session.execute(text(f"CALL GetDistinctPayersWithStokistName()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
         # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))
