@@ -126,11 +126,18 @@
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Grade Summary</h4>
+
+              <div style="display: flex;align-items: center;gap: 5px;">
+                <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
+            </div>
+
+
+
               <p class="card-description">
                 Add class <code>.table-striped</code>
               </p>
               <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped" id="datatablesSimple">
                   <thead>
                     <tr>
                       
@@ -172,8 +179,13 @@
 
 
              <h4 class="card-title">Stock Summary</h4>
+
+             <div style="display: flex;align-items: center;gap: 5px;">
+              <button class="button-62" role="button"  onclick="tableToExcel2()">Download as Excel</button>
+          </div>
+
             <div class="table-responsive pt-3">
-              <table class="table table-striped">
+              <table class="table table-striped" id="datatablesSimple1">
                 <thead>
                     <tr>
                       
@@ -240,6 +252,45 @@
 <script>
       document.getElementById("offerName").innerText = localStorage.getItem("offername")
 </script>
+
+<script>
+
+  function tableToExcel() {
+          const table = document.getElementById('datatablesSimple');
+          const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+          const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+  
+          function s2ab(s) {
+              const buf = new ArrayBuffer(s.length);
+              const view = new Uint8Array(buf);
+              for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+              return buf;
+          }
+          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+      }
+  
+    
+    </script>
+
+
+<script>
+
+  function tableToExcel2() {
+          const table = document.getElementById('datatablesSimple1');
+          const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+          const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+  
+          function s2ab(s) {
+              const buf = new ArrayBuffer(s.length);
+              const view = new Uint8Array(buf);
+              for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+              return buf;
+          }
+          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+      }
+  
+    
+    </script>
 
 
 {% endblock %}

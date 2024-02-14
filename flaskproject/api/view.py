@@ -356,13 +356,47 @@ def getOfferCouponType():
 ################################ Dashboard 
 @app.route('/')
 def Dashboard():
-    # result = db.session.execute(text('CALL GetLatestDailysalesUsingDate("20-01-2023");'))
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-  
-    return render_template('dashboard.html')
+   
+    result = db.session.execute(text('CALL GetStockSummaryForAllPayersAndLatestDateByGradeCode();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    
+    labels = [item['gradecode'] for item in dict_list]
+    # closing_values = [int(item['Closing'] for item in dict_list)]
+    # print("closing_values",closing_values)
+    # opening_values = [item['Opening'] for item in dict_list]
+    # primary_stock_values = [item['Primary_Stock'] for item in dict_list]
+    closing_values = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_list]
+    print("closing_values",closing_values)
+    opening_values = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_list]
+    primary_stock_values = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_list]
+    
+
+
+    # total_closing = sum(value for value in closing_values if value is not None)
+   
+    # Calculate the total of Closing, Opening, and Primary_Stock values, handling None values and removing decimal points
+    total_closing = int(sum(value for value in closing_values if value is not None))
+   
+    total_opening = int(sum(value for value in opening_values if value is not None))
+    total_primary_stock = int(sum(value for value in primary_stock_values if value is not None))
+ 
+
+
+    # Pass all data to the template
+    return render_template('dashboard.html',labels=labels, closing_values=closing_values,
+                           opening_values=opening_values, primary_stock_values=primary_stock_values,
+                           total_closing=total_closing, total_opening=total_opening,
+                           total_primary_stock=total_primary_stock)
+    
+
+    # return render_template('dashboard.html', labels=labels, closing_values=closing_values,
+    #                        opening_values=opening_values, primary_stock_values=primary_stock_values)
+   
+    # return render_template('dashboard.html',dict_list=dict_list)
 
 #################################### OfferDetails 
 def get_offer_count(offer_id):
@@ -986,8 +1020,8 @@ def saledata(page=1):
 def menulist():
     try: 
         # result = db.session.execute(text(f"CALL  GetStockSummaryByGradeWithParams('ABH003', '2024-01-31')"))
-        result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
-        # result = db.session.execute(text(f"CALL GetDistinctPayersWithStokistName()"))
+        # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
+        result = db.session.execute(text(f"CALL GetStockSummaryForAllPayersAndLatestDateByGradeCode()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
         # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))

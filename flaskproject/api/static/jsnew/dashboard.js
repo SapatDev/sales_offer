@@ -2,9 +2,9 @@
   'use strict';
   $(function() {
     // Remove pro banner on close
-    document.querySelector('#bannerClose').addEventListener('click',function() {
-      document.querySelector('#proBanner').classList.add('d-none');
-    });
+    // document.querySelector('#bannerClose').addEventListener('click',function() {
+    //   document.querySelector('#proBanner').classList.add('d-none');
+    // });
     if ($('#circleProgress6').length) {
       var bar = new ProgressBar.Circle(circleProgress6, {
         color: '#001737',
@@ -176,93 +176,93 @@
     });
   }
 
-  var salesanalyticData = {
-    labels: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
-    datasets: [{
-            label: 'Critical',
-            data: [24, 23, 22, 24, 26, 23, 28],
-            borderColor: [
-                '#3022cb'
-            ],
-            borderWidth: 3,
-            fill: false,
-        },
-        {
-            label: 'Warning',
-            data: [26, 27, 26, 22, 25, 26, 24],
-            borderColor: [
-                '#ff8300',
-            ],
-            borderWidth: 3,
-            fill: false,
-        },
-        {
-            label: 'Error',
-            data: [25, 28, 24, 28, 29, 27, 25],
-            borderColor: [
-                '#f2125e',
-            ],
-            borderWidth: 3,
-            fill: false,
-        }
-    ],
-  };
-  var salesanalyticOptions = {
-      scales: {
-          yAxes: [{
-              display: true,
-              gridLines: {
-                drawBorder: false,
-                display: true,
-            },
-              ticks: {
-                display: false,
-                beginAtZero: false,
-                stepSize: 5
-              }
-          }],
-          xAxes: [{
-            display: true,
-              position: 'bottom',
-              gridLines: {
-                  drawBorder: false,
-                  display: false,
-              },
-              ticks: {
-                display: true,
-                beginAtZero: true,
-                stepSize: 5
-              }
-          }],
+  // var salesanalyticData = {
+  //   labels: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
+  //   datasets: [{
+  //           label: 'Critical',
+  //           data: [24, 23, 22, 24, 26, 23, 28],
+  //           borderColor: [
+  //               '#3022cb'
+  //           ],
+  //           borderWidth: 3,
+  //           fill: false,
+  //       },
+  //       {
+  //           label: 'Warning',
+  //           data: [26, 27, 26, 22, 25, 26, 24],
+  //           borderColor: [
+  //               '#ff8300',
+  //           ],
+  //           borderWidth: 3,
+  //           fill: false,
+  //       },
+  //       {
+  //           label: 'Error',
+  //           data: [25, 28, 24, 28, 29, 27, 25],
+  //           borderColor: [
+  //               '#f2125e',
+  //           ],
+  //           borderWidth: 3,
+  //           fill: false,
+  //       }
+  //   ],
+  // };
+  // var salesanalyticOptions = {
+  //     scales: {
+  //         yAxes: [{
+  //             display: true,
+  //             gridLines: {
+  //               drawBorder: false,
+  //               display: true,
+  //           },
+  //             ticks: {
+  //               display: false,
+  //               beginAtZero: false,
+  //               stepSize: 5
+  //             }
+  //         }],
+  //         xAxes: [{
+  //           display: true,
+  //             position: 'bottom',
+  //             gridLines: {
+  //                 drawBorder: false,
+  //                 display: false,
+  //             },
+  //             ticks: {
+  //               display: true,
+  //               beginAtZero: true,
+  //               stepSize: 5
+  //             }
+  //         }],
 
-      },
-      legend: {
-          display: false,
-          labels: {
-            boxWidth: 0,
-          }
-      },
-      elements: {
-          point: {
-              radius: 0
-          },
-          line: {
-            tension: .4,
-        },
-      },
-      tooltips: {
-          backgroundColor: 'rgba(2, 171, 254, 1)',
-      }
-  };
+  //     },
+  //     legend: {
+  //         display: false,
+  //         labels: {
+  //           boxWidth: 0,
+  //         }
+  //     },
+  //     elements: {
+  //         point: {
+  //             radius: 0
+  //         },
+  //         line: {
+  //           tension: .4,
+  //       },
+  //     },
+  //     tooltips: {
+  //         backgroundColor: 'rgba(2, 171, 254, 1)',
+  //     }
+  // };
   
-  if ($("#salesanalyticChart").length) {
-    var lineChartCanvas = $("#salesanalyticChart").get(0).getContext("2d");
-    var saleschart = new Chart(lineChartCanvas, {
-        type: 'line',
-        data: salesanalyticData,
-        options: salesanalyticOptions
-    });
-  }
+  // if ($("#salesanalyticChart").length) {
+  //   var lineChartCanvas = $("#salesanalyticChart").get(0).getContext("2d");
+  //   var saleschart = new Chart(lineChartCanvas, {
+  //       type: 'line',
+  //       data: salesanalyticData,
+  //       options: salesanalyticOptions
+  //   });
+  // }
   var barChartStackedData = {
     labels: ["jan", "feb", "mar", "apr", "may", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [{

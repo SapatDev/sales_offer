@@ -56,6 +56,9 @@
                                 <button class="button-62" type="submit">Search</button>
                             </form>
                         </div>
+
+                    
+
                  
     
                         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
@@ -156,7 +159,13 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
-    <script>
+   
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2/dist/FileSaver.min.js"></script>
+
+
+<script>
+
 function tableToExcel() {
         const table = document.getElementById('datatablesSimple');
         const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
@@ -172,9 +181,10 @@ function tableToExcel() {
         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'table_data.xlsx');
     }
 
-        </script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2/dist/FileSaver.min.js"></script>
+    //  this change heading name realeted
+    document.getElementById("offerName").innerText = localStorage.getItem("offername")
+
+</script>
 
 
 </body>
