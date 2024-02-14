@@ -23,6 +23,7 @@
                         <th>PayerId</th>
                         <th>Salesgroup</th>
                         <th>Stoklist</th>
+                        <th>Progress</th>
                         {% for type_id in unique_type_ids %}
                         <th>{{ type_id }}</th>
                         {% endfor %}
@@ -38,16 +39,27 @@
                     {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
                     {% endfor %}
 
-                    {% for payer in payerId %}
+                    {% for payer ,progress_value in payerid_data.items() %}
                     <tr>
-                        <td><a href="/offer_payer/{{ payer }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{
-                                payer }}</a></td>
+                        <td><a href="/offer_payer/{{ payer }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{payer }}</a></td>
                         <td>{{ salesgroups[0] }}</td>
                         <td>
                             {% set stokist_name = dict_list|selectattr('payerId', 'eq',
                             payer)|map(attribute='stokist_name')|list|first %}
                             {{ stokist_name if stokist_name is defined else '' }}
                             <!-- {{stokist_name_Id[0]}} -->
+                        </td>
+
+
+                        <td>
+                          <div class="progress">
+                            {% set max_progress_value = 100 %}
+                            {% set percentage = (progress_value / max_progress_value) * 100 %}
+                            {% if percentage > 100 %}
+                              {% set percentage = 100 %}
+                            {% endif %}
+                            <div class="progress-bar {% if progress_value > 50 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="{{ max_progress_value }}"></div>
+                          </div>
                         </td>
 
                         {% set scheme_counts = {} %}

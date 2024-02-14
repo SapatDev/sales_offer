@@ -383,6 +383,12 @@ def Dashboard():
    
     total_opening = int(sum(value for value in opening_values if value is not None))
     total_primary_stock = int(sum(value for value in primary_stock_values if value is not None))
+
+    result = db.session.execute(text('CALL OfferDetails();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
  
 
 
@@ -390,7 +396,7 @@ def Dashboard():
     return render_template('dashboard.html',labels=labels, closing_values=closing_values,
                            opening_values=opening_values, primary_stock_values=primary_stock_values,
                            total_closing=total_closing, total_opening=total_opening,
-                           total_primary_stock=total_primary_stock)
+                           total_primary_stock=total_primary_stock,dict_list1=dict_list1)
     
 
     # return render_template('dashboard.html', labels=labels, closing_values=closing_values,
@@ -753,7 +759,10 @@ def SSC2(offerID,pkey):
             for salesgroup in salesgroups:
                 sales_data = result_df.loc[salesgroup].dropna()
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
+                # print(sales_group_data[salesgroup])
+                # print("SS",sales_group_data)
 
+            
 
             # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
             return render_template('salegroupdata.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
@@ -811,10 +820,15 @@ def SSC2(offerID,pkey):
             for salesgroup in salesgroups:
                 sales_data = result_df.loc[salesgroup].dropna()
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
+                # print(sales_group_data[salesgroup])
+                # print("SSwww",sales_group_data)
+
+
+           
 
             # Render the template without the HTML table
             # return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
-            return render_template('salegroupdata.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
+            return render_template('salegroupdata.html',sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -894,10 +908,17 @@ def salesgroup(salesgroup,pkey):
 
         # Convert the DataFrame to HTML table
         html_table = result_df.to_html()
+
+        payerid_data = {}
+
+        for payer in payerId:
+            sales_data = result_df.loc[payer].dropna()
+            payerid_data[payer] = sales_data.unique().sum() 
+            # print("payerid_data",payerid_data)
         
        
         # return render_template('newsweetsummer.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
-        return render_template('salegrouppayerid.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+        return render_template('salegrouppayerid.html',payerid_data=payerid_data,dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
 
 ########################################## click on payerID releted data
 @app.route('/offer_payer/<payer>/<int:pkey>')

@@ -6,7 +6,7 @@
   <div class="content-wrapper">
 
     <div class="row">
-      <div class="col-lg-6 grid-margin stretch-card">
+      <!-- <div class="col-lg-6 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
             <h4 class="card-title">Basic Table</h4>
@@ -281,7 +281,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
 
 
@@ -307,6 +307,7 @@
                     <tr>
                       
                         <th>Salesgroup</th>
+                        <th>Progress</th>
                         
                        
                         {% for item_type in dict_list_type %}
@@ -327,14 +328,24 @@
                     {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
                     {% endfor %}
                   
-                    {% for salesgroup in salesgroups %}
+                    {% for salesgroup, progress_value in sales_group_data.items() %}
                     
                     <tr>
                         
                         
                         <td><a href="/offer_details/{{ salesgroup }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ salesgroup }}</a></td>
                     
-                        
+                    
+                        <td>
+                          <div class="progress">
+                            {% set max_progress_value = 1000 %}
+                            {% set percentage = (progress_value / max_progress_value) * 100 %}
+                            {% if percentage > 100 %}
+                              {% set percentage = 100 %}
+                            {% endif %}
+                            <div class="progress-bar {% if progress_value > 1000 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="{{ max_progress_value }}"></div>
+                          </div>
+                        </td>
                     
                         {% set scheme_counts = {} %}
                         {% for item in dict_list %}
@@ -360,6 +371,7 @@
                     <tr>
                        
                         <td><h6>Grand-Total</h6></td>
+                        <td></td>
                         {% for type_id in unique_type_ids %}
                         <td>{{ coupon_sums[type_id] }}</td>
                         {% endfor %}
@@ -376,7 +388,7 @@
 
     
 
-      <div class="col-lg-12 grid-margin stretch-card">
+      <!-- <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
             <h4 class="card-title">Inverse table</h4>
@@ -505,7 +517,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
   </div>
 </div>
