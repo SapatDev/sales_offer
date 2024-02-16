@@ -195,6 +195,10 @@ def dailysalesgroupdata():
     result.close()
     dict_list1  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
+    total_sale = sum(item['Sale'] for item in dict_list1)
+    total_tgt_sale = sum(item['Target'] for item in dict_list1)
+    
+
 
 
     result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount();"))
@@ -202,8 +206,11 @@ def dailysalesgroupdata():
     data = result.fetchall()
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    total_tgt_emp = sum(item['employee_count'] for item in dict_list)
+    Sum_of_payer = sum(item['payerId_count'] for item in dict_list)
     
-    return render_template('dailysaledata.html',dict_list=dict_list,month=month,year=year,dict_list1=dict_list1)
+    return render_template('dailysaledata.html',Sum_of_payer=Sum_of_payer,total_tgt_emp=total_tgt_emp,total_sale=total_sale,total_tgt_sale=total_tgt_sale,dict_list=dict_list,month=month,year=year,dict_list1=dict_list1)
 
     
 
@@ -211,15 +218,27 @@ def dailysalesgroupdata():
 @app.route('/dailysale/<salesgroup>')
 def dailysales(salesgroup):
    
-    month = request.args.get('month')
-    year = request.args.get('year')
+   
+
+
+    from_month=request.args.get('from_month')
+    from_year=request.args.get('from_year')
+    end_month = request.args.get('end_month')
+    end_year = request.args.get('end_year')
+
+    if from_month and from_year and end_month and end_year:
+       
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNew(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
+    else:
+         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNew(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
+       
 
     
-    if month and year :
-        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup,month=month,year=year))
-    else:
-        # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
-        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup, month=datetime.now().month, year=datetime.now().year))
+    # if month and year :
+    #     result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup,month=month,year=year))
+    # else:
+    #     # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
+    #     result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup, month=datetime.now().month, year=datetime.now().year))
         
         
     
@@ -244,7 +263,7 @@ def dailysales(salesgroup):
     return render_template('dailypayerid.html', dict_list=dict_list, 
                         total_tgt_sale=total_tgt_sale, 
                         total_month_sale=total_month_sale,
-                        total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
+                        total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
                         average_achievement_percentage=average_achievement_percentage)          
 
 
@@ -255,17 +274,27 @@ def targetsales(payerId):
     year = request.args.get('year')
     
     # print(month, year)
+    if month and year :
+        result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
+    else:
+        # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
+        # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId, month=datetime.now().month, year=datetime.now().year))
   
-    # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(2, 2024,:payerId);').params(payerId=payerId))
-    result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
+        result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(2, 2024,:payerId);').params(payerId=payerId))
+    # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
     # result = db.session.execute(text('CALL GetAchievementData(1, 2024);'))  
     datakey = result.keys()
     data = result.fetchall()
     result.close()
-
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
+   
+    payer= [item['payerId'] for item in dict_list]
+    # payerId = dict_list[0]['payerId']
+    payerId = dict_list[0]['payerId'] if dict_list else None
+   
     total_tgt_sale = sum(item['Total Target Sale'] for item in dict_list)
+    
     total_month_sale = sum(item['Total Month Sale'] for item in dict_list)
     total_tgt_gap = sum(item['Target Gap'] for item in dict_list)
     LY_Sales = sum(item['LY_Sales'] for item in dict_list)
@@ -280,7 +309,7 @@ def targetsales(payerId):
     #                     total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
     #                     average_achievement_percentage=average_achievement_percentage)
 
-    return render_template('dailyoutletid.html', dict_list=dict_list, 
+    return render_template('dailyoutletid.html', dict_list=dict_list,payerId=payerId,
                             total_tgt_sale=total_tgt_sale, 
                             total_month_sale=total_month_sale,
                             total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
@@ -389,14 +418,114 @@ def Dashboard():
     data = result.fetchall()
     result.close()
     dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
- 
+
+    result_ssc = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+    result_spd = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount();'))
+    result_monsoon = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount();'))
+    result_winter = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount();'))
+    result_ek_se = db.session.execute(text('CALL GetEkSeBadhkarEkDistinctOutletCount();'))
+    result_spd_details = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+
+    datakey = result_ssc.keys()
+    datakey1 = result_spd.keys()
+    datakey2 = result_monsoon.keys()
+    datakey3 = result_winter.keys()
+    datakey4 = result_ek_se.keys()
+    datakey5 = result_spd_details.keys()
+    # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # total_Opening = sum(item['Opening'] for item in dict_list)
+    # total_Primary_Stock = sum(item['Primary_Stock'] for item in dict_list)
+    # total_Closing = sum(item['Closing'] for item in dict_list)
+    # total_Secondary = sum(item['Secondary'] for item in dict_list)
+
+    # Fetch data keys and values for each result
+    data_ssc = result_ssc.fetchall()
+    data_spd = result_spd.fetchall()
+    data_monsoon = result_monsoon.fetchall()
+    data_winter = result_winter.fetchall()
+    data_ek_se = result_ek_se.fetchall()
+    data_spd_details = result_spd_details.fetchall()
 
 
+
+    # Close the result sets
+    result_ssc.close()
+    result_spd.close()
+    result_monsoon.close()
+    result_winter.close()
+    result_ek_se.close()
+    result_spd_details.close()
+
+    # Extract data count values for each offer, assuming 'count_value' is the column name
+    ssc_count = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data_ssc]
+   
+    spd_count = [{item: tup[i] for i, item in enumerate(datakey1)} for tup in data_spd]
+    monsoon_count = [{item: tup[i] for i, item in enumerate(datakey2)} for tup in data_monsoon]
+    winter_count = [{item: tup[i] for i, item in enumerate(datakey3)} for tup in data_winter]
+    ek_se_count = [{item: tup[i] for i, item in enumerate(datakey4)} for tup in data_ek_se]
+    spd_details_count = [{item: tup[i] for i, item in enumerate(datakey5)} for tup in data_spd_details]
+
+    ssc_count_data = ssc_count[0]['distinct_outlet_count'] if ssc_count else 0
+    print("ssc_count", ssc_count_data)
+    spd_count_data = spd_count[0]['distinct_outlet_count'] if spd_count else 0
+    monsoon_count_data = monsoon_count[0]['distinct_outlet_count'] if monsoon_count else 0
+    winter_count_data = winter_count[0]['distinct_outlet_count'] if winter_count else 0
+    ek_se_count_data = ek_se_count[0]['distinct_outlet_count'] if ek_se_count else 0
+    spd_details_count_data = spd_details_count[0]['distinct_outlet_count'] if spd_details_count else 0
+
+    total_count = (ssc_count_data +spd_count_data +monsoon_count_data +winter_count_data +ek_se_count_data +spd_details_count_data)
+    print("total_count",total_count)
+
+
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    # result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUpdated("2024-02-01");'))
+    result = db.session.execute(text(f'CALL GetSalesAndTargetDataBySalesgroupUpdated("{today_date}");'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    saledate = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    
+    salesgroup_daily = [item['salesgroup'] for item in saledate]
+    sale_dailydata=[int(item['Sale']) for item in saledate]
+    Target_data=[int(item['Target']) for item in saledate]
+
+
+
+   
+    # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024)"))
+    # # today_alldata = datetime.now().strftime("%Y-%m-%d")
+    # # result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUpdated("2024-02-01");'))
+    # # result = db.session.execute(text(f'CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup("{today_alldata}");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # day_data = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # month_saledata=[int(item['Month_Sale']) for item in day_data]
+    # Target_Saledata=[int(item['Target_Sale']) for item in day_data]
+    # print("s",month_saledata)
+    # print("s",Target_Saledata)
+    # Target_Saledata=Target_Saledata,month_saledata=month_saledata ,day_data=day_data,
+
+
+
+  
+    # target=[item['gradecode'] for item in saledate]
     # Pass all data to the template
-    return render_template('dashboard.html',labels=labels, closing_values=closing_values,
+    return render_template('dashboard.html',Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
                            opening_values=opening_values, primary_stock_values=primary_stock_values,
                            total_closing=total_closing, total_opening=total_opening,
                            total_primary_stock=total_primary_stock,dict_list1=dict_list1)
+
+   
+    # Pass all data to the template
+    # return render_template('dashboard.html',labels=labels, closing_values=closing_values,
+    #                        opening_values=opening_values, primary_stock_values=primary_stock_values,
+    #                        total_closing=total_closing, total_opening=total_opening,
+    #                        total_primary_stock=total_primary_stock,dict_list1=dict_list1)
     
 
     # return render_template('dashboard.html', labels=labels, closing_values=closing_values,
@@ -495,7 +624,7 @@ def OfferDetailsdisplay():
 @app.route('/api/offerdetails', methods=['GET'])
 def OfferDetails():
     try:
-        result=db.session.execute(text('CALL OfferDetails();'))
+        result=db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -759,10 +888,7 @@ def SSC2(offerID,pkey):
             for salesgroup in salesgroups:
                 sales_data = result_df.loc[salesgroup].dropna()
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
-                # print(sales_group_data[salesgroup])
-                # print("SS",sales_group_data)
 
-            
 
             # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
             return render_template('salegroupdata.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
@@ -1040,9 +1166,13 @@ def saledata(page=1):
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try: 
+        result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
+     
+        # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')))
+        # result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')"))
         # result = db.session.execute(text(f"CALL  GetStockSummaryByGradeWithParams('ABH003', '2024-01-31')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
-        result = db.session.execute(text(f"CALL GetStockSummaryForAllPayersAndLatestDateByGradeCode()"))
+        # result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
         # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))

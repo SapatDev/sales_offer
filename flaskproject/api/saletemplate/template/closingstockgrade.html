@@ -114,11 +114,22 @@
           </div>
         </div>
 
-        <form action="/closingstockgrade/{{ payerId }}" method="get">
+        <!-- <form action="/closingstockgrade/{{ payerId }}" method="get">
             <label for="date">Date:</label>
             <input type="date" id="date" name="date" value="{{ date or '2024-01-31' }}">
             <button type="submit">Search</button>
-        </form>
+        </form> -->
+
+        <form action="/closingstockgrade/{{ payerId }}" method="get">
+          <label for="date">Date:</label>
+          <select id="date" name="date">
+              <option value="2023-12-31">2023-12-31</option>
+              <option value="2023-11-30">2023-11-30</option>
+              <option value="2023-11-15">2023-11-15</option>
+              <option value="2023-10-31">2023-10-31</option>
+          </select>
+          <button type="submit">Search</button>
+      </form>
 
 
 

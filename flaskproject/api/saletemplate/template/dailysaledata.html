@@ -130,16 +130,19 @@
           <div class="card-body">
             <h4 class="card-title">Daily Sales</h4>
           
-            <!-- <div class="row mx-2 ">
-                {% for item in dict_list %}
-                <div class="col-xl-3 col-md-6">
-                    <div class="card bg-white mb-4">
-                        <h6 style="margin-bottom: 0px;" class="card-footer d-flex align-items-center justify-content-between">Sales Group</h6>
-                        <div style="padding: 12px 22px;"><p style="margin-bottom: 0px; font-size: 14px;"><a class="text-black" href="{{ url_for('dailysales', salesgroup=item['salesgroup']) }}">{{item['salesgroup']}}</a></p></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div> -->
+            <!-- <div style="margin-top: 0px;margin-left: 21px;">
+              <form action="/dailysalesdata" method="get">
+                  <label style="font-size: 17px; font-weight: 500;" for="month">Month:</label>
+                  <input style="padding: 5px; border-radius: 4px;" type="text" id="month" name="month" placeholder="enter the month" >
+              
+                  <label style="padding-left: 15px;font-size: 17px; font-weight: 500;" for="year">Year:</label>
+                  <input style="padding: 5px; border-radius: 4px;" type="text" id="year" name="year" placeholder="enter the year" >
+              
+                  <button class="button-62" type="submit">Search</button>
+              </form>
+          </div> -->
+
+
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
@@ -202,6 +205,16 @@
                     </tr>
 
                       {% endfor %}
+
+                      <tr>
+                        <td>Total:</td>
+                       
+                        <td>{{total_tgt_emp|int}}</td>
+                        <td>{{Sum_of_payer|int}}</td>
+                        <td>{{ total_sale|int }}</td>
+                        <td>{{ total_tgt_sale|int }}</td>
+                    </tr>
+             
                     </tbody>
                     </table>
                   </div>
