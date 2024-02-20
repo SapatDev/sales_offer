@@ -8,14 +8,36 @@
     <div class="col-lg-12 stretch-card">
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title">Table with contextual classes</h4>
+            <h4 class="card-title">Payer Id Data</h4>
 
             <div style="display: flex;align-items: center;gap: 5px;">
-              <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
+              <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
           </div>
             <!-- <p class="card-description">
               Add class <code>.table-{color}</code>
             </p> -->
+            <div class="num_rows">
+              <div class="form-group">
+                <!--		Show Numbers Of Rows 		-->
+                <select class="form-control" name="state" id="maxRows">
+  
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="70">70</option>
+                  <option value="100">100</option>
+                  <option value="5000">Show ALL Rows</option>
+                </select>
+  
+              </div>
+            </div>
+  
+            <div class="tb_search">
+              <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
+              placeholder="Search Stock Data" aria-label="Search Stock Data">
+            </div>
+
             <div class="table-responsive pt-3">
               <table class="table table-striped" id="datatablesSimple">
                 <thead>
@@ -93,7 +115,8 @@
                     <tr>
                         <td></td> 
                         <td></td> 
-                        <td><h6>Grand-Total</h6></td>
+                        <td><h4>Grand-Total</h4></td>
+                        <td></td>
                         {% for type_id in unique_type_ids %}
                         <td>{{ coupon_sums[type_id] }}</td>
                         {% endfor %}

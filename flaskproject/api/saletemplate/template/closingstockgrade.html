@@ -5,7 +5,7 @@
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="row">
-        <div class="col-lg-6 grid-margin stretch-card">
+        <!-- <div class="col-lg-6 grid-margin stretch-card">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Basic Table</h4>
@@ -112,7 +112,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- <form action="/closingstockgrade/{{ payerId }}" method="get">
             <label for="date">Date:</label>
@@ -120,29 +120,26 @@
             <button type="submit">Search</button>
         </form> -->
 
-        <form action="/closingstockgrade/{{ payerId }}" method="get">
-          <label for="date">Date:</label>
-          <select id="date" name="date">
-              <option value="2023-12-31">2023-12-31</option>
-              <option value="2023-11-30">2023-11-30</option>
-              <option value="2023-11-15">2023-11-15</option>
-              <option value="2023-10-31">2023-10-31</option>
-          </select>
-          <button type="submit">Search</button>
-      </form>
-
-     
-
-
 
         <div class="col-lg-12 grid-margin stretch-card">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Grade Summary</h4>
 
+              <form action="/closingstockgrade/{{ payerId }}" method="get">
+                <label for="date">Selected Date:</label>
+                <select id="date" name="date" class="btn btn-success dropdown-toggle dropdown-toggle-split" >
+                    <option value="2023-12-31">2023-12-31</option>
+                    <option value="2023-11-30">2023-11-30</option>
+                    <option value="2023-11-15">2023-11-15</option>
+                    <option value="2023-10-31">2023-10-31</option>
+                </select>
+                <button type="submit" class="btn btn-success">Search</button>
+            </form>
+
               <div style="display: flex;align-items: center;gap: 5px;">
-                <button class="button-62" role="button"  onclick="tableToExcel2()">Download as Excel</button>
-            </div>
+                <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel2()">Download as Excel</button>
+             </div>
 
           
 
@@ -196,7 +193,7 @@
              <h4 class="card-title">Stock Summary</h4>
 
              <div style="display: flex;align-items: center;gap: 5px;">
-              <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
+              <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
           </div>
 
           <div class="num_rows">

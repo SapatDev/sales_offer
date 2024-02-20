@@ -293,11 +293,11 @@
                 
             </div> -->
            
-            <h4 class="card-title">Table with contextual classes</h4>
+            <h4 class="card-title">Salesgroup Data</h4>
 
 
             <div style="display: flex;align-items: center;gap: 5px;">
-              <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
+              <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
           </div>
 
 
@@ -370,7 +370,7 @@
 
                     <tr>
                        
-                        <td><h6>Grand-Total</h6></td>
+                        <td><h4>Grand-Total</h4></td>
                         <td></td>
                         {% for type_id in unique_type_ids %}
                         <td>{{ coupon_sums[type_id] }}</td>

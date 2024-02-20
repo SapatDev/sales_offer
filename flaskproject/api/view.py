@@ -859,7 +859,7 @@ def employee_payerId():
 def employeelist():
     try:
         # result=db.session.execute(text(f"CALL GetEmployeeData()"))
-        result=db.session.execute(text(f"CALL GetEmployeeInfoUpdated('S2325')"))      #text("CALL GetEmployeePayerInfo('S2284');"))
+        result=db.session.execute(text(f"CALL GetEmployeeInfoUpdated('S2284')"))      #text("CALL GetEmployeePayerInfo('S2284');"))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
