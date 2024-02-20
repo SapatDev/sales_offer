@@ -24,7 +24,7 @@ from cryptography.hazmat.backends import default_backend
 import secrets
 import string
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.exceptions import BadRequestKeyError
 
 
@@ -133,6 +133,8 @@ def closingstockgrade(payerId):
 
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
+    
+
 
     if date:
         result = db.session.execute(text('CALL GetStockSummaryByGradeWithParams(:payerId, :date);').params(payerId=payerId, date=date))
@@ -228,9 +230,9 @@ def dailysales(salesgroup):
 
     if from_month and from_year and end_month and end_year:
        
-        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNew(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
     else:
-         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNew(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
+         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
        
 
     
@@ -270,19 +272,33 @@ def dailysales(salesgroup):
 
 @app.route('/targetsale/<payerId>')
 def targetsales(payerId):
-    month = request.args.get('month')
-    year = request.args.get('year')
-    
-    # print(month, year)
-    if month and year :
-        result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
+
+    from_month=request.args.get('from_month')
+    from_year=request.args.get('from_year')
+    end_month = request.args.get('end_month')
+    end_year = request.args.get('end_year')
+
+    if from_month and from_year and end_month and end_year:
+       
+        result = db.session.execute(text('CALL GetAchievementDataByPayerIdNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:payerId);').params(payerId=payerId,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
     else:
-        # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
-        # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId, month=datetime.now().month, year=datetime.now().year))
+         result = db.session.execute(text('CALL GetAchievementDataByPayerIdNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:payerId);').params(payerId=payerId, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
+
+
+
+    # month = request.args.get('month')
+    # year = request.args.get('year')
+    
+    # # print(month, year)
+    # if month and year :
+    #     result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
+    # else:
+    #     # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
+    #     # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId, month=datetime.now().month, year=datetime.now().year))
   
-        result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(2, 2024,:payerId);').params(payerId=payerId))
-    # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
-    # result = db.session.execute(text('CALL GetAchievementData(1, 2024);'))  
+    #     result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(2, 2024,:payerId);').params(payerId=payerId))
+    # # result = db.session.execute(text('CALL GetAchievementDataByPayerIdNew(:month, :year,:payerId);').params(payerId=payerId,month=month,year=year))
+    # # result = db.session.execute(text('CALL GetAchievementData(1, 2024);'))  
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -311,8 +327,8 @@ def targetsales(payerId):
 
     return render_template('dailyoutletid.html', dict_list=dict_list,payerId=payerId,
                             total_tgt_sale=total_tgt_sale, 
-                            total_month_sale=total_month_sale,
-                            total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
+                            total_month_sale=total_month_sale,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
+                            total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,
                             average_achievement_percentage=average_achievement_percentage)
 
 
@@ -357,7 +373,7 @@ def getOfferCouponTypedata():
 @app.route('/api/targetcoupn', methods=['GET'])  #GetTotalAchievementData(1, 2024)
 def totaltarget():
     try:
-        result=db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 2024, "Khandesh - 1");'))
+        result=db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYearDemo(4, 2023, 2, 2024, "COASTAL");'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -399,7 +415,7 @@ def Dashboard():
     # opening_values = [item['Opening'] for item in dict_list]
     # primary_stock_values = [item['Primary_Stock'] for item in dict_list]
     closing_values = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_list]
-    print("closing_values",closing_values)
+    # print("closing_values",closing_values)
     opening_values = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_list]
     primary_stock_values = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_list]
     
@@ -467,7 +483,7 @@ def Dashboard():
     spd_details_count = [{item: tup[i] for i, item in enumerate(datakey5)} for tup in data_spd_details]
 
     ssc_count_data = ssc_count[0]['distinct_outlet_count'] if ssc_count else 0
-    print("ssc_count", ssc_count_data)
+    # print("ssc_count", ssc_count_data)
     spd_count_data = spd_count[0]['distinct_outlet_count'] if spd_count else 0
     monsoon_count_data = monsoon_count[0]['distinct_outlet_count'] if monsoon_count else 0
     winter_count_data = winter_count[0]['distinct_outlet_count'] if winter_count else 0
@@ -475,12 +491,22 @@ def Dashboard():
     spd_details_count_data = spd_details_count[0]['distinct_outlet_count'] if spd_details_count else 0
 
     total_count = (ssc_count_data +spd_count_data +monsoon_count_data +winter_count_data +ek_se_count_data +spd_details_count_data)
-    print("total_count",total_count)
+    # print("total_count",total_count)
 
 
     today_date = datetime.now().strftime("%Y-%m-%d")
-    # result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUpdated("2024-02-01");'))
-    result = db.session.execute(text(f'CALL GetSalesAndTargetDataBySalesgroupUpdated("{today_date}");'))
+
+    from_date = request.args.get('from_date') 
+    to_date =request.args.get('to_date')
+  
+    if from_date and to_date:
+        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate( :from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+    else:
+        # If date is not provided, use today's date
+        # today_date = "2024-01-31"
+        # result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(date=today_date))
+        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate("2024-01-01","2024-02-01");'))
+    # result = db.session.execute(text(f'CALL GetSalesAndTargetDataBySalesgroupUpdated("{today_date}");'))
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -511,14 +537,94 @@ def Dashboard():
     # Target_Saledata=Target_Saledata,month_saledata=month_saledata ,day_data=day_data,
 
 
+    
+    import dateutil.relativedelta as rl
 
-  
+    current_date = datetime.now()
+
+    from_months = [current_date.replace(day=1).date()]
+    to_months = [current_date.date()]
+    for i in range(5):
+        # Subtracting i months from the current date
+        prev_month = current_date - timedelta(days=current_date.day)
+        prev_month = prev_month.replace(day=1)  # Setting day to the 1st of the month
+        from_months.append(prev_month.date())  # Format the date as month name and year
+        to_months.append((prev_month.date() + rl.relativedelta(day=31)))  # Format the date as month name and year
+        current_date = prev_month
+
+    # print(from_months, to_months)
+
+    links = []
+
+    for i in range(0, len(from_months)):
+        links.append(str(from_months[i]) + "*" + str(to_months[i]))
+
+
+# Annual stats
+    result = db.session.execute(text('CALL GetFinancialYearSalesReport();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    final_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    Annual_Sales = int(final_result[0]['Annual_Sales'])
+    Annual_Sales_LY = int(final_result[0]['Annual_Sales_LY']) 
+    Annual_Target = int(final_result[0]['Annual_Target'])
+
+# e-Commerce month year 
+    # result = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024);'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+
+    # month_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # Month_Sale = int(month_result[0]['Month_Sale']) 
+    # Target_Sale = int(month_result[0]['Target_Sale'])
+
+        
+    #  current date
+    current_date = datetime.now()
+    # previous month
+    previous_month = current_date - timedelta(days=current_date.day)
+    #  month and year information
+    current_month = current_date.strftime('%B')
+    
+    previous_month_name = previous_month.strftime('%B')
+   
+    year = current_date.year
+
+    # Execute the procedure for the current month
+    result_current_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': current_date.month, 'year': year})
+    datakey_current_month = result_current_month.keys()
+    data_current_month = result_current_month.fetchall()
+    result_current_month.close()
+
+    # Execute the procedure for the previous month
+    result_previous_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': previous_month.month, 'year': year})
+    datakey_previous_month = result_previous_month.keys()
+    data_previous_month = result_previous_month.fetchall()
+    result_previous_month.close()
+
+    # Prepare data for current month
+    month_result_current = [{item: tup[i] for i, item in enumerate(datakey_current_month)} for tup in data_current_month]
+    Month_Sale_current = int(month_result_current[0]['Month_Sale'])
+    Target_Sale_current = int(month_result_current[0]['Target_Sale'])
+
+    # Prepare data for previous month
+    month_result_previous = [{item: tup[i] for i, item in enumerate(datakey_previous_month)} for tup in data_previous_month]
+    Month_Sale_previous = int(month_result_previous[0]['Month_Sale'])
+    Target_Sale_previous = int(month_result_previous[0]['Target_Sale'])
+
+
+
     # target=[item['gradecode'] for item in saledate]
     # Pass all data to the template
-    return render_template('dashboard.html',Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
+    return render_template('dashboard.html',Target_Sale_previous=Target_Sale_previous,Month_Sale_previous=Month_Sale_previous,year=year,previous_month_name=previous_month_name,current_month=current_month,Target_Sale_current=Target_Sale_current,Month_Sale_current=Month_Sale_current,Annual_Target=Annual_Target,Annual_Sales_LY=Annual_Sales_LY,Annual_Sales=Annual_Sales,Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
                            opening_values=opening_values, primary_stock_values=primary_stock_values,
-                           total_closing=total_closing, total_opening=total_opening,
-                           total_primary_stock=total_primary_stock,dict_list1=dict_list1)
+                           total_closing=total_closing, total_opening=total_opening,from_date=from_date,to_date=to_date,
+                           total_primary_stock=total_primary_stock,dict_list1=dict_list1,ecommerce_analytics=links,selected_date=links[0])
 
    
     # Pass all data to the template
@@ -532,6 +638,30 @@ def Dashboard():
     #                        opening_values=opening_values, primary_stock_values=primary_stock_values)
    
     # return render_template('dashboard.html',dict_list=dict_list)
+
+@app.route('/get_Datedata', methods=['GET'])
+def get_Datedata():
+    try:
+        from_date = request.args.get('from_date') 
+        to_date =request.args.get('to_date')
+    
+        if from_date and to_date:
+            result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate( :from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+        else:
+            # If date is not provided, use today's date
+            # today_date = "2024-01-31"
+            # result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(date=today_date))
+            result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate("2024-01-01","2024-02-01");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        # print("ddtat",dict_list)
+        return jsonify({"code": 200, "status": True, "result": dict_list}), 200
+    except Exception as e:
+        return jsonify({"code": 400, "status": False, "error": str(e)}), 400 
 
 #################################### OfferDetails 
 def get_offer_count(offer_id):
@@ -701,7 +831,7 @@ def employeename():
 @app.route('/employee_info')
 def employee_info():
     employee_id = request.args.get('empId')
-    result = db.session.execute(text(f"CALL GetEmployeeInfo('{employee_id}');"))
+    result = db.session.execute(text(f"CALL GetEmployeeInfoUpdated('{employee_id}');"))
     datakey = result.keys()
     data = result.fetchall()
     result.close()
@@ -729,7 +859,7 @@ def employee_payerId():
 def employeelist():
     try:
         # result=db.session.execute(text(f"CALL GetEmployeeData()"))
-        result=db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('GAU006')"))      #text("CALL GetEmployeePayerInfo('S2284');"))
+        result=db.session.execute(text(f"CALL GetEmployeeInfoUpdated('S2325')"))      #text("CALL GetEmployeePayerInfo('S2284');"))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
@@ -1165,11 +1295,13 @@ def saledata(page=1):
 ######################### menulist
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
-    try: 
-        result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
-     
+    try:
+        # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
+        result=db.session.execute(text(f"CALL GetFinancialYearSalesReport()"))
+        # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
+        # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupNew(7, 2023, 8, 2023, 'COASTAL')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')))
-        # result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')"))
+        # result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate('2024-02-01','2024-03-04')"))
         # result = db.session.execute(text(f"CALL  GetStockSummaryByGradeWithParams('ABH003', '2024-01-31')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
         # result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount()"))

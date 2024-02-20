@@ -25264,3 +25264,39 @@ body.avgrund-active {
 }
 
 /*# sourceMappingURL=../maps/vertical-layout-light/style.css.map */
+
+/* css is pagination  and search regarding */
+
+.pagination {
+  margin: 0;
+}
+
+.pagination li:hover {
+  cursor: pointer;
+}
+
+.header_wrap {
+  padding: 30px 0;
+}
+
+.num_rows {
+  width: 20%;
+  float: left;
+}
+
+.tb_search {
+  width: 20%;
+  float: right;
+}
+
+.pagination-container {
+  width: 70%;
+  float: left;
+}
+
+.rows_count {
+  width: 20%;
+  float: right;
+  text-align: right;
+  color: #999;
+}

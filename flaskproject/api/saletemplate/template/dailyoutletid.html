@@ -2,6 +2,7 @@
 
 
 {% block content %}
+
 <div class="main-panel">
   <div class="content-wrapper">
 
@@ -14,12 +15,48 @@
             <div style="display: flex;align-items: center;gap: 5px;">
                 <button class="button-62" role="button"  onclick="tableToExcel()">Download as Excel</button>
             </div>
+            <div>
+                <h4>From: {{from_month}}-{{from_year}} To: {{end_month}}-{{end_year}}</h4>
+            </div>
+
+            <div class="num_rows">
+                <div class="form-group">
+                  <!--		Show Numbers Of Rows 		-->
+                  <select class="form-control" name="state" id="maxRows">
+                    
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="70">70</option>
+                    <option value="100">100</option>
+                    <option value="5000">Show ALL Rows</option>
+                  </select>
+    
+                </div>
+              </div>
+    
+              <div class="tb_search">
+                <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
+                placeholder="Search Stock Data" aria-label="Search Stock Data">
+              </div>
 
             <!-- <form action="{{ url_for('targetsales', payerId=payerId) }}" method="GET">
                 <label for="month">Start Date:</label>
                 <input type="date" id="month" name="month">
                 <label for="year">End Date:</label>
                 <input type="date" id="year" name="year">
+                <button type="submit">Search</button>
+            </form> -->
+            <!-- <form action="{{ url_for('targetsales', payerId=payerId) }}" method="GET">
+                <label for="from_month">From Month:</label>
+                <input type="number" id="from_month" name="from_month" value="{{ from_month }}">
+                <label for="from_year">From Year:</label>
+                <input type="number" id="from_year" name="from_year" value="{{ from_year }}">
+                <label for="month">Month:</label>
+                <input type="number" id="end_month" name="end_month" value="{{ end_month }}">
+                <label for="year">Year:</label>
+                <input type="number" id="end_year" name="end_year" value="{{ end_year }}">
                 <button type="submit">Search</button>
             </form> -->
         
