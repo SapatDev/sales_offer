@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
 from flask import send_file
-from flask import render_template, request
+from flask import render_template, request,session
 import io
 import base64
 from flask_sqlalchemy import Pagination
@@ -31,6 +31,10 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 ###################################### Sales data 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 
 
 @app.route('/employee_payerId1')
@@ -303,11 +307,13 @@ def targetsales(payerId):
     data = result.fetchall()
     result.close()
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    print("dict_list",dict_list)
 
    
     payer= [item['payerId'] for item in dict_list]
     # payerId = dict_list[0]['payerId']
     payerId = dict_list[0]['payerId'] if dict_list else None
+    stokist_name = dict_list[0]['stokist_name'] if dict_list else None
    
     total_tgt_sale = sum(item['Total Target Sale'] for item in dict_list)
     
@@ -325,7 +331,7 @@ def targetsales(payerId):
     #                     total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,month=month,year=year,
     #                     average_achievement_percentage=average_achievement_percentage)
 
-    return render_template('dailyoutletid.html', dict_list=dict_list,payerId=payerId,
+    return render_template('dailyoutletid.html', dict_list=dict_list,payerId=payerId,stokist_name=stokist_name,
                             total_tgt_sale=total_tgt_sale, 
                             total_month_sale=total_month_sale,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
                             total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,
@@ -851,8 +857,10 @@ def employee_payerId():
     data = result.fetchall()
     result.close()
     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    stokist_name = dict_list[0]['stokist_name'] if dict_list else None
     # return render_template('employeepayerId.html', dict_list=dict_list)
-    return render_template('emp_payerid.html', dict_list=dict_list)
+    return render_template('emp_payerid.html', dict_list=dict_list,stokist_name=stokist_name)
 
 
 @app.route('/api/emp', methods=['GET'])
@@ -900,6 +908,7 @@ def SSC2(offerID,pkey):
         data=resultType.fetchall()
         resultType.close()
         dict_list_type=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+        # print("ddd",dict_list_type)
 
 
         if offerID == "EKS2":
@@ -931,6 +940,7 @@ def SSC2(offerID,pkey):
         data = result.fetchall()
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        # print("sss",dict_list)
 
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
@@ -1229,9 +1239,12 @@ def PayerId(payer,pkey):
             data = result.fetchall()
             result.close()
             dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+            # print("dict_list",dict_list)
 
             df = pd.DataFrame(dict_list)
             df2=pd.DataFrame(dict_list_type)
+
+            
            
 
             if 'outletId' in df.columns:
@@ -1245,6 +1258,7 @@ def PayerId(payer,pkey):
             # unique_outlet_type_ids = df['outlet_type']
             unique_outletName=df['outletName']
             unique_coupon_type = df['coupon_type'].unique()
+          
             
         
 
@@ -1297,7 +1311,7 @@ def saledata(page=1):
 def menulist():
     try:
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
-        result=db.session.execute(text(f"CALL GetFinancialYearSalesReport()"))
+        # result=db.session.execute(text(f"CALL GetFinancialYearSalesReport()"))
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
         # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupNew(7, 2023, 8, 2023, 'COASTAL')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')))
@@ -1307,7 +1321,7 @@ def menulist():
         # result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
-        # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('SSS71');"))
+        result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('HAN001');"))
         # result.count()
         # print("result_data",result_data)
         datakey = result.keys()

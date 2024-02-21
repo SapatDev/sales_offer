@@ -14,10 +14,26 @@
             <div class="card-body">
               <h4 class="card-title">Employee data</h4>
 
+           
+              <!-- <div class="row"> -->
+                <div class="col-md-4">
+                  <!-- <div class="form-group"> -->
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchInput" placeholder="Search Emp name" aria-label="Search Stock Data">
+                      <!-- <div class="input-group-append">
+                        <button class="btn btn-sm btn-secondary" type="button">Search</button>
+                      </div> -->
+                    </div>
+                  <!-- </div> -->
+                </div>
+            <!-- </div> -->
+
+                <!-- <input type="text" id="searchInput" class="form-control" placeholder="Search for employee names"> -->
+             
 
             
               <div class="table-responsive pt-3">
-                <table class="table table-hover" style="border-collapse:collapse;">
+                <table class="table" style="border-collapse:collapse;">
                   <thead>
                       <tr>
                         <th>Employee Id</th>
@@ -25,7 +41,7 @@
                         <th>Employee Designation</th>
                       </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="employeeTableBody">
                       
                     {% for item in dict_list %}
                 
@@ -49,7 +65,9 @@
                                  <thead>
                                       <tr>
                                           <th>Payer_ID</th>
-                                          <th>Stocklist</th>
+                                          <th>Employee</th>
+                                          <th>Stocklist</th>                               
+                                          <th>Name</th>
                                           <th>Designation</th>
                                       
                                       </tr>
@@ -60,9 +78,11 @@
               
                                       <tr>
                                           <td><a class="offer-link" id="payer-id{{ item['empId'] }}"></a></td>
-                                  
+                                          <td id="empId{{item['empId']}}"></td>
                                           <td id="stockist-name{{ item['empId'] }}"></td>
+                                          <td id="name{{item['empId']}}"></td>
                                           <td id="desig{{ item['empId'] }}"></td>
+                                         
                                           
                                           
                                       </tr>
@@ -350,6 +370,8 @@
    
   </div>
   
+
+
   <script>
 
     // $(".details-table").hide()
@@ -357,31 +379,87 @@
     
 
 
-    function fetchData(id){
-      $("#details-table" + id).hide()
-      $("#loader" + id).show()
+    // function fetchData(id){
+    //   $("#details-table" + id).hide()
+    //   $("#loader" + id).show()
+    //     $.ajax({
+    //         url: "/employee_info?empId=" + id,
+    //         method: "GET",
+    //     }).then((data) => {
+    //       $("#loader" + id).hide()
+    //       $("#details-table" + id).show()
+    //         $("#payer-id" + id).text(data["dict"][0]["payerId"])
+    //         $("#payer-id" + id).attr("href", "/employee_payerId?payerId=" + data["dict"][0]["payerId"])
+    //         $("#empId" + id).text(data["dict"][0]["empId"])
+    //         $("#stockist-name" + id).text(data["dict"][0]["stokist_name"])
+    //         $("#name" + id).text(data["dict"][0]["name"])
+    //         $("#desig" + id).text(data["dict"][0]["desig"])
+
+
+
+    //     })
+    // }
+
+    function fetchData(id) {
+        $("#details-table" + id).hide();
+        $("#loader" + id).show();
+
+        // Fetch data for all rows related to the employee id
         $.ajax({
             url: "/employee_info?empId=" + id,
             method: "GET",
         }).then((data) => {
-          $("#loader" + id).hide()
-          $("#details-table" + id).show()
-            $("#payer-id" + id).text(data["dict"][0]["payerId"])
-            $("#payer-id" + id).attr("href", "/employee_payerId?payerId=" + data["dict"][0]["payerId"])
-            $("#stockist-name" + id).text(data["dict"][0]["stokist_name"])
-            $("#desig" + id).text(data["dict"][0]["desig"])
+            $("#loader" + id).hide();
+            $("#details-table" + id).show();
 
+            // Clear existing rows in the second table
+            $("#details-table" + id + " tbody").empty();
 
-
-        })
+            // Loop through each data item and append a new row for each item in the second table
+            data["dict"].forEach(item => {
+                var newRow = `<tr>
+                                <td><a class="offer-link" id="payer-id${item["empId"]}" href="/employee_payerId?payerId=${item["payerId"]}">${item["payerId"]}</a></td>
+                                <td id="empId${item["empId"]}">${item["empId"]}</td>
+                                <td id="stockist-name${item["empId"]}">${item["stokist_name"]}</td>
+                                <td id="name${item["empId"]}">${item["name"]}</td>
+                                <td id="desig${item["empId"]}">${item["desig"]}</td>
+                              </tr>`;
+                $("#details-table" + id + " tbody").append(newRow);
+            });
+        });
     }
+
+
     // // Move details-table to the top
     // $(document).ready(function () {
     //     $("#details-table").prependTo("#layoutSidenav_content");
     // });
 </script>
 
+<script>
+  // Function to filter table rows based on search input
+  function filterTable() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("searchInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("employeeTableBody");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1]; // Index 1 for the Employee Name column
+          if (td) {
+              txtValue = td.textContent || td.innerText;
+              if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                  tr[i].style.display = "";
+              } else {
+                  tr[i].style.display = "none";
+              }
+          }
+      }
+  }
 
+  // Add event listener to the search input
+  document.getElementById("searchInput").addEventListener("keyup", filterTable);
+</script>
 
 {% endblock %}
 
