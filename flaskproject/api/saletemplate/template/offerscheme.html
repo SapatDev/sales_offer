@@ -6,59 +6,59 @@
   <div class="content-wrapper">
 
 
-      <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">Offer Scheme</h4>
-          
-            <div class="row mx-2 mt-4">
-                {% for item in dict_list %}
-                <div class="col-xl-3 col-md-6">
-                    <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
-                        href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
-                        class="card-link offer-link">
-                        <div class="card bg-white text-black mb-4">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Offer Scheme</h4>
 
-                            <img src="http://142.93.208.119/media/{{ item['image'] }}" alt="Offer Image"
-                                class="img-fluid" style="width: 200px; height: 220px;">
-                            <div class="card-body"
-                                style="font-size: 15px; padding: 7px 15px; background: #f8fafa;">
-                           
-                <div class="text-center"><b>Offer:</b> {{ item['offer_name'] }}</div>
-            </div>
-            
-            <p style="margin: 0px; background: #f8fafa; padding: 7px 15px;"
-                class="card-footer text-center">
-                <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
-                    href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
-                    class="offer-link"><b>OfferID:</b> {{ item['offer_id'] }}</a>
-            </p>
+          <div class="row mt-4">
+            {% for item in dict_list %}
+            <div class="col-md-4">
+              <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
+                href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
+                class="card-link offer-link">
+                <div class="bg-white text-black mb-4">
 
-        </div>
+                  <img src="http://142.93.208.119/media/{{ item['image'] }}" alt="Offer Image" class="img-fluid"
+                    style="height: 220px;border-top-left-radius: 22px;border-bottom-right-radius: 25px;">
+                  <div class="card-body" style="font-size: 15px; padding: 7px 15px;">
+
+                    <div class="text-center">
+                      <p style="margin: 0px;color: #000;text-shadow: 0px 3px 4px rgba(0,0,0,0.6);"><b>Offer:</b> {{ item['offer_name'] }}</p>
+                    </div>
+                  </div>
+
+                  <p style="margin: 0px; padding: 0px 15px;color: #000;" class="text-center">
+                    <a style="color: #000;text-shadow: 0px 3px 4px rgba(0,0,0,0.6);" id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
+                      href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
+                      class="offer-link"><b>OfferID:</b> {{ item['offer_id'] }}</a>
+                  </p>
+
                 </div>
-                {% endfor %}
-
-
-
-
-
             </div>
+            {% endfor %}
+
+
+
+
+
           </div>
         </div>
       </div>
+    </div>
 
-    
+
   </div>
- 
+
 </div>
 
 
 <script>
-     //  this for print one page to anthore page
-     const setOfferName = (name) => {
-            // console.log("abc");
-            localStorage.setItem('offername', name)
-        }
+  //  this for print one page to anthore page
+  const setOfferName = (name) => {
+    // console.log("abc");
+    localStorage.setItem('offername', name)
+  }
 
 </script>
 {% endblock %}
