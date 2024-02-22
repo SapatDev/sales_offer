@@ -31,9 +31,61 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 ###################################### Sales data 
-@app.route('/login')
+# @app.route('/login')
+# def login():
+#     return render_template('login.html')
+
+# Define your static credentials
+STATIC_USERNAME = "sapat"
+STATIC_PASSWORD = "sapat@123"
+
+# # Route to handle login requests
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         # Extract username and password from the form
+#         username = request.form['username']
+#         password = request.form['password']
+
+#         # Check if the provided credentials match the static credentials
+#         if username == STATIC_USERNAME and password == STATIC_PASSWORD:
+#             # Authentication successful, redirect to a dashboard or home page
+#             return redirect(url_for('Dashboard'))
+#         else:
+#             # Authentication failed, render login template with an error message
+#             error = 'Invalid username or password. Please try again.'
+#             return render_template('login.html', error=error)
+
+#     # Render the login form template for GET requests
+#     return render_template('login.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        # Extract username and password from the form
+        username = request.form['username']
+        password = request.form['password']
+
+        # Check if the provided credentials match the static credentials
+        if username == STATIC_USERNAME and password == STATIC_PASSWORD:
+            # Authentication successful, store username in session
+            session['username'] = username
+            # Redirect to a dashboard or home page
+            return redirect(url_for('Dashboard'))
+        else:
+            # Authentication failed, render login template with an error message
+            error = 'Invalid username or password. Please try again.'
+            return render_template('login.html', error=error)
+
+    # Render the login form template for GET requests
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    # Clear the session data
+    session.clear()
+    # Redirect to the login page
+    return redirect(url_for('login'))
 
 
 
@@ -405,232 +457,238 @@ def getOfferCouponType():
         return jsonify({"code": 400, "status": False, "error": str(e)}), 400 
     
 ################################ Dashboard 
-@app.route('/')
+@app.route('/dashboard')
 def Dashboard():
-   
-    result = db.session.execute(text('CALL GetStockSummaryForAllPayersAndLatestDateByGradeCode();'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    
-    labels = [item['gradecode'] for item in dict_list]
-    # closing_values = [int(item['Closing'] for item in dict_list)]
-    # print("closing_values",closing_values)
-    # opening_values = [item['Opening'] for item in dict_list]
-    # primary_stock_values = [item['Primary_Stock'] for item in dict_list]
-    closing_values = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_list]
-    # print("closing_values",closing_values)
-    opening_values = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_list]
-    primary_stock_values = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_list]
-    
+    # Check if user is logged in
+    if 'username' in session:
 
 
-    # total_closing = sum(value for value in closing_values if value is not None)
-   
-    # Calculate the total of Closing, Opening, and Primary_Stock values, handling None values and removing decimal points
-    total_closing = int(sum(value for value in closing_values if value is not None))
-   
-    total_opening = int(sum(value for value in opening_values if value is not None))
-    total_primary_stock = int(sum(value for value in primary_stock_values if value is not None))
+        result = db.session.execute(text('CALL GetStockSummaryForAllPayersAndLatestDateByGradeCode();'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    result = db.session.execute(text('CALL OfferDetails();'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-    dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    result_ssc = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
-    result_spd = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount();'))
-    result_monsoon = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount();'))
-    result_winter = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount();'))
-    result_ek_se = db.session.execute(text('CALL GetEkSeBadhkarEkDistinctOutletCount();'))
-    result_spd_details = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
-
-    datakey = result_ssc.keys()
-    datakey1 = result_spd.keys()
-    datakey2 = result_monsoon.keys()
-    datakey3 = result_winter.keys()
-    datakey4 = result_ek_se.keys()
-    datakey5 = result_spd_details.keys()
-    # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    # total_Opening = sum(item['Opening'] for item in dict_list)
-    # total_Primary_Stock = sum(item['Primary_Stock'] for item in dict_list)
-    # total_Closing = sum(item['Closing'] for item in dict_list)
-    # total_Secondary = sum(item['Secondary'] for item in dict_list)
-
-    # Fetch data keys and values for each result
-    data_ssc = result_ssc.fetchall()
-    data_spd = result_spd.fetchall()
-    data_monsoon = result_monsoon.fetchall()
-    data_winter = result_winter.fetchall()
-    data_ek_se = result_ek_se.fetchall()
-    data_spd_details = result_spd_details.fetchall()
+        labels = [item['gradecode'] for item in dict_list]
+        # closing_values = [int(item['Closing'] for item in dict_list)]
+        # print("closing_values",closing_values)
+        # opening_values = [item['Opening'] for item in dict_list]
+        # primary_stock_values = [item['Primary_Stock'] for item in dict_list]
+        closing_values = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_list]
+        # print("closing_values",closing_values)
+        opening_values = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_list]
+        primary_stock_values = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_list]
 
 
 
-    # Close the result sets
-    result_ssc.close()
-    result_spd.close()
-    result_monsoon.close()
-    result_winter.close()
-    result_ek_se.close()
-    result_spd_details.close()
+        # total_closing = sum(value for value in closing_values if value is not None)
 
-    # Extract data count values for each offer, assuming 'count_value' is the column name
-    ssc_count = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data_ssc]
-   
-    spd_count = [{item: tup[i] for i, item in enumerate(datakey1)} for tup in data_spd]
-    monsoon_count = [{item: tup[i] for i, item in enumerate(datakey2)} for tup in data_monsoon]
-    winter_count = [{item: tup[i] for i, item in enumerate(datakey3)} for tup in data_winter]
-    ek_se_count = [{item: tup[i] for i, item in enumerate(datakey4)} for tup in data_ek_se]
-    spd_details_count = [{item: tup[i] for i, item in enumerate(datakey5)} for tup in data_spd_details]
+        # Calculate the total of Closing, Opening, and Primary_Stock values, handling None values and removing decimal points
+        total_closing = int(sum(value for value in closing_values if value is not None))
 
-    ssc_count_data = ssc_count[0]['distinct_outlet_count'] if ssc_count else 0
-    # print("ssc_count", ssc_count_data)
-    spd_count_data = spd_count[0]['distinct_outlet_count'] if spd_count else 0
-    monsoon_count_data = monsoon_count[0]['distinct_outlet_count'] if monsoon_count else 0
-    winter_count_data = winter_count[0]['distinct_outlet_count'] if winter_count else 0
-    ek_se_count_data = ek_se_count[0]['distinct_outlet_count'] if ek_se_count else 0
-    spd_details_count_data = spd_details_count[0]['distinct_outlet_count'] if spd_details_count else 0
+        total_opening = int(sum(value for value in opening_values if value is not None))
+        total_primary_stock = int(sum(value for value in primary_stock_values if value is not None))
 
-    total_count = (ssc_count_data +spd_count_data +monsoon_count_data +winter_count_data +ek_se_count_data +spd_details_count_data)
-    # print("total_count",total_count)
+        result = db.session.execute(text('CALL OfferDetails();'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        result_ssc = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+        result_spd = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount();'))
+        result_monsoon = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount();'))
+        result_winter = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount();'))
+        result_ek_se = db.session.execute(text('CALL GetEkSeBadhkarEkDistinctOutletCount();'))
+        result_spd_details = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+
+        datakey = result_ssc.keys()
+        datakey1 = result_spd.keys()
+        datakey2 = result_monsoon.keys()
+        datakey3 = result_winter.keys()
+        datakey4 = result_ek_se.keys()
+        datakey5 = result_spd_details.keys()
+        # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        # total_Opening = sum(item['Opening'] for item in dict_list)
+        # total_Primary_Stock = sum(item['Primary_Stock'] for item in dict_list)
+        # total_Closing = sum(item['Closing'] for item in dict_list)
+        # total_Secondary = sum(item['Secondary'] for item in dict_list)
+
+        # Fetch data keys and values for each result
+        data_ssc = result_ssc.fetchall()
+        data_spd = result_spd.fetchall()
+        data_monsoon = result_monsoon.fetchall()
+        data_winter = result_winter.fetchall()
+        data_ek_se = result_ek_se.fetchall()
+        data_spd_details = result_spd_details.fetchall()
 
 
-    today_date = datetime.now().strftime("%Y-%m-%d")
 
-    from_date = request.args.get('from_date') 
-    to_date =request.args.get('to_date')
-  
-    if from_date and to_date:
-        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate( :from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+        # Close the result sets
+        result_ssc.close()
+        result_spd.close()
+        result_monsoon.close()
+        result_winter.close()
+        result_ek_se.close()
+        result_spd_details.close()
+
+        # Extract data count values for each offer, assuming 'count_value' is the column name
+        ssc_count = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data_ssc]
+
+        spd_count = [{item: tup[i] for i, item in enumerate(datakey1)} for tup in data_spd]
+        monsoon_count = [{item: tup[i] for i, item in enumerate(datakey2)} for tup in data_monsoon]
+        winter_count = [{item: tup[i] for i, item in enumerate(datakey3)} for tup in data_winter]
+        ek_se_count = [{item: tup[i] for i, item in enumerate(datakey4)} for tup in data_ek_se]
+        spd_details_count = [{item: tup[i] for i, item in enumerate(datakey5)} for tup in data_spd_details]
+
+        ssc_count_data = ssc_count[0]['distinct_outlet_count'] if ssc_count else 0
+        # print("ssc_count", ssc_count_data)
+        spd_count_data = spd_count[0]['distinct_outlet_count'] if spd_count else 0
+        monsoon_count_data = monsoon_count[0]['distinct_outlet_count'] if monsoon_count else 0
+        winter_count_data = winter_count[0]['distinct_outlet_count'] if winter_count else 0
+        ek_se_count_data = ek_se_count[0]['distinct_outlet_count'] if ek_se_count else 0
+        spd_details_count_data = spd_details_count[0]['distinct_outlet_count'] if spd_details_count else 0
+
+        total_count = (ssc_count_data +spd_count_data +monsoon_count_data +winter_count_data +ek_se_count_data +spd_details_count_data)
+        # print("total_count",total_count)
+
+
+        today_date = datetime.now().strftime("%Y-%m-%d")
+
+        from_date = request.args.get('from_date') 
+        to_date =request.args.get('to_date')
+
+        if from_date and to_date:
+            result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate( :from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+        else:
+            # If date is not provided, use today's date
+            # today_date = "2024-01-31"
+            # result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(date=today_date))
+            result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate("2024-01-01","2024-02-01");'))
+        # result = db.session.execute(text(f'CALL GetSalesAndTargetDataBySalesgroupUpdated("{today_date}");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+
+        saledate = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+
+        salesgroup_daily = [item['salesgroup'] for item in saledate]
+        sale_dailydata=[int(item['Sale']) for item in saledate]
+        Target_data=[int(item['Target']) for item in saledate]
+
+
+
+
+        # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024)"))
+        # # today_alldata = datetime.now().strftime("%Y-%m-%d")
+        # # result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUpdated("2024-02-01");'))
+        # # result = db.session.execute(text(f'CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup("{today_alldata}");'))
+        # datakey = result.keys()
+        # data = result.fetchall()
+        # result.close()
+        # day_data = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        # month_saledata=[int(item['Month_Sale']) for item in day_data]
+        # Target_Saledata=[int(item['Target_Sale']) for item in day_data]
+        # print("s",month_saledata)
+        # print("s",Target_Saledata)
+        # Target_Saledata=Target_Saledata,month_saledata=month_saledata ,day_data=day_data,
+
+
+
+        import dateutil.relativedelta as rl
+
+        current_date = datetime.now()
+
+        from_months = [current_date.replace(day=1).date()]
+        to_months = [current_date.date()]
+        for i in range(5):
+            # Subtracting i months from the current date
+            prev_month = current_date - timedelta(days=current_date.day)
+            prev_month = prev_month.replace(day=1)  # Setting day to the 1st of the month
+            from_months.append(prev_month.date())  # Format the date as month name and year
+            to_months.append((prev_month.date() + rl.relativedelta(day=31)))  # Format the date as month name and year
+            current_date = prev_month
+
+        # print(from_months, to_months)
+
+        links = []
+
+        for i in range(0, len(from_months)):
+            links.append(str(from_months[i]) + "*" + str(to_months[i]))
+
+
+        # Annual stats
+        result = db.session.execute(text('CALL GetFinancialYearSalesReport();'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+
+        final_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        Annual_Sales = int(final_result[0]['Annual_Sales'])
+        Annual_Sales_LY = int(final_result[0]['Annual_Sales_LY']) 
+        Annual_Target = int(final_result[0]['Annual_Target'])
+
+        # e-Commerce month year 
+        # result = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024);'))
+        # datakey = result.keys()
+        # data = result.fetchall()
+        # result.close()
+
+        # month_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        # Month_Sale = int(month_result[0]['Month_Sale']) 
+        # Target_Sale = int(month_result[0]['Target_Sale'])
+
+            
+        #  current date
+        current_date = datetime.now()
+        # previous month
+        previous_month = current_date - timedelta(days=current_date.day)
+        #  month and year information
+        current_month = current_date.strftime('%B')
+
+        previous_month_name = previous_month.strftime('%B')
+
+        year = current_date.year
+
+        # Execute the procedure for the current month
+        result_current_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': current_date.month, 'year': year})
+        datakey_current_month = result_current_month.keys()
+        data_current_month = result_current_month.fetchall()
+        result_current_month.close()
+
+        # Execute the procedure for the previous month
+        result_previous_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': previous_month.month, 'year': year})
+        datakey_previous_month = result_previous_month.keys()
+        data_previous_month = result_previous_month.fetchall()
+        result_previous_month.close()
+
+        # Prepare data for current month
+        month_result_current = [{item: tup[i] for i, item in enumerate(datakey_current_month)} for tup in data_current_month]
+        Month_Sale_current = int(month_result_current[0]['Month_Sale'])
+        Target_Sale_current = int(month_result_current[0]['Target_Sale'])
+
+        # Prepare data for previous month
+        month_result_previous = [{item: tup[i] for i, item in enumerate(datakey_previous_month)} for tup in data_previous_month]
+        Month_Sale_previous = int(month_result_previous[0]['Month_Sale'])
+        Target_Sale_previous = int(month_result_previous[0]['Target_Sale'])
+
+
+
+        # target=[item['gradecode'] for item in saledate]
+        # Pass all data to the template
+        return render_template('dashboard.html',username=session['username'],Target_Sale_previous=Target_Sale_previous,Month_Sale_previous=Month_Sale_previous,year=year,previous_month_name=previous_month_name,current_month=current_month,Target_Sale_current=Target_Sale_current,Month_Sale_current=Month_Sale_current,Annual_Target=Annual_Target,Annual_Sales_LY=Annual_Sales_LY,Annual_Sales=Annual_Sales,Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
+                                opening_values=opening_values, primary_stock_values=primary_stock_values,
+                                total_closing=total_closing, total_opening=total_opening,from_date=from_date,to_date=to_date,
+                                total_primary_stock=total_primary_stock,dict_list1=dict_list1,ecommerce_analytics=links,selected_date=links[0])
+
     else:
-        # If date is not provided, use today's date
-        # today_date = "2024-01-31"
-        # result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(date=today_date))
-        result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUsingFromAndToDate("2024-01-01","2024-02-01");'))
-    # result = db.session.execute(text(f'CALL GetSalesAndTargetDataBySalesgroupUpdated("{today_date}");'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-
-    saledate = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    
-    salesgroup_daily = [item['salesgroup'] for item in saledate]
-    sale_dailydata=[int(item['Sale']) for item in saledate]
-    Target_data=[int(item['Target']) for item in saledate]
-
-
-
-   
-    # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024)"))
-    # # today_alldata = datetime.now().strftime("%Y-%m-%d")
-    # # result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroupUpdated("2024-02-01");'))
-    # # result = db.session.execute(text(f'CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup("{today_alldata}");'))
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-    # day_data = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    # month_saledata=[int(item['Month_Sale']) for item in day_data]
-    # Target_Saledata=[int(item['Target_Sale']) for item in day_data]
-    # print("s",month_saledata)
-    # print("s",Target_Saledata)
-    # Target_Saledata=Target_Saledata,month_saledata=month_saledata ,day_data=day_data,
-
-
-    
-    import dateutil.relativedelta as rl
-
-    current_date = datetime.now()
-
-    from_months = [current_date.replace(day=1).date()]
-    to_months = [current_date.date()]
-    for i in range(5):
-        # Subtracting i months from the current date
-        prev_month = current_date - timedelta(days=current_date.day)
-        prev_month = prev_month.replace(day=1)  # Setting day to the 1st of the month
-        from_months.append(prev_month.date())  # Format the date as month name and year
-        to_months.append((prev_month.date() + rl.relativedelta(day=31)))  # Format the date as month name and year
-        current_date = prev_month
-
-    # print(from_months, to_months)
-
-    links = []
-
-    for i in range(0, len(from_months)):
-        links.append(str(from_months[i]) + "*" + str(to_months[i]))
-
-
-# Annual stats
-    result = db.session.execute(text('CALL GetFinancialYearSalesReport();'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-
-    final_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    Annual_Sales = int(final_result[0]['Annual_Sales'])
-    Annual_Sales_LY = int(final_result[0]['Annual_Sales_LY']) 
-    Annual_Target = int(final_result[0]['Annual_Target'])
-
-# e-Commerce month year 
-    # result = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024);'))
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-
-    # month_result = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    # Month_Sale = int(month_result[0]['Month_Sale']) 
-    # Target_Sale = int(month_result[0]['Target_Sale'])
-
-        
-    #  current date
-    current_date = datetime.now()
-    # previous month
-    previous_month = current_date - timedelta(days=current_date.day)
-    #  month and year information
-    current_month = current_date.strftime('%B')
-    
-    previous_month_name = previous_month.strftime('%B')
-   
-    year = current_date.year
-
-    # Execute the procedure for the current month
-    result_current_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': current_date.month, 'year': year})
-    datakey_current_month = result_current_month.keys()
-    data_current_month = result_current_month.fetchall()
-    result_current_month.close()
-
-    # Execute the procedure for the previous month
-    result_previous_month = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(:month, :year);'), {'month': previous_month.month, 'year': year})
-    datakey_previous_month = result_previous_month.keys()
-    data_previous_month = result_previous_month.fetchall()
-    result_previous_month.close()
-
-    # Prepare data for current month
-    month_result_current = [{item: tup[i] for i, item in enumerate(datakey_current_month)} for tup in data_current_month]
-    Month_Sale_current = int(month_result_current[0]['Month_Sale'])
-    Target_Sale_current = int(month_result_current[0]['Target_Sale'])
-
-    # Prepare data for previous month
-    month_result_previous = [{item: tup[i] for i, item in enumerate(datakey_previous_month)} for tup in data_previous_month]
-    Month_Sale_previous = int(month_result_previous[0]['Month_Sale'])
-    Target_Sale_previous = int(month_result_previous[0]['Target_Sale'])
-
-
-
-    # target=[item['gradecode'] for item in saledate]
-    # Pass all data to the template
-    return render_template('dashboard.html',Target_Sale_previous=Target_Sale_previous,Month_Sale_previous=Month_Sale_previous,year=year,previous_month_name=previous_month_name,current_month=current_month,Target_Sale_current=Target_Sale_current,Month_Sale_current=Month_Sale_current,Annual_Target=Annual_Target,Annual_Sales_LY=Annual_Sales_LY,Annual_Sales=Annual_Sales,Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
-                           opening_values=opening_values, primary_stock_values=primary_stock_values,
-                           total_closing=total_closing, total_opening=total_opening,from_date=from_date,to_date=to_date,
-                           total_primary_stock=total_primary_stock,dict_list1=dict_list1,ecommerce_analytics=links,selected_date=links[0])
+        return redirect(url_for('login'))
 
    
     # Pass all data to the template

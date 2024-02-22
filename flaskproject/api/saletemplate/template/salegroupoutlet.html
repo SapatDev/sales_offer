@@ -6,158 +6,215 @@
   <div class="content-wrapper">
 
     <div class="col-lg-12 stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title" id="offerName"></h4>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title" id="offerName"></h4>
 
-            <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">
-              <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
-           </div>
-            <!-- <p class="card-description">
+          <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">
+            <button class="btn btn-sm btn-secondary" role="button" onclick="tableToExcel()">Download as Excel</button>
+          </div>
+          <!-- <p class="card-description">
               Add class <code>.table-{color}</code>
             </p> -->
 
-            <div class="num_rows">
-              <div class="form-group">
-                <!--		Show Numbers Of Rows 		-->
-                <select class="form-control" name="state" id="maxRows">
-  
-                  <option value="10">10</option>
-                  <option value="15">15</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="70">70</option>
-                  <option value="100">100</option>
-                  <option value="5000">Show ALL Rows</option>
-                </select>
-  
-              </div>
+          <div class="num_rows">
+            <div class="form-group">
+              <!--		Show Numbers Of Rows 		-->
+              <select class="form-control" name="state" id="maxRows">
+
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="70">70</option>
+                <option value="100">100</option>
+                <option value="5000">Show ALL Rows</option>
+              </select>
+
             </div>
-  
-            <div class="tb_search">
-              <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
+          </div>
+
+          <div class="tb_search">
+            <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
               placeholder="Search" aria-label="Search Stock Data">
-            </div>
+          </div>
 
-            <div class="table-responsive pt-3">
-              <table class="table table-striped"  id="datatablesSimple">
-                <thead>
-                    <tr>
-                        
+          <div class="table-responsive pt-3">
+            <table class="table table-striped" id="datatablesSimple">
+              <thead>
+                <tr>
 
-                       <th>OutletId</th>
-                       <th>BeatName</th>
-                       <th>OutletName</th>
-                       {% for type_id in unique_type %}
-                       <th>{{type_id}}</th>
-                       {% endfor %}
-                     
-                     
-                       
-                        
-                    </tr>
-                   
-    
-                </thead>
-               
-                    <tbody>
-                        <!--  total sum in type_Id realetd -->
-                        {% set coupon_sums = {} %} 
-                        {% for coupon_typeId in unique_coupon_type %}
-                            {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
-                        {% endfor %}
-<!-- Dictionary to hold sums for each coupon_typeId -->
 
-                        {% for outlet in outletId %}
-                        <tr>
-                            <td>{{outlet}}</td>
+                  <th>OutletId</th>
+                  <th>BeatName</th>
+                  <th>OutletName</th>
+                  {% for type_id in unique_type %}
+                  <th>{{type_id}}</th>
+                  {% endfor %}
 
-                            <td>
-                                {% set beatname = dict_list|selectattr('outletId', 'eq',outlet)|map(attribute='beatname')|list|first %}
-                                {{ beatname if beatname is defined else '' }}
-                            </td>
 
-                                <!-- {{unique_beatname}}</td> -->
-                            <td>
-                                {% set outletName = dict_list|selectattr('outletId', 'eq',outlet)|map(attribute='outletName')|list|first %}
-                                {{ outletName if outletName is defined else '' }}
-                                <!-- {{unique_outletName}} -->
-                            </td>
 
-                            {% set scheme_counts = {} %}
-                            
-                            {% for item in dict_list if item['outletId'] == outlet %}
-                            {% set _ = scheme_counts.update({item['coupon_type']: item['scheme_count']}) %}
-                            {% endfor %}
-                            {% for type_id in unique_type %}
-                            {% if type_id in scheme_counts %} 
-                            <td>{{ scheme_counts[type_id] }}</td>
-                            {% else %}
-                            <td>0</td>
-                            {% endif %}
-                        <!--  total sum in type_Id realetd -->
-                            {% set coupon_sums = coupon_sums.update({type_id: (coupon_sums[type_id]|default(0)) + (scheme_counts[type_id]|default(0))}) %}
-                        <!--  total sum in type_Id realetd -->
-                            {% endfor %}
 
-                        </tr>
-                        {% endfor %}
+                </tr>
 
-                        <!--  total sum in type_Id realetd -->
 
-                         <tr>
-                        <td></td> 
-                        <td></td> 
-                        <td><h4>Grand-Total</h4></td> 
-                        {% for type_id in unique_type %}
-                            <td>{{ coupon_sums[type_id] }}</td>
-                        {% endfor %}
-                        <!--  total sum in type_Id realetd -->
-                    </tr>
-                      
-                      
-                    </tbody> 
-              </table>
-            </div>
+              </thead>
+
+              <tbody>
+                <!--  total sum in type_Id realetd -->
+                {% set coupon_sums = {} %}
+                {% for coupon_typeId in unique_coupon_type %}
+                {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
+                {% endfor %}
+                <!-- Dictionary to hold sums for each coupon_typeId -->
+
+                {% for outlet in outletId %}
+                <tr>
+                  <td>{{outlet}}</td>
+
+                  <td>
+                    {% set beatname = dict_list|selectattr('outletId', 'eq',outlet)|map(attribute='beatname')|list|first
+                    %}
+                    {{ beatname if beatname is defined else '' }}
+                  </td>
+
+                  <!-- {{unique_beatname}}</td> -->
+                  <td>
+                    {% set outletName = dict_list|selectattr('outletId',
+                    'eq',outlet)|map(attribute='outletName')|list|first %}
+                    {{ outletName if outletName is defined else '' }}
+                    <!-- {{unique_outletName}} -->
+                  </td>
+
+                  {% set scheme_counts = {} %}
+
+                  {% for item in dict_list if item['outletId'] == outlet %}
+                  {% set _ = scheme_counts.update({item['coupon_type']: item['scheme_count']}) %}
+                  {% endfor %}
+                  {% for type_id in unique_type %}
+                  {% if type_id in scheme_counts %}
+                  <td>{{ scheme_counts[type_id] }}</td>
+                  {% else %}
+                  <td>0</td>
+                  {% endif %}
+                  <!--  total sum in type_Id realetd -->
+                  {% set coupon_sums = coupon_sums.update({type_id: (coupon_sums[type_id]|default(0)) +
+                  (scheme_counts[type_id]|default(0))}) %}
+                  <!--  total sum in type_Id realetd -->
+                  {% endfor %}
+
+                </tr>
+                {% endfor %}
+
+                <!--  total sum in type_Id realetd -->
+
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    <h4>Grand-Total</h4>
+                  </td>
+                  {% for type_id in unique_type %}
+                  <td>{{ coupon_sums[type_id] }}</td>
+                  {% endfor %}
+                  <!--  total sum in type_Id realetd -->
+                </tr>
+
+
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+    </div>
 
-    
+
   </div>
- 
+
 </div>
 
 
 
 <script>
-  function tableToExcel() {
-          const table = document.getElementById('datatablesSimple');
-          const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
-          const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
-  
-          function s2ab(s) {
-              const buf = new ArrayBuffer(s.length);
-              const view = new Uint8Array(buf);
-              for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-              return buf;
-          }
-          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
-      }
-  
-    
-    </script>
+  // function tableToExcel() {
+  //         const table = document.getElementById('datatablesSimple');
+  //         const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+  //         const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
 
-<script>
-  document.getElementById("offerName").innerText = localStorage.getItem("offername")
-  
+  //         function s2ab(s) {
+  //             const buf = new ArrayBuffer(s.length);
+  //             const view = new Uint8Array(buf);
+  //             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+  //             return buf;
+  //         }
+  //         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+  //     }
+
+
+  function tableToExcel() {
+    // Get the content of the card title
+    const cardTitle = document.querySelector('.card-title').textContent;
+
+    // Get the table data
+    const table = document.getElementById('datatablesSimple');
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Add the card title and table data to the same worksheet
+    const wsTitle = 'Sales Data';
+    const wsData = [];
+
+    // Add the card title as the first row in the worksheet
+    wsData.push([cardTitle]);
+
+    // Add an empty row for spacing
+    wsData.push([]);
+
+    // Add the table data
+    const tableRows = table.querySelectorAll('tr');
+    tableRows.forEach(row => {
+      const rowData = [];
+      row.querySelectorAll('td').forEach(cell => {
+        rowData.push(cell.innerText);
+      });
+      wsData.push(rowData);
+    });
+
+    // Convert data to worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, wsTitle);
+
+    // Generate Excel file
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+
+    // Function to convert string to array buffer
+    function s2ab(s) {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+
+    // Save the file
+    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
+  }
+
+
 </script>
 
 <script>
-function setOfferName(id) {
+  document.getElementById("offerName").innerText = localStorage.getItem("offername")
+
+</script>
+
+<script>
+  function setOfferName(id) {
     // Set the action of the form dynamically based on the clicked item's id
     document.getElementById('myForm').action = "/offer/{{ offerID }}/" + id;
-}
+  }
 
 
 </script>
