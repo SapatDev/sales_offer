@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<style>
+    .bmw{
+        text-decoration:none;color:#fff;
+    }
+    .bmw:hover{
+        text-decoration:underline;color:#ffb471;
+    }
+    .float-start {
+        float: left !important;
+        font-size: 17px;
+    }
+    .float-end {
+        float: right !important;
+    }
+    .float-end h4{
+        margin-top:3px;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <!-- <h4 class="mt-4">Dashboard</h4> -->
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active"><h4>Monthly Stock</h4></li>
+        <!-- <select id="months" onchange="countryHandler()">
+            <option disabled>"Month Selection"</option> -->
+
+           
+        <!-- </select> -->
+    </ol>
+    <div class="row">
+        <div class="col-md-12">
+            <a type="button" href="../closingsale?date=2023-03-31" class="btn btn-outline-danger mb-2"> 2023-03-31</a>
+            <a type="button" href="../closingsale?date=2023-04-30" class="btn btn-outline-danger mb-2"> 2023-04-30</a>
+            <a type="button" href="../closingsale?date=2023-05-31" class="btn btn-outline-danger mb-2"> 2023-05-31</a>
+            <a type="button" href="../closingsale?date=2023-06-30" class="btn btn-outline-danger mb-2"> 2023-06-30</a>
+            <a type="button" href="../closingsale?date=2023-07-31" class="btn btn-outline-danger mb-2"> 2023-07-31</a>
+            <a type="button" href="../closingsale?date=2023-08-31" class="btn btn-outline-danger mb-2"> 2023-08-31</a>
+            <a type="button" href="../closingsale?date=2023-09-30" class="btn btn-outline-danger mb-2"> 2023-09-30</a>
+            <a type="button" href="../closingsale?date=2023-10-31" class="btn btn-outline-danger mb-2"> 2023-10-31</a>
+            <a type="button" href="../closingsale?date=2023-11-15" class="btn btn-outline-danger mb-2"> 2023-11-15</a>
+            <a type="button" href="../closingsale?date=2023-11-30" class="btn btn-outline-danger mb-2"> 2023-11-30</a>
+            <a type="button" href="../closingsale?date=2023-12-31" class="btn btn-outline-danger mb-2"> 2023-12-31</a>
+            <!-- <button type="button" class="btn btn-danger mb-2">2023-12-31</button> -->
+            <a type="button" href="../closingsale?2024-01-31" class="btn btn-outline-danger mb-2"> 2024-01-31</a>
+        </div>
+    </div>
+    <div class="row">
+       
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">Opening</div>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(opening|float)|int}}kg</h4>
+            </div>
+        </div>
+       
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">Primary</div>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(primary|float)|int}}kg</h4>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">Closing</div>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(closing|float)|int}}kg</h4>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                <div class="float-start">Secondary</div>
+                <div class="float-end"><h5>  </h5></div></div>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(secondary|float)|int}}kg </h4>
+            </div>
+        </div>
+       
+
+    </div>
+    <hr>
+    <h4 class="mt-2 mb-3">Monthly Stock Zone</h4>
+    <div class="row">
+        
+        <!-- <div class="col-xl-3 col-md-6">
+            <div class="card bg-white text-black mb-4">
+                <div style="padding: 10px 15px;" class="bg-black">
+                  <a class="bmw" target="_blank" href="../zonestock/COASTAL/2023-12-31"> COASTAL</a>
+                </div>
+                <div style="padding: 3px 15px;background: #f7f7f7;">
+                    <div class="float-start">Opening</div>
+                    <div class="float-end"><h6>15715.08 kg</h6></div>
+                </div>
+                <div style="padding: 3px 15px;">
+                    <div class="float-start">Primary</div>
+                    <div class="float-end"><h6>17300.21 kg</h6></div>
+                </div>
+                <div style="padding: 3px 15px;background: #f7f7f7;">
+                    <div class="float-start">Closing</div>
+                    <div class="float-end"><h6>16669.91 kg</h6></div>
+                </div>
+                <div style="padding: 3px 15px;">
+                    <div class="float-start">Secondary</div>
+                    <div class="float-end"><h6>16345.39 kg</h6></div>
+                </div>
+            </div>
+        </div> -->
+        
+        {% for item in dict_list %}
+        <div class="col-xl-3 col-md-6">
+           
+            <div class="card bg-white text-black mb-4">
+                <div style="padding: 10px 15px;" class="bg-dark">
+                    <div class="float-start text-white"><b><a style="font-size:18px;" class="bmw" href="{{ url_for('stock_salesgroup', salesgroup=item['Salesgroup']) }}">{{ item['Salesgroup'] }}</a></b></div>
+                </div> 
+                <div style="padding: 3px 15px;background: #f7f7f7;">
+                    <div class="float-start">Opening</div> <td>
+                    <div class="float-end"><h4>{{(item['Opening']|float)|int}}</h4></div>
+                </div>
+                <div style="padding: 3px 15px;">
+                    <div class="float-start">Primary</div>
+                    <div class="float-end"><h4>{{ (item['Primary_Stock']|float)|int }}</h4></div>
+                </div>
+                <div style="padding: 3px 15px;background: #f7f7f7;">
+                    <div class="float-start">Closing</div>
+                    <div class="float-end"><h4>{{ (item['Closing']|float)|int }}</h4></div>
+                </div>
+                <div style="padding: 3px 15px;">
+                    <div class="float-start">Secondary</div>
+                    <div class="float-end"><h4>{{ (item['Secondary']|float)|int }}</h4></div>
+                </div>
+                <!-- <p style="margin: 0px; font-size:17px;" class="card-footer d-flex align-items-center justify-content-between text-warning">Rs. 0.00</p>  -->
+            </div>
+           
+        </div>
+        {% endfor %}
+
+    </div>
+    
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

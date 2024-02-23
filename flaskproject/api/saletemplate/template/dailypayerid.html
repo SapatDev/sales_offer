@@ -15,17 +15,7 @@
             <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
          </div>
 
-          <!-- <div style="margin-top: 0px;margin-left: 21px;">
-            <form action="/dailysale/{{ salesgroup }}" method="get">
-                <label style="font-size: 17px; font-weight: 500;" for="month">Month:</label>
-                <input style="padding: 5px; border-radius: 4px;" type="text" id="month" name="month" placeholder="enter the month" >
-            
-                <label style="padding-left: 15px;font-size: 17px; font-weight: 500;" for="year">Year:</label>
-                <input style="padding: 5px; border-radius: 4px;" type="text" id="year" name="year" placeholder="enter the year" >
-            
-                <button class="button-62" type="submit">Search</button>
-            </form>
-        </div> -->
+       
 
         <form action="{{ url_for('dailysales', salesgroup=salesgroup) }}" method="GET">
           <label for="from_month">From Month:</label>

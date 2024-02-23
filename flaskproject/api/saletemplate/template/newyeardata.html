@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="main-panel">
+    <div class="content-wrapper">
+  
+      <div class="row">
+
+
+        <div class="col-lg-12 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title" id="offerName">Striped Table</h4>
+              <!-- <p class="card-description">
+                Add class <code>.table-striped</code>
+              </p> -->
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      
+                        <th>Salesgroup</th>
+                        
+                        <th>payerId</th>
+                        <th>stokist_name</th>
+                    
+                        <th>beatname</th>
+                        <th>targetOffer</th>
+
+                 
+                        
+
+
+                       
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in dict_list %}
+              
+                <tr>
+             
+                     <td>{{ item['salesgroup'] }}</td>
+                    <td>{{ item['payerId'] }}</td>
+                    <td>{{ item['stokist_name'] }}</td>
+                    <td>{{ item['beatname'] }}</td>  
+                    <td>{{ item['targetOffer'] }}</td> 
+                 
+                </tr>
+                {% endfor %}
+
+
+
+                    
+                    
+                </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+  
+    </div>
+</div>
+</div>
+
+
+
+<script>
+
+    // function tableToExcel() {
+    //         const table = document.getElementById('datatablesSimple');
+    //         const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+    //         const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+    
+    //         function s2ab(s) {
+    //             const buf = new ArrayBuffer(s.length);
+    //             const view = new Uint8Array(buf);
+    //             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    //             return buf;
+    //         }
+    //         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+    //     }
+    
+    
+    function tableToExcel() {
+        // Get the content of the card title
+        const cardTitle = document.querySelector('.card-title').textContent;
+    
+        // Get the table data
+        const table = document.getElementById('datatablesSimple');
+    
+        // Create a new workbook
+        const wb = XLSX.utils.book_new();
+    
+        // Add the card title and table data to the same worksheet
+        const wsTitle = 'Sales Data';
+        const wsData = [];
+    
+        // Add the card title as the first row in the worksheet
+        wsData.push([cardTitle]);
+    
+        // Add an empty row for spacing
+        wsData.push([]);
+    
+        // Add the table data
+        const tableRows = table.querySelectorAll('tr');
+        tableRows.forEach(row => {
+            const rowData = [];
+            row.querySelectorAll('td').forEach(cell => {
+                rowData.push(cell.innerText);
+            });
+            wsData.push(rowData);
+        });
+    
+        // Convert data to worksheet
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, wsTitle);
+    
+        // Generate Excel file
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+    
+        // Function to convert string to array buffer
+        function s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+        }
+    
+        // Save the file
+        saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
+    }
+    
+      
+      </script>
+
+
+<script>
+    document.getElementById("offerName").innerText = localStorage.getItem("offername")
+    console.log("offername",offerName)
+</script>
+
+<script>
+  function setOfferName(id) {
+      // Set the action of the form dynamically based on the clicked item's id
+      document.getElementById('myForm').action = "/offer/{{ offerID }}/" + id;
+  }
+
+
+{% endblock %}

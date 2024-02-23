@@ -1,3 +1,4 @@
+import calendar
 from sqlalchemy import text
 # from decode import encrypt_message
 # from encryt import encrypt_data
@@ -31,10 +32,103 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 ###################################### Sales data 
-# @app.route('/login')
-# def login():
-#     return render_template('login.html')
+@app.route('/stocksales/<salesgroup>')
+def stock_salesgroup(salesgroup):
+        result = db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('{salesgroup}');"))
+        datakey=result.keys()
+        data=result.fetchall()
+        result.close()
+        dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+        # print("Ss",dict_list_type)
+        return render_template('closingstockpayer.html',dict_list=dict_list)
+        
+@app.route('/closingsale')
+def closingsale():
+    date = request.args.get('date')
 
+    if date:
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup(:date);').params(date=date))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups(:date);').params(date=date))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+        closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+        primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+        secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+    else:
+        # If date is not provided, use today's date
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        opening = dict_list1[0]['Opening'] if dict_list1 else None
+        closing = dict_list1[0]['Closing'] if dict_list1 else None
+        primary = dict_list1[0]['Primary_Stock'] if dict_list1 else None
+        secondary = dict_list1[0]['Secondary'] if dict_list1 else None
+
+        # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+        # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+        # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+        # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+   
+    # result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+    # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+    # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+    # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+
+    # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStock(:salesgroup);')).params(salesgroup=salesgroup)
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_salesgroup = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    
+
+    
+
+    
+
+    return render_template('salegruopcloging.html',secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
+
+@app.route('/Newyear')
+def Newyear():
+    result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    
+    return render_template('newyeardata.html', dict_list=dict_list)
+
+   
 # Define your static credentials
 STATIC_USERNAME = "sapat"
 STATIC_PASSWORD = "sapat@123"
@@ -70,6 +164,7 @@ def login():
         if username == STATIC_USERNAME and password == STATIC_PASSWORD:
             # Authentication successful, store username in session
             session['username'] = username
+            # print("session",username)
             # Redirect to a dashboard or home page
             return redirect(url_for('Dashboard'))
         else:
@@ -84,6 +179,7 @@ def login():
 def logout():
     # Clear the session data
     session.clear()
+   
     # Redirect to the login page
     return redirect(url_for('login'))
 
@@ -175,29 +271,36 @@ def closingstockpayerid():
 def closingstockgrade(payerId):
 
     date = request.args.get('date') 
-  
+# this Skuid data
     if date:
-        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(payerId=payerId, date=date))
+        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDateUpdated(:payerId, :date);').params(payerId=payerId, date=date))
     else:
-        # If date is not provided, use today's date
-        today_date = "2024-01-31"
-        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDate(:payerId, :date);').params(payerId=payerId, date=today_date))
+        today = datetime.now()
+        last_day_of_previous_month = today.replace(day=1) -timedelta(days=1)
+        last_day_of_previous_month_str = last_day_of_previous_month.strftime("%Y-%m-%d")
+        
+        result = db.session.execute(text('CALL GetStockSummaryForPayerAndDateUpdated(:payerId, :date);').params(payerId=payerId, date=last_day_of_previous_month_str))
+        # # today_date = "2024-01-31"
+        # result = db.session.execute(text('CALL GetStockSummaryForPayerAndDateUpdated(:payerId, "2024-01-31");').params(payerId=payerId))
    
     datakey = result.keys()
     data = result.fetchall()
     result.close()
 
-    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    dict_gradelist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
     
 
-
+# this grade code 
     if date:
-        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParams(:payerId, :date);').params(payerId=payerId, date=date))
+        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParamsUpdated(:payerId, :date);').params(payerId=payerId, date=date))
     else:
-        # If date is not provided, use today's date
-        today_date = "2024-01-31"
-        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParams(:payerId, :date);').params(payerId=payerId, date=today_date))
+        today = datetime.now()
+        last_day_of_previous_month = today.replace(day=1) -timedelta(days=1)
+        last_day_of_previous_month_str = last_day_of_previous_month.strftime("%Y-%m-%d")
+        
+        result = db.session.execute(text('CALL GetStockSummaryByGradeWithParamsUpdated(:payerId, :date);').params(payerId=payerId, date=last_day_of_previous_month_str))
+        # result = db.session.execute(text('CALL GetStockSummaryByGradeWithParamsUpdated(:payerId, "2024-01-31");').params(payerId=payerId))
    
     datakey = result.keys()
     data = result.fetchall()
@@ -205,13 +308,53 @@ def closingstockgrade(payerId):
 
     dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-    total_Opening = sum(item['Opening'] for item in dict_list)
-    total_Primary_Stock = sum(item['Primary_Stock'] for item in dict_list)
-    total_Closing = sum(item['Closing'] for item in dict_list)
-    total_Secondary = sum(item['Secondary'] for item in dict_list)
+#this sku id total related only
+    if date:
+        result = db.session.execute(text('CALL GetGrandTotalForStockSummaryForPayerAndDateUpdated(:payerId, :date);').params(payerId=payerId, date=date))
+    else:
+        today = datetime.now()
+        last_day_of_previous_month = today.replace(day=1) -timedelta(days=1)
+        last_day_of_previous_month_str = last_day_of_previous_month.strftime("%Y-%m-%d")
+        
+        result = db.session.execute(text('CALL GetGrandTotalForStockSummaryForPayerAndDateUpdated(:payerId, :date);').params(payerId=payerId, date=last_day_of_previous_month_str))
+        # result = db.session.execute(text('CALL GetGrandTotalForStockSummaryForPayerAndDateUpdated(:payerId, "2024-01-31");').params(payerId=payerId))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    dict_total = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    total_closingstock = dict_total[0]['Grand_Total_Closing'] if dict_total else None
+    total_openingstock = dict_total[0]['Grand_Total_Opening'] if dict_total else None
+    total_primarystock = dict_total[0]['Grand_Total_Primary_Stock'] if dict_total else None
+    total_secondarystock= dict_total[0]['Grand_Total_Secondary'] if dict_total else None
+    total_secondarytoatlsyock = dict_total[0]['Grand_Total_Secondary_Amount'] if dict_total else None
+
+# grade total
+    if date:
+        result = db.session.execute(text('CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated(:payerId, :date);').params(payerId=payerId, date=date))
+    else:
+        today = datetime.now()
+        last_day_of_previous_month = today.replace(day=1) -timedelta(days=1)
+        last_day_of_previous_month_str = last_day_of_previous_month.strftime("%Y-%m-%d")
+        
+        result = db.session.execute(text('CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated(:payerId, :date);').params(payerId=payerId, date=last_day_of_previous_month_str))
+        # result = db.session.execute(text('CALL GetStockSummaryByGradeWithParamsUpdated(:payerId, "2024-01-31");').params(payerId=payerId))
+   
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+
+    dict_listgrade = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    Grand_Total_Closing = dict_total[0]['Grand_Total_Closing'] if dict_total else None
+    Grand_Total_Secondary = dict_total[0]['Grand_Total_Secondary'] if dict_total else None
+    Grand_Total_Secondary_Amount = dict_total[0]['Grand_Total_Secondary_Amount'] if dict_total else None
+
+    
 
 
-    return render_template('closingstockgrade.html',total_Opening=total_Opening,total_Primary_Stock=total_Primary_Stock,total_Closing=total_Closing,total_Secondary=total_Secondary, dict_list=dict_list,date=date,payerId=payerId,dict_list1=dict_list1)
+    return render_template('closingstockgrade.html',Grand_Total_Secondary_Amount=Grand_Total_Secondary_Amount,Grand_Total_Secondary=Grand_Total_Secondary,Grand_Total_Closing=Grand_Total_Closing,dict_gradelist=dict_gradelist,total_secondarytoatlsyock=total_secondarytoatlsyock,total_secondarystock=total_secondarystock,total_primarystock=total_primarystock,total_openingstock=total_openingstock,total_closingstock=total_closingstock,dict_total=dict_total,date=date,payerId=payerId,dict_list1=dict_list1)
 
 
 
@@ -286,11 +429,11 @@ def dailysales(salesgroup):
 
     if from_month and from_year and end_month and end_year:
        
-        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupLatest(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
     else:
-         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
+         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupLatest(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
        
-
+# GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear old 23-02-2024 
     
     # if month and year :
     #     result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(:month, :year,:salesgroup);').params(salesgroup=salesgroup,month=month,year=year))
@@ -476,19 +619,63 @@ def Dashboard():
         # opening_values = [item['Opening'] for item in dict_list]
         # primary_stock_values = [item['Primary_Stock'] for item in dict_list]
         closing_values = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_list]
+        Secondary_value =[int(item['Secondary']) if item['Secondary'] is not None else None for item in dict_list]
         # print("closing_values",closing_values)
         opening_values = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_list]
         primary_stock_values = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_list]
 
 
 
-        # total_closing = sum(value for value in closing_values if value is not None)
+        Secondary = int(sum(value for value in Secondary_value if value is not None))
 
         # Calculate the total of Closing, Opening, and Primary_Stock values, handling None values and removing decimal points
         total_closing = int(sum(value for value in closing_values if value is not None))
 
         total_opening = int(sum(value for value in opening_values if value is not None))
         total_primary_stock = int(sum(value for value in primary_stock_values if value is not None))
+
+        # closing  stock Report
+        current_date = datetime.now()
+        # Calculate the first day of the current month
+        first_day_of_current_month = current_date.replace(day=1)
+        # Calculate the last day of the previous month
+        last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
+        # Extract year, month, and day for the last day of the previous month
+        previous_year = last_day_of_previous_month.year
+        previous_month = last_day_of_previous_month.month
+        previous_day = last_day_of_previous_month.day
+
+        # Construct the date string for the last day of the previous month
+        previous_month_date = f"{previous_year}-{previous_month:02d}-{previous_day}"
+        print("previous_month_date",previous_month_date)
+
+        # Call the procedure with the dynamically obtained date for the last day of the previous month
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup(:previous_month_date)'), {'previous_month_date': previous_month_date})
+
+        # result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_stock = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        salesgroup_stock = [item['Salesgroup'] for item in dict_stock]
+        closing_stock = [int(item['Closing']) if item['Closing'] is not None else None for item in dict_stock]
+        Secondary_stock =[int(item['Secondary']) if item['Secondary'] is not None else None for item in dict_stock]
+        opening_stock = [int(item['Opening']) if item['Opening'] is not None else None for item in dict_stock]
+        primary_stock_stock = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_stock]
+        
+        stock_closing = int(sum(value for value in closing_stock if value is not None))
+        print("stock_closing",stock_closing)
+        stock_secondary = int(sum(value for value in Secondary_stock if value is not None))
+        stock_opening = int(sum(value for value in opening_stock if value is not None))
+        print("stock_opening",stock_opening)
+        stock_primary_stock = int(sum(value for value in primary_stock_stock if value is not None))
+
+
+
+
+
+
 
         result = db.session.execute(text('CALL OfferDetails();'))
         datakey = result.keys()
@@ -621,7 +808,7 @@ def Dashboard():
             links.append(str(from_months[i]) + "*" + str(to_months[i]))
 
 
-        # Annual stats
+        # Annual data
         result = db.session.execute(text('CALL GetFinancialYearSalesReport();'))
         datakey = result.keys()
         data = result.fetchall()
@@ -632,6 +819,14 @@ def Dashboard():
         Annual_Sales = int(final_result[0]['Annual_Sales'])
         Annual_Sales_LY = int(final_result[0]['Annual_Sales_LY']) 
         Annual_Target = int(final_result[0]['Annual_Target'])
+
+            # Calculate the percentage achieved
+        percentage_achieved = (Annual_Sales / Annual_Target) * 100
+        percentage_achieved = round(percentage_achieved, 2)
+
+        percentage_last_year = (Annual_Sales_LY / Annual_Sales) * 100
+
+        percentage_last_year = round(percentage_last_year, 2)
 
         # e-Commerce month year 
         # result = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024);'))
@@ -679,13 +874,12 @@ def Dashboard():
         Target_Sale_previous = int(month_result_previous[0]['Target_Sale'])
 
 
-
         # target=[item['gradecode'] for item in saledate]
         # Pass all data to the template
-        return render_template('dashboard.html',username=session['username'],Target_Sale_previous=Target_Sale_previous,Month_Sale_previous=Month_Sale_previous,year=year,previous_month_name=previous_month_name,current_month=current_month,Target_Sale_current=Target_Sale_current,Month_Sale_current=Month_Sale_current,Annual_Target=Annual_Target,Annual_Sales_LY=Annual_Sales_LY,Annual_Sales=Annual_Sales,Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
+        return render_template('dashboard.html',username=session['username'],Secondary=Secondary,percentage_achieved=percentage_achieved,percentage_last_year =percentage_last_year ,Target_Sale_previous=Target_Sale_previous,Month_Sale_previous=Month_Sale_previous,year=year,previous_month_name=previous_month_name,current_month=current_month,Target_Sale_current=Target_Sale_current,Month_Sale_current=Month_Sale_current,Annual_Target=Annual_Target,Annual_Sales_LY=Annual_Sales_LY,Annual_Sales=Annual_Sales,Target_data=Target_data,sale_dailydata=sale_dailydata,salesgroup_daily=salesgroup_daily,saledate=saledate,total_count=total_count,spd_details_count_data=spd_details_count_data,ek_se_count_data=ek_se_count_data,winter_count_data=winter_count_data,monsoon_count_data=monsoon_count_data,spd_count_data=spd_count_data,ssc_count_data=ssc_count_data,spd_details_count=spd_details_count,ek_se_count=ek_se_count,winter_count=winter_count,monsoon_count=monsoon_count,ssc_count=ssc_count,spd_count=spd_count,labels=labels, closing_values=closing_values,
                                 opening_values=opening_values, primary_stock_values=primary_stock_values,
                                 total_closing=total_closing, total_opening=total_opening,from_date=from_date,to_date=to_date,
-                                total_primary_stock=total_primary_stock,dict_list1=dict_list1,ecommerce_analytics=links,selected_date=links[0])
+                                total_primary_stock=total_primary_stock,dict_list1=dict_list1,ecommerce_analytics=links,selected_date=links[0],primary_stock_stock=primary_stock_stock,opening_stock=opening_stock,Secondary_stock=Secondary_stock,closing_stock=closing_stock,stock_closing=stock_closing,stock_secondary=stock_secondary,stock_opening=stock_opening,stock_primary_stock=stock_primary_stock,salesgroup_stock=salesgroup_stock)
 
     else:
         return redirect(url_for('login'))
@@ -977,9 +1171,9 @@ def SSC2(offerID,pkey):
             dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
             type_ids = [item['type_Id'] for item in dict_list_type]
     
-            # print("Type IDs:", type_ids)
+            # print("Type IDs:", type_ids)SweetSummerOffer
         
-        if (offerID=='SSC2'):
+        if (offerID=='SSC2'):  
             result = db.session.execute(text('CALL SweetSummerOffer();'))
         elif(offerID=="SPD1"):
             result = db.session.execute(text('CALL GetSpdOfferDetails();'))          
@@ -999,10 +1193,10 @@ def SSC2(offerID,pkey):
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
         # print("sss",dict_list)
-
+        
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
-        
+        # print(df)
 
         # Extract year and month into new columns
         if 'created_at' in df.columns and 'type_Id' in df.columns:
@@ -1022,18 +1216,22 @@ def SSC2(offerID,pkey):
             
             salesgroups = df['salesgroup'].unique()
             unique_type_ids = df2['type_Id'].unique()
+            # total_scheme_count= df['total_scheme_count'].unique()
             
-
+            new_columns = list(unique_type_ids) + ['sum']
 
             
-            # Create an empty DataFrame with salesgroups as index and type_Ids as columns
-            result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
+            # Create an empty DataFrame with salesgroups as index and type_Ids as columns df['type_Id']+["sum"]
+            result_df = pd.DataFrame(index=salesgroups, columns=new_columns)
 
 
             # Fill the result_df with scheme_count values
             for index, row in df.iterrows():
                 result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
-                
+                result_df.loc[row['salesgroup'],"sum"]= result_df.loc[row['salesgroup'], "sum"] + row['scheme_count']
+              
+                result_df['sum'] = result_df['sum'].fillna(0)
+            # print(result_df)
 
             # Convert the DataFrame to HTML table
             html_table = result_df.to_html()
@@ -1086,6 +1284,8 @@ def SSC2(offerID,pkey):
             for salesgroup in salesgroups:
                 sales_data = result_df.loc[salesgroup].dropna()
                 sales_group_data[salesgroup] = sales_data.unique().sum() 
+
+           
 
 
             # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
@@ -1219,6 +1419,8 @@ def salesgroup(salesgroup,pkey):
         stokist_name_Id=df['stokist_name'].unique()
         # unique_type_ids = df2['type_Id'].unique()
         # Get the selected month and year from the request parameters
+
+       
         
 
         # Create an empty DataFrame with salesgroups as index and type_Ids as columns
@@ -1368,6 +1570,10 @@ def saledata(page=1):
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
+        # result=db.session.execute(text(f"CALL TotalClosingStockSummaryForEachSalesgroup('2024-01-31')"))
+        # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
+        result=db.session.execute(text(f"CALL GetSweetSummerSchemeCountGroupBySalesgroup()"))
+        # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('COASTAL')"))
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
         # result=db.session.execute(text(f"CALL GetFinancialYearSalesReport()"))
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
@@ -1379,7 +1585,7 @@ def menulist():
         # result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
         # result = db.session.execute(text("CALL GetEmployeeData();"))
-        result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('HAN001');"))
+        # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('HAN001');"))
         # result.count()
         # print("result_data",result_data)
         datakey = result.keys()

@@ -263,122 +263,123 @@
   //       options: salesanalyticOptions
   //   });
   // }
-  var barChartStackedData = {
-    labels: ["jan", "feb", "mar", "apr", "may", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [{
-      label: 'Safari',
-      data: [10,20,15,30,20,10,20,15,30,20, 10,20,],
-      backgroundColor: [
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-      ],
-      borderColor: [
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-        '#2b80ff',
-      ],
-      borderWidth: 1,
-      fill: false
-    },
-    {
-      label: 'Chrome',
-      data: [5,25,10,20,30,5,25,10,20,30,25,10],
-      backgroundColor: [
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-      ],
-      borderColor: [
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-        '#bfccda',
-      ],
-      borderWidth: 1,
-      fill: false
-    }]
-  };
-  var barChartStackedOptions = {
-    scales: {
-      xAxes: [{
-        display: false,
-        stacked: true,
-        gridLines: {
-          display: false //this will remove only the label
-        },
-      }],
-      yAxes: [{
-        stacked: true,
-        display: false,
-      }]
-    },
-    legend: {
-      display: false,
-      position: "bottom"
-    },
-    legendCallback: function(chart) {
-      var text = [];
-      text.push('<div class="row">');
-      for (var i = 0; i < chart.data.datasets.length; i++) {
-        text.push('<div class="col-sm-5 mr-3 ml-3 ml-sm-0 mr-sm-0 pr-md-0 mt-3"><div class="row align-items-center"><div class="col-2"><span class="legend-label" style="background-color:' + chart.data.datasets[i].backgroundColor[i] + '"></span></div><div class="col-9"><p class="text-dark m-0">' + chart.data.datasets[i].label + '</p></div></div>');
-        text.push('</div>');
-      }
-      text.push('</div>');
-      return text.join("");
-    },
-    elements: {
-      point: {
-        radius: 0
-      }
-    }
+  
+  // var barChartStackedData = {
+  //   labels: ["jan", "feb", "mar", "apr", "may", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  //   datasets: [{
+  //     label: 'Safari',
+  //     data: [10,20,15,30,20,10,20,15,30,20, 10,20,],
+  //     backgroundColor: [
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //     ],
+  //     borderColor: [
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //       '#2b80ff',
+  //     ],
+  //     borderWidth: 1,
+  //     fill: false
+  //   },
+  //   {
+  //     label: 'Chrome',
+  //     data: [5,25,10,20,30,5,25,10,20,30,25,10],
+  //     backgroundColor: [
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //     ],
+  //     borderColor: [
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //       '#bfccda',
+  //     ],
+  //     borderWidth: 1,
+  //     fill: false
+  //   }]
+  // };
+  // var barChartStackedOptions = {
+  //   scales: {
+  //     xAxes: [{
+  //       display: false,
+  //       stacked: true,
+  //       gridLines: {
+  //         display: false //this will remove only the label
+  //       },
+  //     }],
+  //     yAxes: [{
+  //       stacked: true,
+  //       display: false,
+  //     }]
+  //   },
+  //   legend: {
+  //     display: false,
+  //     position: "bottom"
+  //   },
+  //   legendCallback: function(chart) {
+  //     var text = [];
+  //     text.push('<div class="row">');
+  //     for (var i = 0; i < chart.data.datasets.length; i++) {
+  //       text.push('<div class="col-sm-5 mr-3 ml-3 ml-sm-0 mr-sm-0 pr-md-0 mt-3"><div class="row align-items-center"><div class="col-2"><span class="legend-label" style="background-color:' + chart.data.datasets[i].backgroundColor[i] + '"></span></div><div class="col-9"><p class="text-dark m-0">' + chart.data.datasets[i].label + '</p></div></div>');
+  //       text.push('</div>');
+  //     }
+  //     text.push('</div>');
+  //     return text.join("");
+  //   },
+  //   elements: {
+  //     point: {
+  //       radius: 0
+  //     }
+  //   }
 
-  };
+  // };
 
-  if ($("#barChartStacked").length) {
-    var barChartCanvas = $("#barChartStacked").get(0).getContext("2d");
-    // This will get the first returned node in the jQuery collection.
-    var barChart = new Chart(barChartCanvas, {
-      type: 'bar',
-      data: barChartStackedData,
-      options: barChartStackedOptions
-    });
-  }
+  // if ($("#barChartStacked").length) {
+  //   var barChartCanvas = $("#barChartStacked").get(0).getContext("2d");
+  //   // This will get the first returned node in the jQuery collection.
+  //   var barChart = new Chart(barChartCanvas, {
+  //     type: 'bar',
+  //     data: barChartStackedData,
+  //     options: barChartStackedOptions
+  //   });
+  // }
 
   var barChartStackedDarkData = {
     labels: ["jan", "feb", "mar", "apr", "may", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],

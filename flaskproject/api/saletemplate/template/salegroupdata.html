@@ -309,6 +309,8 @@
                           <th>{{ item_type['type_Id'] }}</th>
 
                         {% endfor %}
+
+                        <th>Sum</th>
                         
 
 
@@ -317,13 +319,15 @@
                 </thead>
 
                 <tbody>
-
+                 
                     {% set coupon_sums = {} %}
                     {% for coupon_typeId in unique_type_ids %}
                     {% set coupon_sums = coupon_sums.update({coupon_typeId: 0}) %}
                     {% endfor %}
                   
                     {% for salesgroup, progress_value in sales_group_data.items() %}
+                       
+                   
                     
                     <tr>
                         
@@ -347,6 +351,7 @@
                             {% if item['salesgroup'] == salesgroup %}
                                 {% set scheme_counts = scheme_counts|default({}) %}
                                 {% set _ = scheme_counts.update({item['type_Id']: item['scheme_count']}) %}
+                                
                             {% endif %}
                         {% endfor %}
                         {% for type_id in unique_type_ids %}
@@ -359,8 +364,12 @@
                                 (coupon_sums[type_id]|default(0)) + (scheme_counts[type_id]|default(0))}) %}
                         
                         {% endfor %}
+                        <td>
+                          {% set sum_value = scheme_counts.values()|sum %}
+                          {{ sum_value }}</td>
                     </tr>
                     {% endfor %}
+                    
                    
 
                     <tr>
@@ -370,12 +379,20 @@
                         {% for type_id in unique_type_ids %}
                         <td>{{ coupon_sums[type_id] }}</td>
                         {% endfor %}
+                        <td>
+                          {% set grand_total = coupon_sums.values()|sum %}
+                          {{ grand_total }}
+              
+                        </td>
+                        
                         <!--  total sum in type_Id realetd -->
                     </tr>
 
           
                 </tbody>
               </table>
+
+              
             </div>
           </div>
         </div>

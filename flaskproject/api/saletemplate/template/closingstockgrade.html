@@ -151,7 +151,7 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end;  margin-bottom: 20px;">
-              <button class="btn btn-sm btn-secondary" role="button" onclick="tableToExcel2()">Download as
+              <button class="btn btn-sm btn-secondary" role="button" onclick="tableToExcel()">Download as
                 Excel</button>
             </div>
 
@@ -161,10 +161,10 @@
                 <!--		Show Numbers Of Rows 		-->
                 <select class="form-control" name="state" id="maxRows">
 
-                  <option value="10">10</option>
+                  <!-- <option value="10">10</option>
                   <option value="15">15</option>
                   <option value="20">20</option>
-                  <option value="50">50</option>
+                  <option value="50">50</option> -->
                   <option value="70">70</option>
                   <option value="100">100</option>
                   <option value="5000">Show ALL Rows</option>
@@ -189,6 +189,8 @@
                     <th>Primary_Stock</th>
                     <th>Closing</th>
                     <th>Secondary</th>
+                    <th>Secondary Amount</th>
+                    <th>Amount</th>
 
 
 
@@ -198,23 +200,27 @@
                 <tbody>
 
 
-                  {% for item in dict_list %}
+                  {% for item in dict_gradelist %}
                   <tr>
                     <td>{{item['skuId']}}</td>
                     <td>{{(item['Opening']|float)|int}}</td>
                     <td>{{(item['Primary_Stock']|float)|int}}</td>
                     <td>{{(item['Closing']|float)|int}}</td>
                     <td>{{(item['Secondary']|float)|int}}</td>
+                    <td>{{item['Secondary_Amount']|float|int}}</td>
+                    <td>{{item['amount']|float|int}}</td>
 
                   </tr>
                   {% endfor %}
 
                   <tr>
-                    <td>Total:</td>
-                    <td>{{ total_Opening|int }}</td>
-                    <td>{{ total_Primary_Stock|int }}</td>
-                    <td>{{ total_Closing|int }}</td>
-                    <td>{{ total_Secondary|int }}</td>
+                    <td><h4>Grand-Total:</h4></td>
+                    <td>{{ total_openingstock|int }}kg</td>
+                    <td>{{ total_primarystock|int }}kg</td>
+                    <td>{{ total_closingstock|int }}kg</td>
+                    <td>{{ total_secondarystock|int }}kg</td>
+                    <td>{{ total_secondarytoatlsyock|int}}kg</td>
+                    <td></td>
 
 
                   </tr>
@@ -287,8 +293,9 @@
                   <tr>
 
                     <th>Grade</th>
-                    <th>Closing</th>
-                    <th>Secondary</th>
+                    <th>Closing Stock(kg)</th>
+                    <th>Secondary Stock(kg) </th>
+                    <th>Secondary Amount(₹)</th>
 
                   </tr>
                 </thead>
@@ -301,10 +308,21 @@
                     <td>{{item['Grade']}}</td>
                     <td>{{(item['Closing']|float)|int}}</td>
                     <td>{{(item['Secondary']|float)|int}}</td>
+                    <td>{{(item['Secondary_Amount']|float)|int}}</td>
 
 
                   </tr>
                   {% endfor %}
+                  <tr>
+                    <td><h4>Grand-Total:</h4></td>
+                    <td>{{ Grand_Total_Closing|int }}</td>
+                    <td>{{ Grand_Total_Secondary|int }}</td>
+                    <td>{{ Grand_Total_Secondary_Amount|int }}</td>
+                  
+                    <td></td>
+
+
+                  </tr>
 
                 </tbody>
               </table>
