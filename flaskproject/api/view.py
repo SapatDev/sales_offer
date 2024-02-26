@@ -434,9 +434,9 @@ def dailysales(salesgroup):
 
     if from_month and from_year and end_month and end_year:
        
-        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupLatest(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
+        result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup,from_month=from_month,from_year=from_year,end_year=end_year,end_month=end_month))
     else:
-         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupLatest(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
+         result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(:from_month,:from_year,:end_month, :end_year,:salesgroup);').params(salesgroup=salesgroup, from_month=datetime.now().month, from_year=datetime.now().year,end_month=datetime.now().month,end_year=datetime.now().year))
        
 # GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYear old 23-02-2024 
     
@@ -1628,7 +1628,9 @@ def menulist():
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
         # result=db.session.execute(text(f"CALL GetSweetSummerSchemeCountGroupBySalesgroup()"))
         # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2023-11-15");'))
-        result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('MARATHWADA - 1')"))
+        # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('MARATHWADA - 1')"))
+        result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1')"))
+        # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
 
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
         # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))

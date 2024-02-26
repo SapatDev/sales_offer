@@ -93,13 +93,21 @@
                             <td>{{ (item['LY_Sales']|float)|int }}</td>
                             <td>{{ (item['Target Gap']|float)|int}}</td>
                             <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td> 
-                            <td>
+                            <!-- <td>
                                 <div class="progress">
                                     <div class="progress-bar {% if item['Achievement Percentage'] >= 100 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Achievement Percentage'] }}%;" aria-valuenow="{{ item['Achievement Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                                         
                                     </div>
                                 </div>
+                            </td> -->
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {% if item['Achievement Percentage'] > 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement Percentage'] }}%;" aria-valuenow="{{ item['Achievement Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ '%.1f'|format(item['Achievement Percentage']) }}%
+                                    </div>
+                                </div>
                             </td>
+                            
                             <!-- <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td> -->
                             
                            

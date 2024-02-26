@@ -35,9 +35,9 @@
           <!--		Show Numbers Of Rows 		-->
           <select class="form-control" name="state" id="maxRows">
 
-            <option value="10">10</option>
+            <!-- <option value="10">10</option>
             <option value="15">15</option>
-            <option value="20">20</option>
+            <option value="20">20</option> -->
             <option value="50">50</option>
             <option value="70">70</option>
             <option value="100">100</option>
@@ -89,13 +89,22 @@
                       <td>{{ (item['Sum_of_Total_Target_Gap']|float)|int}}</td>
                       <td>{{(item['Sum_of_LY_Sales']|float)|int}}</td>
                       <td>{{ '%.1f'|format(item['Achievement_Percentage']) }}%</td>
-                      <td>
+                      <!-- <td>
                         <div class="progress">
                             <div class="progress-bar {% if item['Sum_of_LY_Sales'] >= 150 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Sum_of_LY_Sales'] }}%;" aria-valuenow="{{ item['Sum_of_LY_Sales'] }}" aria-valuemin="0" aria-valuemax="100">
                                
                             </div>
                         </div>
-                    </td>
+                    </td> -->
+                    <td>
+                      <div class="progress">
+                          <div class="progress-bar {% if item['Achievement_Percentage'] > 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                              {{ '%.1f'|format(item['Achievement_Percentage']) }}%
+                          </div>
+                      </div>
+                  </td>
+                  
+                  
 
                    
                       
@@ -175,8 +184,12 @@ function tableToExcel() {
     // Add the card title as the first row in the worksheet
     wsData.push([cardTitle]);
 
-    // Add an empty row for spacing
-    wsData.push([]);
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
 
     // Add the table data
     const tableRows = table.querySelectorAll('tr');
@@ -208,6 +221,7 @@ function tableToExcel() {
     // Save the file
     saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
 }
+
 
   
   </script>
