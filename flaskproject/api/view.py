@@ -32,91 +32,6 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 ###################################### Sales data 
-@app.route('/stocksales/<salesgroup>')
-def stock_salesgroup(salesgroup):
-        result = db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('{salesgroup}');"))
-        datakey=result.keys()
-        data=result.fetchall()
-        result.close()
-        dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
-        # print("Ss",dict_list_type)
-        return render_template('closingstockpayer.html',dict_list=dict_list)
-        
-@app.route('/closingsale')
-def closingsale():
-    date = request.args.get('date')
-
-    if date:
-        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup(:date);').params(date=date))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups(:date);').params(date=date))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-        opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
-        closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
-        primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
-        secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
-    else:
-        # If date is not provided, use today's date
-        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
-        datakey = result.keys()
-        data = result.fetchall()
-        result.close()
-        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-        opening = dict_list1[0]['Opening'] if dict_list1 else None
-        closing = dict_list1[0]['Closing'] if dict_list1 else None
-        primary = dict_list1[0]['Primary_Stock'] if dict_list1 else None
-        secondary = dict_list1[0]['Secondary'] if dict_list1 else None
-
-        # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
-        # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
-        # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
-        # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
-   
-    # result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    # # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-    # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
-    # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
-    # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
-    # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
-
-    # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStock(:salesgroup);')).params(salesgroup=salesgroup)
-    # datakey = result.keys()
-    # data = result.fetchall()
-    # result.close()
-    # dict_salesgroup = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-
-    
-
-    
-
-    
-
-    return render_template('salegruopcloging.html',secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
 
 @app.route('/Newyear')
 def Newyear():
@@ -257,15 +172,103 @@ def sales():
 
 
 ########### Closing stock #######################
-@app.route('/closingstockpayerid')
-def closingstockpayerid():
-    # payer_id = request.args.get('payerId')
-    result = db.session.execute(text(f"CALL GetDistinctPayersWithStokistName();"))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-    dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-    return render_template('closingstockpayer.html',dict_list=dict_list)
+# @app.route('/closingstockpayerid')
+# def closingstockpayerid():
+#     # payer_id = request.args.get('payerId')
+#     result = db.session.execute(text(f"CALL GetDistinctPayersWithStokistName();"))
+#     datakey = result.keys()
+#     data = result.fetchall()
+#     result.close()
+#     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+#     return render_template('closingstockpayer.html',dict_list=dict_list)
+    
+
+@app.route('/closingsale')
+def closingsale():
+    date = request.args.get('date')
+
+    if date:
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup(:date);').params(date=date))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        
+
+        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups(:date);').params(date=date))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        print("ddd",dict_list1)
+
+        opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+        print("opening",opening)
+        closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+        primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+        secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+    else:
+        # If date is not provided, use today's date
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
+        datakey = result.keys()
+        data = result.fetchall()
+        result.close()
+        dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+        opening = dict_list1[0]['Opening'] if dict_list1 else None
+        closing = dict_list1[0]['Closing'] if dict_list1 else None
+        primary = dict_list1[0]['Primary_Stock'] if dict_list1 else None
+        secondary = dict_list1[0]['Secondary'] if dict_list1 else None
+
+        # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+        # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+        # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+        # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+   
+    # result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
+    # datakey = result.keys()
+    # data = result.fetchall()
+    # result.close()
+    # dict_list1 = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+    # opening = [int(str(round(float(item['Opening'])))) for item in dict_list1]
+    # closing = [int(str(round(float(item['Closing'])))) for item in dict_list1]
+    # primary = [int(str(round(float(item['Primary_Stock'])))) for item in dict_list1]
+    # secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
+
+    
+
+    return render_template('salegruopcloging.html',secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
+
+
+@app.route('/stocksales/<salesgroup>')
+def stock_salesgroup(salesgroup):
+        result = db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('{salesgroup}');"))
+        datakey=result.keys()
+        data=result.fetchall()
+        result.close()
+        dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+
+       
+        # stokist_name = dict_list[0]['stokist_name'] if dict_list else None
+        # print("stokist_name",stokist_name)
+        # print("Ss",dict_list_type)
+        return render_template('closingstockpayer.html',dict_list=dict_list)
+        
+    
+
 
 @app.route('/closingstockgrade/<payerId>')
 def closingstockgrade(payerId):
@@ -288,6 +291,8 @@ def closingstockgrade(payerId):
     result.close()
 
     dict_gradelist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+   
 
     
 
@@ -502,7 +507,7 @@ def targetsales(payerId):
     data = result.fetchall()
     result.close()
     dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-    print("dict_list",dict_list)
+    # print("dict_list",dict_list)
 
    
     payer= [item['payerId'] for item in dict_list]
@@ -1184,7 +1189,24 @@ def SSC2(offerID,pkey):
         elif(offerID=="EKS2"):
             result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1();'))
         elif(offerID=="NYD"):
-            result = db.session.execute(text('CALL MonsoonOffer();'))
+            result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
+            datakey = result.keys()
+            data = result.fetchall()
+            result.close()
+            dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+            df = pd.DataFrame(dict_NYDlist)
+
+            grouped_df = df.groupby('salesgroup').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+
+            grouped_data = grouped_df.to_dict(orient='records')
+
+            # total_salesgroup = sum(item['salesgroup'] for item in grouped_data)
+            total_total_multi_gift = sum(item['total_multi_gift'] for item in grouped_data)
+            total_targetOffer = sum(item['targetOffer'] for item in grouped_data)
+    
+
+            return render_template('newyear.html',offer_id=offer_id,total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,dict_NYDlist=dict_NYDlist)
         else:
             result = db.session.execute(text('CALL MonsoonOffer();'))
 
@@ -1396,7 +1418,20 @@ def salesgroup(salesgroup,pkey):
             result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1BySalesgroup('{salesgroup}');"))
 
         elif offer_id == 6:
-            result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
+           
+            result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('{salesgroup}');"))
+            datakey = result.keys()
+            data = result.fetchall()
+            result.close()
+            dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+
+            # df = pd.DataFrame(dict_NYDlist)
+
+            # grouped_df = df.groupby('payerId').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+
+            # grouped_data = grouped_df.to_dict(orient='records') stokist_name
+            return render_template('newyearsalegruop.html',offer_id=offer_id,dict_NYDlist=dict_NYDlist)
+        
         else:
             result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
 
@@ -1420,17 +1455,27 @@ def salesgroup(salesgroup,pkey):
         # unique_type_ids = df2['type_Id'].unique()
         # Get the selected month and year from the request parameters
 
-       
-        
-
-        # Create an empty DataFrame with salesgroups as index and type_Ids as columns
-        result_df = pd.DataFrame(index=payerId, columns=df['type_Id'])
-
-        # Fill the result_df with scheme_count values
+        new_columns = list(unique_type_ids) + ['sum']
+        result_df = pd.DataFrame(index=payerId, columns=new_columns)
         for index, row in df.iterrows():
             result_df.loc[row['payerId'], row['type_Id']] = row['scheme_count']
+            result_df.loc[row['payerId'],"sum"]= result_df.loc[row['payerId'], "sum"] + row['scheme_count']
+            
+            result_df['sum'] = result_df['sum'].fillna(0)    
 
-        # print("----", result_df.to_dict())
+
+
+        # Create an empty DataFrame with salesgroups as index and type_Ids as columns
+            # first code 
+        # result_df = pd.DataFrame(index=payerId, columns=df['type_Id'])
+
+        # Fill the result_df with scheme_count values
+        # for index, row in df.iterrows():
+        #     result_df.loc[row['payerId'], row['type_Id']] = row['scheme_count']
+
+
+        
+       
 
         # Convert the DataFrame to HTML table
         html_table = result_df.to_html()
@@ -1518,16 +1563,25 @@ def PayerId(payer,pkey):
             # unique_outlet_type_ids = df['outlet_type']
             unique_outletName=df['outletName']
             unique_coupon_type = df['coupon_type'].unique()
+
+            new_columns = list(unique_coupon_type) + ['sum']
+            result_df = pd.DataFrame(index=outletId, columns=new_columns)
+            for index, row in df.iterrows():
+                result_df.loc[row['outletId'], row['coupon_type']] = row['scheme_count']
+                result_df.loc[row['outletId'],"sum"]= result_df.loc[row['outletId'], "sum"] + row['scheme_count']
+                
+                result_df['sum'] = result_df['sum'].fillna(0)    
           
             
         
 
             # Create an empty DataFrame with salesgroups as index and type_Ids as columns
-            result_df = pd.DataFrame(index=outletId, columns=df2['type_Id'])
+                # first code 
+            # result_df = pd.DataFrame(index=outletId, columns=df2['type_Id'])
 
-            # Fill the result_df with scheme_count values
-            for index, row in df.iterrows():
-                result_df.loc[row['outletId'], row['coupon_type']] = row['scheme_count']
+            # # Fill the result_df with scheme_count values
+            # for index, row in df.iterrows():
+            #     result_df.loc[row['outletId'], row['coupon_type']] = row['scheme_count']
 
            
             # Convert the DataFrame to HTML table
@@ -1572,10 +1626,12 @@ def menulist():
     try:
         # result=db.session.execute(text(f"CALL TotalClosingStockSummaryForEachSalesgroup('2024-01-31')"))
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
-        result=db.session.execute(text(f"CALL GetSweetSummerSchemeCountGroupBySalesgroup()"))
-        # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('COASTAL')"))
+        # result=db.session.execute(text(f"CALL GetSweetSummerSchemeCountGroupBySalesgroup()"))
+        # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2023-11-15");'))
+        result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('MARATHWADA - 1')"))
+
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
-        # result=db.session.execute(text(f"CALL GetFinancialYearSalesReport()"))
+        # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
         # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupNew(7, 2023, 8, 2023, 'COASTAL')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')))

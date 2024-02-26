@@ -22,9 +22,9 @@
               <!--		Show Numbers Of Rows 		-->
               <select class="form-control" name="state" id="maxRows">
 
-                <option value="10">10</option>
+                <!-- <option value="10">10</option>
                 <option value="15">15</option>
-                <option value="20">20</option>
+                <option value="20">20</option> -->
                 <option value="50">50</option>
                 <option value="70">70</option>
                 <option value="100">100</option>
@@ -51,6 +51,7 @@
                   {% for type_id in unique_type %}
                   <th>{{type_id}}</th>
                   {% endfor %}
+                  <th>Total</th>
 
 
 
@@ -102,6 +103,10 @@
                   (scheme_counts[type_id]|default(0))}) %}
                   <!--  total sum in type_Id realetd -->
                   {% endfor %}
+                  <td>
+                    {% set sum_value = scheme_counts.values()|sum %}
+                    {{ sum_value }}
+                  </td>
 
                 </tr>
                 {% endfor %}
@@ -117,6 +122,11 @@
                   {% for type_id in unique_type %}
                   <td>{{ coupon_sums[type_id] }}</td>
                   {% endfor %}
+                  <td>
+                    {% set grand_total = coupon_sums.values()|sum %}
+                    {{ grand_total }}
+        
+                  </td>
                   <!--  total sum in type_Id realetd -->
                 </tr>
 
@@ -150,7 +160,6 @@
   //         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
   //     }
 
-
   function tableToExcel() {
     // Get the content of the card title
     const cardTitle = document.querySelector('.card-title').textContent;
@@ -168,17 +177,21 @@
     // Add the card title as the first row in the worksheet
     wsData.push([cardTitle]);
 
-    // Add an empty row for spacing
-    wsData.push([]);
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
 
     // Add the table data
     const tableRows = table.querySelectorAll('tr');
     tableRows.forEach(row => {
-      const rowData = [];
-      row.querySelectorAll('td').forEach(cell => {
-        rowData.push(cell.innerText);
-      });
-      wsData.push(rowData);
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            rowData.push(cell.innerText);
+        });
+        wsData.push(rowData);
     });
 
     // Convert data to worksheet
@@ -192,15 +205,16 @@
 
     // Function to convert string to array buffer
     function s2ab(s) {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
     }
 
     // Save the file
     saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
-  }
+}
+
 
 
 </script>

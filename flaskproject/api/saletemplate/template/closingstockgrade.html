@@ -127,10 +127,10 @@
 
 
 
-            <h4 class="card-title">Stock Summary</h4>
+            <h4 class="card-title">Stock Summary {{payerId}}</h4>
 
             <div class="col-md-6">
-              <form action="/closingstockgrade/{{ payerId }}" method="get">
+              <form action="/closingstockgrade/{{ payerId }}" method="get" onsubmit="tableToExcel2(document.getElementById('date').value)">
                 <div class="form-group row">
                   <label class="col-sm-3 col-form-label" for="date">
                     <h5>Selected Date:</h5>
@@ -185,12 +185,12 @@
 
 
                     <th>SkuId</th>
-                    <th>Opening</th>
-                    <th>Primary_Stock</th>
-                    <th>Closing</th>
-                    <th>Secondary</th>
-                    <th>Secondary Amount</th>
-                    <th>Amount</th>
+                    <th>Opening(kg)</th>
+                    <th>Primary_Stock(kg)</th>
+                    <th>Closing(kg)</th>
+                    <th>Secondary(kg)</th>
+                    <th>Secondary Amount(₹)</th>
+                    <!-- <th>Amount</th> -->
 
 
 
@@ -208,18 +208,18 @@
                     <td>{{(item['Closing']|float)|int}}</td>
                     <td>{{(item['Secondary']|float)|int}}</td>
                     <td>{{item['Secondary_Amount']|float|int}}</td>
-                    <td>{{item['amount']|float|int}}</td>
+                    <!-- <td>{{item['amount']|float|int}}</td> -->
 
                   </tr>
                   {% endfor %}
 
                   <tr>
                     <td><h4>Grand-Total:</h4></td>
-                    <td>{{ total_openingstock|int }}kg</td>
-                    <td>{{ total_primarystock|int }}kg</td>
-                    <td>{{ total_closingstock|int }}kg</td>
-                    <td>{{ total_secondarystock|int }}kg</td>
-                    <td>{{ total_secondarytoatlsyock|int}}kg</td>
+                    <td>{{ total_openingstock|int }}</td>
+                    <td>{{ total_primarystock|int }}</td>
+                    <td>{{ total_closingstock|int }}</td>
+                    <td>{{ total_secondarystock|int }}</td>
+                    <td>{{ total_secondarytoatlsyock|int}}</td>
                     <td></td>
 
 
@@ -358,19 +358,75 @@
 
 <script>
 
-  function tableToExcel() {
+function tableToExcel() {
+    // Get the content of the card title
+    const cardTitle = document.querySelector('.card-title').textContent;
+
+    // Get the table data
     const table = document.getElementById('datatablesSimple');
-    const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Add the card title and table data to the same worksheet
+    const wsTitle = 'Sales Data';
+    const wsData = [];
+
+    // Add the card title as the first row in the worksheet
+    wsData.push([cardTitle]);
+
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
+
+    // Add the table data
+    const tableRows = table.querySelectorAll('tr');
+    tableRows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            rowData.push(cell.innerText);
+        });
+        wsData.push(rowData);
+    });
+
+    // Convert data to worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, wsTitle);
+
+    // Generate Excel file
     const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
 
+    // Function to convert string to array buffer
     function s2ab(s) {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
     }
-    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
-  }
+
+    // Save the file
+    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
+}
+
+
+  // function tableToExcel() {
+  //   const table = document.getElementById('datatablesSimple');
+  //   const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+  //   const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+
+  //   function s2ab(s) {
+  //     const buf = new ArrayBuffer(s.length);
+  //     const view = new Uint8Array(buf);
+  //     for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+  //     return buf;
+  //   }
+  //   saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+  // }
 
 
 </script>
@@ -378,19 +434,74 @@
 
 <script>
 
+  // function tableToExcel2() {
+  //   const table = document.getElementById('datatablesSimple1');
+  //   const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+  //   const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+
+  //   function s2ab(s) {
+  //     const buf = new ArrayBuffer(s.length);
+  //     const view = new Uint8Array(buf);
+  //     for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+  //     return buf;
+  //   }
+  //   saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
+  // }
+
   function tableToExcel2() {
+    // Get the content of the card title
+    const cardTitle = document.querySelector('.card-title').textContent;
+
+    // Get the table data
     const table = document.getElementById('datatablesSimple1');
-    const wb = XLSX.utils.table_to_book(table, { sheet: 'SheetJS' });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Add the card title and table data to the same worksheet
+    const wsTitle = 'Sales Data';
+    const wsData = [];
+
+    // Add the card title as the first row in the worksheet
+    wsData.push([cardTitle]);
+
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
+
+    // Add the table data
+    const tableRows = table.querySelectorAll('tr');
+    tableRows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            rowData.push(cell.innerText);
+        });
+        wsData.push(rowData);
+    });
+
+    // Convert data to worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, wsTitle);
+
+    // Generate Excel file
     const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
 
+    // Function to convert string to array buffer
     function s2ab(s) {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
     }
-    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
-  }
+
+    // Save the file
+    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
+}
 
 
 </script>
