@@ -48,12 +48,13 @@
                   <thead>
                       <tr>
                         
-                          <!-- <th>payerId</th> -->
-                          <th>Salesgroup</th>
+                          
+                          <!-- <th>Salesgroup</th> -->
+                          
+                          <th>BeatName</th> 
+                          <th>StokistName</th>
                           <th>OutletID</th>
                           <th>RetailerName</th>
-                          <th>StokistName</th>
-                          <!-- <th>BeatName</th> -->
                           <th>Target</th>
                           <th>TotalMultiGift</th>
                           <th>Progress</th>
@@ -79,16 +80,20 @@
                     
                 <tr>
                     <!-- <td>{{ item['payerId'] }}</td> -->
-                    <td>{{item['salesgroup']}}</td>
+                    <!-- <td>{{item['salesgroup']}}</td> -->
+                    
+                    <td>{{item['beatname']}}</td>
+                    <td>{{item['stokist_name']}}</td>
                     <td>{{item['outletID']}}</td> 
                     <td>{{item['Retailer Name']}}</td>
-                    <td>{{item['stokist_name']}}</td>
-                    <!-- <td>{{item['beatname']}}</td> -->
                     <td>{{item['targetOffer']}}</td>
                     <td>{{item['total_multi_gift']}}</td>
                     <td>
+                      {% set difference = item['total_multi_gift'] - item['targetOffer'] %}
                       <div class="progress">
-                          <div class="progress-bar bg-info" role="progressbar" style="width: {{ (item['total_multi_gift'] / item['targetOffer']) * 100 }}%" aria-valuenow="{{ (item['total_multi_gift'] / item['targetOffer']) * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                          <div class="progress-bar bg-info" role="progressbar" style="width: {{ difference }}%;" aria-valuenow="{{ difference }}" aria-valuemin="0" aria-valuemax="100">
+                              {{ difference }}%
+                          </div>
                       </div>
                   </td>
                   

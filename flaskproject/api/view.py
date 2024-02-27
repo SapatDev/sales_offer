@@ -188,7 +188,7 @@ def closingsale():
     date = request.args.get('date')
 
     if date:
-        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup(:date);').params(date=date))
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroupUpdated(:date);').params(date=date))
         datakey = result.keys()
         data = result.fetchall()
         result.close()
@@ -209,7 +209,7 @@ def closingsale():
         secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
     else:
         # If date is not provided, use today's date
-        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroup("2024-01-31");'))
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroupUpdated("2024-01-31");'))
         datakey = result.keys()
         data = result.fetchall()
         result.close()
@@ -260,6 +260,8 @@ def stock_salesgroup(salesgroup):
         data=result.fetchall()
         result.close()
         dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
+
+        
 
        
         # stokist_name = dict_list[0]['stokist_name'] if dict_list else None
@@ -415,8 +417,12 @@ def dailysalesgroupdata():
 
     total_tgt_emp = sum(item['employee_count'] for item in dict_list)
     Sum_of_payer = sum(item['payerId_count'] for item in dict_list)
+
+    current_date = datetime.now()
+    # Format the current date to get the month name
+    current_month = current_date.strftime('%B')
     
-    return render_template('dailysaledata.html',Sum_of_payer=Sum_of_payer,total_tgt_emp=total_tgt_emp,total_sale=total_sale,total_tgt_sale=total_tgt_sale,dict_list=dict_list,month=month,year=year,dict_list1=dict_list1)
+    return render_template('dailysaledata.html',current_month=current_month,Sum_of_payer=Sum_of_payer,total_tgt_emp=total_tgt_emp,total_sale=total_sale,total_tgt_sale=total_tgt_sale,dict_list=dict_list,month=month,year=year,dict_list1=dict_list1)
 
     
 
@@ -459,14 +465,18 @@ def dailysales(salesgroup):
     Sum_of_LY_Sales = sum(item['Sum_of_LY_Sales'] for item in dict_list)
     
     average_achievement_percentage = sum(item['Achievement_Percentage'] for item in dict_list) / len(dict_list) if dict_list else 0
-
+    
+    
+    current_date = datetime.now()
+    # Format the current date to get the month name
+    current_month = current_date.strftime('%B')
     # Pass the totals to the template
     # return render_template('dailysale.html', dict_list=dict_list, 
     #                     total_tgt_sale=total_tgt_sale, 
     #                     total_month_sale=total_month_sale,
     #                     total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
     #                     average_achievement_percentage=average_achievement_percentage)
-    return render_template('dailypayerid.html', dict_list=dict_list, 
+    return render_template('dailypayerid.html', dict_list=dict_list, current_month=current_month,
                         total_tgt_sale=total_tgt_sale, 
                         total_month_sale=total_month_sale,
                         total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
@@ -1652,7 +1662,7 @@ def menulist():
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
         # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))
         # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2023-11-15");'))
-        result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('VIDHARBHA - 1')"))
+        result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
         # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1')"))
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
 

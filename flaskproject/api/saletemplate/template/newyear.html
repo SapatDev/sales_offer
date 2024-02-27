@@ -26,9 +26,8 @@
                       <tr>
                         
                           <th>Salesgroup</th>
-                          
-                          <th>Target Offer</th>
                           <th>Total Sales</th>
+                          <th>Target Offer</th>
                           <th>Progress</th>
                           <!-- <th>BeatName</th>
                           <th>StokistName</th>
@@ -57,15 +56,18 @@
                     <td>{{ item['targetOffer'] }}</td> 
                     <td>{{ item['total_multi_gift'] }}</td> 
                     <td>
-                        {% set progress_percentage = (item['total_multi_gift'] / item['targetOffer']) * 100 %}
-                        {% if progress_percentage > 100 %}
+                       {% set difference = item['total_multi_gift'] - item['targetOffer'] %}
+                        <!-- {% set progress_percentage = (item['total_multi_gift'] / item['targetOffer']) * 100 %} -->
+                        <!-- {% if progress_percentage > 100 %}
                             {% set progress_value = 100 %}
                         {% else %}
                             {% set progress_value = progress_percentage %}
-                        {% endif %}
+                        {% endif %} -->
                         <div class="progress">
-                            <div class="progress-bar {% if progress_value >= 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ progress_value }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
+                          <div class="progress-bar bg-info" role="progressbar" style="width: {{ difference }}%;" aria-valuenow="{{ difference }}" aria-valuemin="0" aria-valuemax="100">
+                              {{ difference }}%
+                          </div>
+                      </div>
                     </td>
                     
                 </tr>
