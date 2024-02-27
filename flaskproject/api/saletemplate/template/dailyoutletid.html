@@ -161,7 +161,8 @@
     //         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales data.xlsx');
     //     }
     
-    function tableToExcel() {
+
+function tableToExcel() {
     // Get the content of the card title
     const cardTitle = document.querySelector('.card-title').textContent;
 
@@ -178,8 +179,12 @@
     // Add the card title as the first row in the worksheet
     wsData.push([cardTitle]);
 
-    // Add an empty row for spacing
-    wsData.push([]);
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
 
     // Add the table data
     const tableRows = table.querySelectorAll('tr');
