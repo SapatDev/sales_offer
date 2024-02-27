@@ -53,9 +53,10 @@
                           <th>OutletID</th>
                           <th>RetailerName</th>
                           <th>StokistName</th>
-                          <th>BeatName</th>
+                          <!-- <th>BeatName</th> -->
                           <th>Target</th>
-                          <th>Total MultiGift</th>
+                          <th>TotalMultiGift</th>
+                          <th>Progress</th>
                           
                           
                          
@@ -82,9 +83,14 @@
                     <td>{{item['outletID']}}</td> 
                     <td>{{item['Retailer Name']}}</td>
                     <td>{{item['stokist_name']}}</td>
-                    <td>{{item['beatname']}}</td>
+                    <!-- <td>{{item['beatname']}}</td> -->
                     <td>{{item['targetOffer']}}</td>
                     <td>{{item['total_multi_gift']}}</td>
+                    <td>
+                      <div class="progress">
+                          <div class="progress-bar bg-info" role="progressbar" style="width: {{ (item['total_multi_gift'] / item['targetOffer']) * 100 }}%" aria-valuenow="{{ (item['total_multi_gift'] / item['targetOffer']) * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                  </td>
                   
                     
                 </tr>

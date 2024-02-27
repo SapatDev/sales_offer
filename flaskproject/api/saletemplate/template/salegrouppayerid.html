@@ -10,6 +10,8 @@
         <div class="card-body">
           <h4 class="card-title" id="offerName"></h4>
 
+          <a href="javascript:history.back()">>>Salesgroup>></a>
+
           <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">
             <button class="btn btn-sm btn-secondary" role="button" onclick="tableToExcel()">Download as Excel</button>
           </div>
@@ -33,10 +35,15 @@
             </div>
           </div>
 
+       
+
           <div class="tb_search">
             <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
               placeholder="Search " aria-label="Search Stock Data">
           </div>
+
+      
+      
 
           <div class="table-responsive pt-3">
             <table class="table table-striped" id="datatablesSimple">
@@ -44,8 +51,8 @@
                 <tr>
                   <th>PayerId</th>
                   <th>Salesgroup</th>
-                  <th>Stoklist</th>
-                  <th>Progress</th>
+                  <th>Stokist</th>
+                  <!-- <th>Progress</th> -->
                   {% for type_id in unique_type_ids %}
                   <th>{{ type_id }}</th>
                   {% endfor %}
@@ -75,7 +82,7 @@
                   </td>
 
 
-                  <td>
+                  <!-- <td>
                     <div class="progress">
                       {% set max_progress_value = 100 %}
                       {% set percentage = (progress_value / max_progress_value) * 100 %}
@@ -86,7 +93,7 @@
                         role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ progress_value }}"
                         aria-valuemin="0" aria-valuemax="{{ max_progress_value }}"></div>
                     </div>
-                  </td>
+                  </td> -->
 
                   {% set scheme_counts = {} %}
                   {% for item in dict_list %}
@@ -126,7 +133,7 @@
                   <td>
                     <h4>Grand-Total</h4>
                   </td>
-                  <td></td>
+                  <!-- <td></td> -->
                   {% for type_id in unique_type_ids %}
                   <td>{{ coupon_sums[type_id] }}</td>
                   {% endfor %}
@@ -237,4 +244,6 @@
 
 
 </script>
+
+
 {% endblock %}

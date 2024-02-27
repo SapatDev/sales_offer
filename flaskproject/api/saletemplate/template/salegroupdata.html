@@ -302,7 +302,7 @@
                     <tr>
                       
                         <th>Salesgroup</th>
-                        <th>Progress</th>
+                        <!-- <th>Progress</th> -->
                         
                        
                         {% for item_type in dict_list_type %}
@@ -335,7 +335,7 @@
                         <td><a href="/offer_details/{{ salesgroup }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ salesgroup }}</a></td>
                     
                     
-                        <td>
+                        <!-- <td>
                           <div class="progress">
                             {% set max_progress_value = 1000 %}
                             {% set percentage = (progress_value / max_progress_value) * 100 %}
@@ -344,7 +344,7 @@
                             {% endif %}
                             <div class="progress-bar {% if progress_value > 1000 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="{{ max_progress_value }}"></div>
                           </div>
-                        </td>
+                        </td> -->
                     
                         {% set scheme_counts = {} %}
                         {% for item in dict_list %}
@@ -375,7 +375,7 @@
                     <tr>
                        
                         <td><h4>Grand-Total</h4></td>
-                        <td></td>
+                        <!-- <td></td> -->
                         {% for type_id in unique_type_ids %}
                         <td>{{ coupon_sums[type_id] }}</td>
                         {% endfor %}
