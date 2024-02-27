@@ -18,6 +18,29 @@
               <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">
                 <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
              </div>
+
+             
+          <div class="num_rows">
+            <div class="form-group">
+              <!--		Show Numbers Of Rows 		-->
+              <select class="form-control" name="state" id="maxRows">
+
+                <!-- <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option> -->
+                <option value="50">50</option>
+                <option value="70">70</option>
+                <option value="100">100</option>
+                <option value="5000">Show ALL Rows</option>
+              </select>
+
+            </div>
+          </div>
+
+          <div class="tb_search">
+            <input type="text" id="search_input_all" onkeyup="FilterkeyWord_all_table()" class="form-control"
+              placeholder="Search" aria-label="Search Stock Data">
+          </div>
   
   
               <div class="table-responsive pt-3">
@@ -25,15 +48,17 @@
                   <thead>
                       <tr>
                         
+                          <!-- <th>payerId</th> -->
                           <th>Salesgroup</th>
-                          
-                          <th>Target Offer</th>
-                          <th>Total Seles</th>
-                          <th>Progress</th>
-                          <!-- <th>BeatName</th>
+                          <th>OutletID</th>
+                          <th>RetailerName</th>
                           <th>StokistName</th>
-                          <th>TargetOffer</th>
-                          <th>TotalmultiGift</th> -->
+                          <th>BeatName</th>
+                          <th>Target</th>
+                          <th>Total MultiGift</th>
+                          
+                          
+                         
 
                           
                           
@@ -49,32 +74,30 @@
   
                   <tbody>
                  
-                    {% for item in grouped_data %}
+                    {% for item in dict_NYDlist %}
                     
                 <tr>
-                    <td><a href="/offer_details/{{ item['salesgroup'] }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ item['salesgroup'] }}</a></td>
-                    <!-- <td>{{ item['salesgroup'] }}</td>  -->
-                    <td>{{ item['targetOffer'] }}</td> 
-                    <td>{{ item['total_multi_gift'] }}</td> 
-                    <td>
-                        {% set progress_percentage = (item['total_multi_gift'] / item['targetOffer']) * 100 %}
-                        {% if progress_percentage > 100 %}
-                            {% set progress_value = 100 %}
-                        {% else %}
-                            {% set progress_value = progress_percentage %}
-                        {% endif %}
-                        <div class="progress">
-                            <div class="progress-bar {% if progress_value >= 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ progress_value }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </td>
+                    <!-- <td>{{ item['payerId'] }}</td> -->
+                    <td>{{item['salesgroup']}}</td>
+                    <td>{{item['outletID']}}</td> 
+                    <td>{{item['Retailer Name']}}</td>
+                    <td>{{item['stokist_name']}}</td>
+                    <td>{{item['beatname']}}</td>
+                    <td>{{item['targetOffer']}}</td>
+                    <td>{{item['total_multi_gift']}}</td>
+                  
                     
                 </tr>
             {% endfor %}
             
             <tr>
                 <td><strong>Grand-Total</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{total_target_offer}}</td>
                 <td>{{total_total_multi_gift}}</td>
-                <td>{{total_targetOffer}}</td>
             </tr>
            
             
@@ -122,8 +145,8 @@
 
 
   <script>
-    
-  function tableToExcel() {
+
+function tableToExcel() {
     // Get the content of the card title
     const cardTitle = document.querySelector('.card-title').textContent;
 
@@ -177,6 +200,7 @@
     // Save the file
     saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
 }
+
     </script>
 
 

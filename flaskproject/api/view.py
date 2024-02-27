@@ -1425,12 +1425,22 @@ def salesgroup(salesgroup,pkey):
             result.close()
             dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-            # df = pd.DataFrame(dict_NYDlist)
+            df = pd.DataFrame(dict_NYDlist)
+            grouped_df = df.groupby(['payerId','salesgroup','beatname', 'stokist_name']).agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+            unique_payer_df =df.groupby('payerId').first().reset_index()
+            grouped_data = unique_payer_df.to_dict(orient='records')
 
             # grouped_df = df.groupby('payerId').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
 
-            # grouped_data = grouped_df.to_dict(orient='records') stokist_name
-            return render_template('newyearsalegruop.html',offer_id=offer_id,dict_NYDlist=dict_NYDlist)
+            # grouped_data = grouped_df.to_dict(orient='records')
+
+           
+
+
+            total_total_multi_gift = unique_payer_df['total_multi_gift'].sum()
+            total_targetOffer = unique_payer_df['targetOffer'].sum()
+            # print(grouped_data)
+            return render_template('newyearsalegruop.html',total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,offer_id=offer_id,dict_NYDlist=dict_NYDlist)
         
         else:
             result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
@@ -1534,7 +1544,21 @@ def PayerId(payer,pkey):
                 result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1ByPayerId('{payer}');"))
 
             elif offer_id== 6:
-                result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
+                result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingPayerId('{payer}');"))
+                # result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('{salesgroup}');"))
+                datakey = result.keys()
+                data = result.fetchall()
+                result.close()
+                dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+                df = pd.DataFrame(dict_NYDlist)
+
+                # Calculate the sum of total_multi_gift and targetOffer
+                total_total_multi_gift = df['total_multi_gift'].sum()
+                total_target_offer = df['targetOffer'].sum()
+
+                
+                return render_template('newyearpayerid.html',total_target_offer=total_target_offer,total_total_multi_gift=total_total_multi_gift,offer_id=offer_id,dict_NYDlist=dict_NYDlist)
+
             else:
                 result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerId('{payer}');"))
 
@@ -1626,10 +1650,10 @@ def menulist():
     try:
         # result=db.session.execute(text(f"CALL TotalClosingStockSummaryForEachSalesgroup('2024-01-31')"))
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
-        # result=db.session.execute(text(f"CALL GetSweetSummerSchemeCountGroupBySalesgroup()"))
+        # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))
         # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2023-11-15");'))
-        # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('MARATHWADA - 1')"))
-        result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1')"))
+        result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('VIDHARBHA - 1')"))
+        # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1')"))
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
 
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   

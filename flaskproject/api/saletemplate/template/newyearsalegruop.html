@@ -50,66 +50,41 @@
                         
                           <th>payerId</th>
                           <th>Salesgroup</th>
-                          <th>OutletID</th>
-                          <th>RetailerName</th>
-                          <th>StokistName</th>
-                          <th>BeatName</th>
-                          
-                          
-                          <!-- <th>Target Offer</th>
-                          <th>Total multi Gift</th>
-                          <th>Progress</th> -->
-                          <!-- <th>BeatName</th>
+                          <th>beatname</th>
                           <th>StokistName</th>
                           <th>TargetOffer</th>
-                          <th>TotalmultiGift</th> -->
-
+                          <th>TotalmultiGift</th>
                           
-                          
-                      
-  
-                          <!-- <th>Sum</th> -->
-                          
-  
-  
+                    
                          
                       </tr>
                   </thead>
   
                   <tbody>
                  
-                    {% for item in dict_NYDlist %}
+                    {% for item in grouped_data %}
                     
                 <tr>
-                    <td>{{ item['payerId'] }}</td>
+                  <td><a href="/offer_payer/{{ item['payerId']  }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{item['payerId']}}</a></td>
                     <td>{{item['salesgroup']}}</td>
-                    <td>{{item['outletID']}}</td> 
-                    <td>{{item['Retailer Name']}}</td>
-                    <td>{{item['stokist_name']}}</td>
                     <td>{{item['beatname']}}</td>
+                    <td>{{item['stokist_name']}}</td>
+                    <td>{{item['targetOffer']}}</td>
+                    <td>{{item['total_multi_gift']}}</td>
                     
-                    <!-- <td>{{ item['targetOffer'] }}</td> 
-                    <td>{{ item['total_multi_gift'] }}</td>  -->
-                    <!-- <td>
-                        {% set progress_percentage = (item['total_multi_gift'] / item['targetOffer']) * 100 %}
-                        {% if progress_percentage > 100 %}
-                            {% set progress_value = 100 %}
-                        {% else %}
-                            {% set progress_value = progress_percentage %}
-                        {% endif %}
-                        <div class="progress">
-                            <div class="progress-bar {% if progress_value >= 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ progress_value }}%;" aria-valuenow="{{ progress_value }}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </td> -->
-                    
+                   
                 </tr>
             {% endfor %}
             
-            <!-- <tr>
-                <td>Grand-Total</td>
-                <td>{{total_total_multi_gift}}</td>
+            <tr>
+                <td><strong>Grand-Total</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>{{total_targetOffer}}</td>
-            </tr> -->
+                <td>{{total_total_multi_gift}}</td>
+                
+            </tr>
            
             
                   </tbody>
