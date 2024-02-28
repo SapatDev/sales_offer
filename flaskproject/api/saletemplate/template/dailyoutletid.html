@@ -73,8 +73,8 @@
                             <th>MonthSale</th>
                             <th>LYSales</th>
                             <th>TGTGap</th>
-                            <th>Achive(%)</th>
-                            <th>Progress</th>
+                            <th>Tgyv/s(%)</th>
+                            <th>Lyv/sTy(%)</th>
                            
                             
                      
@@ -93,20 +93,25 @@
                             <td>{{ (item['LY_Sales']|float)|int }}</td>
                             <td>{{ (item['Target Gap']|float)|int}}</td>
                             <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td> 
-                            <!-- <td>
+                          
+                            <td>
                                 <div class="progress">
-                                    <div class="progress-bar {% if item['Achievement Percentage'] >= 100 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Achievement Percentage'] }}%;" aria-valuenow="{{ item['Achievement Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-                                        
+                                    <div class="progress-bar {% if item['LY_Sales'] != 0 %}{% if ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 > 100 %}bg-success{% else %}bg-danger{% endif %}{% endif %}" role="progressbar" style="width: {% if item['LY_Sales'] != 0 %}{{ ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;"
+                                        aria-valuenow="{% if item['LY_Sales'] != 0 %}{{ ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 }}{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                                        {% if item['LY_Sales'] != 0 %}{{ '%.1f'|format(((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100) }}{% else %}N/A{% endif %}%
                                     </div>
                                 </div>
-                            </td> -->
-                            <td>
+                            </td>
+                            
+
+
+                            <!-- <td>
                                 <div class="progress">
                                     <div class="progress-bar {% if item['Achievement Percentage'] > 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement Percentage'] }}%;" aria-valuenow="{{ item['Achievement Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                                         {{ '%.1f'|format(item['Achievement Percentage']) }}%
                                     </div>
                                 </div>
-                            </td>
+                            </td> -->
                             
                             <!-- <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td> -->
                             

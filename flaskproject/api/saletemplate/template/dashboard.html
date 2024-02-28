@@ -122,7 +122,7 @@
                   <div class="col-sm-12">
                     <div class="d-flex justify-content-between mb-4">
                       <div>Annual Target</div>
-                      <div class="text-success">{{Annual_Target}}</div>
+                      <div class="text-danger">{{Annual_Target}}</div>
                     </div>
                     <div class="d-flex justify-content-between mb-4">
                       <div>Annual Sales Ty</div>
@@ -130,19 +130,19 @@
                     </div>
                     <div class="d-flex justify-content-between mb-4">
                       <div>Annual Sales Ly</div>
-                      <div class="text-danger">{{Annual_Sales_LY}}</div>
+                      <div class="text-success">{{Annual_Sales_LY}}</div>
                     </div>
                     <!-- <div class="d-flex justify-content-between mb-4">
                         <div>Memory space</div>
                         <div class="text-muted">168.3GB</div>
                       </div> -->
                     <div class="progress progress-md mt-4">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentage_last_year }}%" aria-valuenow="{{ percentage_last_year }}"
+                      <div class="progress-bar bg-danger" role="progressbar" style="width: {{ percentage_last_year }}%" aria-valuenow="{{ percentage_last_year }}"
                       aria-valuemin="0" aria-valuemax="100">{{ percentage_last_year }}%</div>
                     </div>
                     <div class="progress progress-md mt-4">
-                      <div class="progress-bar bg-danger" role="progressbar" style="width: {{ percentage_achieved }}%" aria-valuenow="{{ percentage_achieved }}"
-                      aria-valuemin="0" aria-valuemax="100">{{percentage_achieved}}</div>
+                      <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentage_achieved }}%" aria-valuenow="{{ percentage_achieved }}"
+                      aria-valuemin="0" aria-valuemax="100">{{percentage_achieved}}%</div>
                     </div>
                   </div>
                 </div>
@@ -289,7 +289,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between">
-              <h4 class="card-title mb-3">E-Commerce Analytics</h4>
+              <h4 class="card-title mb-3">{{ current_month }} Sale Analytics</h4>
             </div>
             <div class="row">
               <div class="col-lg-9">
@@ -367,11 +367,11 @@
                   </div>
                   <div class="d-flex justify-content-between mb-3">
                     <div class="font-weight-medium">Target Sale</div>
-                    <div class="text-success">{{Target_Sale_current}}</div>
+                    <div class="text-danger">{{Target_Sale_current}}</div>
                   </div>
                   <div class="d-flex justify-content-between mb-3">
                     <div class="font-weight-medium">Month Sale</div>
-                    <div class="text-danger">{{Month_Sale_current}}</div>
+                    <div class="text-success">{{Month_Sale_current}}</div>
                   </div>
                   <!-- <div class="d-flex justify-content-between mb-3">
                     <div class="font-weight-medium">Maximum</div>
@@ -770,7 +770,7 @@
   // ],
     borderWidth: 3,
     fill: true,
-    backgroundColor: "rgba(255, 0, 54)"
+    backgroundColor: '#17c964'
         },
   {
     label: 'Target',
@@ -781,7 +781,7 @@
   // ],
     borderWidth: 3,
     fill: true,
-    backgroundColor: '#17c964',
+    backgroundColor: "rgba(255, 0, 54)",
         }
   ],
       };
@@ -915,9 +915,25 @@
       ],
       borderWidth: 1,
       fill: false
-    }
-  ,
-  {
+    },
+    {
+      label: 'Primary_Stock',
+      data :{{primary_stock_stock|tojson}},
+      // data: [5,25,10,20,30,5,25,10,20,30,25,10],
+      // backgroundColor: [
+      //   'rgb(0, 0, 255)',
+      
+      // ],
+      backgroundColor: "#22bb33",
+      borderColor: [
+        '#bfccda',
+       
+      ],
+      borderWidth: 1,
+      fill: false
+    },
+   
+    {
       label: 'Secondary',
       data :{{Secondary_stock|tojson}},
       // data: [5,25,10,20,30,5,25,10,20,30,25,10],

@@ -61,6 +61,7 @@
 
                     <th>PayerId</th>
                     <th>Stockist Name</th>
+                   
 
                   </tr>
                 </thead>
@@ -73,7 +74,7 @@
                     <td><a href="{{ url_for('closingstockgrade',  payerId=item['payerId'],date=date, _external=True) }}"
                         class="offer-link">{{item['payerId']}}</a></td>
                     <td>{{item['stokist_name']}}</td>
-
+                    
                   </tr>
                   {% endfor %}
 

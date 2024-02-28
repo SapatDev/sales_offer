@@ -295,6 +295,18 @@
               <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
            </div>
 
+           <form action="/offer/{{ offerID }}/{{ pkey }}/{{offer_id}}" method="GET">
+            <label for="from_date">From Date:</label>
+            <input type="date" id="from_date" name="from_date" value="{{from_date}}">
+        
+            <label for="to_date">To Date:</label>
+            <input type="date" id="to_date" name="to_date" value="{{to_date}}">
+        
+            <button type="submit">Search</button> 
+            <a href="/offer/{{ offerID }}/{{ pkey }}/{{offer_id}}"><button type="button">Remove</button></a> 
+        </form>
+
+
 
             <div class="table-responsive pt-3">
               <table class="table table-striped" id="datatablesSimple">

@@ -11,7 +11,7 @@
         <div class="card-body">
           <h4 class="card-title">Employee payerId data</h4>
 
-          <h3>Current Month :- {{current_month}}</h3>
+          <!-- <h3>Current Month :- {{current_month}}</h3> -->
 
           <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">
             <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
@@ -29,6 +29,7 @@
           <label for="year">Year:</label>
           <input type="number" id="end_year" name="end_year" value="{{ end_year }}">
           <button type="submit">Search</button>
+          <a href="{{ url_for('dailysales', salesgroup=salesgroup) }}"><button type="button">Remove</button></a> 
       </form>
 
 
@@ -67,8 +68,8 @@
                       <th>MonthSale</th>
                       <th>TgtGap</th>
                       <th>LySales</th>
-                      <th>Achive(%)</th>
-                      <th>Progress</th>
+                      <th>Tgyv/s(%)</th>
+                      <th>Lyv/sTy(%)</th>
                      
                       
                
@@ -91,20 +92,33 @@
                       <td>{{ (item['Sum_of_Total_Target_Gap']|float)|int}}</td>
                       <td>{{(item['Sum_of_LY_Sales']|float)|int}}</td>
                       <td>{{ '%.1f'|format(item['Achievement_Percentage']) }}%</td>
-                      <!-- <td>
-                        <div class="progress">
-                            <div class="progress-bar {% if item['Sum_of_LY_Sales'] >= 150 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Sum_of_LY_Sales'] }}%;" aria-valuenow="{{ item['Sum_of_LY_Sales'] }}" aria-valuemin="0" aria-valuemax="100">
-                               
-                            </div>
-                        </div>
-                    </td> -->
-                    <td>
+                   
+                    <!-- <td>
                       <div class="progress">
-                          <div class="progress-bar {% if item['Achievement_Percentage'] > 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-                              {{ '%.1f'|format(item['Achievement_Percentage']) }}%
+                          <div class="progress-bar bg-danger" role="progressbar" style="width: {% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%" aria-valuenow="{% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                              {% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 | round(2) }}{% else %}0{% endif %}%
                           </div>
                       </div>
-                  </td>
+                  </td> -->
+
+                  <td>
+                    <div class="progress">
+                        <div class="progress-bar {% if item['Sum_of_LY_Sales'] != 0 %}{% if ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 > 100 %}bg-success{% else %}bg-danger{% endif %}{% endif %}" role="progressbar" style="width: {% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;" aria-valuenow="{% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                            {% if item['Sum_of_LY_Sales'] != 0 %}{{ '%.1f'|format(((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100) }}{% else %}0{% endif %}%
+                        </div>
+                    </div>
+                </td>
+
+
+
+
+                    <!-- <td>
+                      <div class="progress">
+                          <div class="progress-bar {% if item['Achievement_Percentage'] > 100 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                             
+                          </div>
+                      </div>
+                  </td> -->
                   
                   
 

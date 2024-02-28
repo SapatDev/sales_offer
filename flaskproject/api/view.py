@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
 from flask import send_file
-from flask import render_template, request,session
+from flask import render_template, request,session,make_response
 import io
 import base64
 from flask_sqlalchemy import Pagination
@@ -27,6 +27,7 @@ import string
 import os
 from datetime import datetime, timedelta
 from werkzeug.exceptions import BadRequestKeyError
+
 
 
 
@@ -79,9 +80,15 @@ def login():
         if username == STATIC_USERNAME and password == STATIC_PASSWORD:
             # Authentication successful, store username in session
             session['username'] = username
-            # print("session",username)
-            # Redirect to a dashboard or home page
+            
             return redirect(url_for('Dashboard'))
+            # response = make_response(redirect(url_for('Dashboard')))
+            # response.set_cookie('username', username)
+            # response.set_cookie('password', password)
+            # print("dddd",response.set_cookie('username', username))
+            # print("dsssssdd",response)
+            # return response
+            
         else:
             # Authentication failed, render login template with an error message
             error = 'Invalid username or password. Please try again.'
@@ -261,12 +268,8 @@ def stock_salesgroup(salesgroup):
         result.close()
         dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
 
-        
+    
 
-       
-        # stokist_name = dict_list[0]['stokist_name'] if dict_list else None
-        # print("stokist_name",stokist_name)
-        # print("Ss",dict_list_type)
         return render_template('closingstockpayer.html',dict_list=dict_list)
         
     
@@ -466,17 +469,16 @@ def dailysales(salesgroup):
     
     average_achievement_percentage = sum(item['Achievement_Percentage'] for item in dict_list) / len(dict_list) if dict_list else 0
     
-    
     current_date = datetime.now()
     # Format the current date to get the month name
-    current_month = current_date.strftime('%B')
+   
     # Pass the totals to the template
     # return render_template('dailysale.html', dict_list=dict_list, 
     #                     total_tgt_sale=total_tgt_sale, 
     #                     total_month_sale=total_month_sale,
     #                     total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
     #                     average_achievement_percentage=average_achievement_percentage)
-    return render_template('dailypayerid.html', dict_list=dict_list, current_month=current_month,
+    return render_template('dailypayerid.html', dict_list=dict_list,
                         total_tgt_sale=total_tgt_sale, 
                         total_month_sale=total_month_sale,
                         total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
@@ -685,6 +687,7 @@ def Dashboard():
         stock_opening = int(sum(value for value in opening_stock if value is not None))
         print("stock_opening",stock_opening)
         stock_primary_stock = int(sum(value for value in primary_stock_stock if value is not None))
+        print("stock_primary_stock",stock_primary_stock)
 
 
 
@@ -1020,7 +1023,7 @@ def OfferDetailsdisplay():
     #     print("ncountsnnnnnn",counts)
 
     # return render_template('offerdetails.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
-    return render_template('offerscheme.html',dict_list=dict_list,counts=counts,offer_ids=offer_ids)
+    return render_template('offerscheme.html',offer_id=offer_id,dict_list=dict_list,counts=counts,offer_ids=offer_ids)
 
     
 
@@ -1162,15 +1165,15 @@ def totalsales():
     
 
 ########### SweetSummerOffer  html template created only 
-@app.route('/offer/<offerID>/<int:pkey>')
-def SSC2(offerID,pkey):
+@app.route('/offer/<offerID>/<int:offer_id>')
+def SSC2(offerID,offer_id):
     
     # print("/offer/<offerID>/<int:pkey>", request.args.get('offer_name', type=int))
-        offer_id = request.args.get('offer_name', type=int)
+        # offer_id = request.args.get('offer_name', type=int)
         # selected_date = request.args.get('selectedDate')
-     
+       
 
-        resultType=db.session.execute(text('CALL GetOfferCouponType('+str(pkey)+');'))
+        resultType=db.session.execute(text('CALL GetOfferCouponType('+str(offer_id)+');'))
         datakey=resultType.keys()
         data=resultType.fetchall()
         resultType.close()
@@ -1178,45 +1181,76 @@ def SSC2(offerID,pkey):
         # print("ddd",dict_list_type)
 
 
-        if offerID == "EKS2":
-            resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
-            datakey = resultType.keys()
-            data = resultType.fetchall()
-            resultType.close()
-            dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-            type_ids = [item['type_Id'] for item in dict_list_type]
+        # if offerID == "EKS2":
+        #     resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
+        #     datakey = resultType.keys()
+        #     data = resultType.fetchall()
+        #     resultType.close()
+        #     dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        #     type_ids = [item['type_Id'] for item in dict_list_type]
     
             # print("Type IDs:", type_ids)SweetSummerOffer
-        
+        from_date = request.args.get('from_date') 
+        to_date =request.args.get('to_date')
+        current_date = datetime.now().date()
+        print(current_date)
         if (offerID=='SSC2'):  
-            result = db.session.execute(text('CALL SweetSummerOffer();'))
+            
+            # this Skuid data
+            if from_date and to_date:
+                result = db.session.execute(text('CALL SweetSummerOfferWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+                # result = db.session.execute(text('CALL SweetSummerOfferWithDateParams("2023-01-25",:current_date);').params(current_date=current_date,to_date=to_date))
+                result = db.session.execute(text('CALL SweetSummerOffer();'))
         elif(offerID=="SPD1"):
-            result = db.session.execute(text('CALL GetSpdOfferDetails();'))          
+            if from_date and to_date:
+                result = db.session.execute(text('CALL GetSpdOfferDetailsWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+                result = db.session.execute(text('CALL GetSpdOfferDetails();'))          
         elif(offerID=='MO'):
-            result = db.session.execute(text('CALL MonsoonOffer();'))
+            if from_date and to_date:
+                result = db.session.execute(text('CALL MonsoonOfferWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+                result = db.session.execute(text('CALL MonsoonOffer();'))
         elif(offerID=='WSO'):
-            result = db.session.execute(text('CALL NewOffer();')) 
+            if from_date and to_date:
+                result = db.session.execute(text('CALL NewOfferWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+                result = db.session.execute(text('CALL NewOffer();')) 
         elif(offerID=="EKS2"):
-            result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason1();'))
+            if from_date and to_date:
+                result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason2WithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+            # second GetEkSeBadhkarEkOfferSeason2 first is GetEkSeBadhkarEkOfferSeason1
+                result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason2();'))
         elif(offerID=="NYD"):
-            result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
-            datakey = result.keys()
-            data = result.fetchall()
-            result.close()
-            dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+            total_targetOffer=0
+            total_total_multi_gift=0
+            grouped_data=[]
+            dict_NYDlist=[]
 
-            df = pd.DataFrame(dict_NYDlist)
 
-            grouped_df = df.groupby('salesgroup').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+            if from_date and to_date:
+                result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletIDWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
+                result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
+                datakey = result.keys()
+                data = result.fetchall()
+                result.close()
+                dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-            grouped_data = grouped_df.to_dict(orient='records')
+                df = pd.DataFrame(dict_NYDlist)
 
-            # total_salesgroup = sum(item['salesgroup'] for item in grouped_data)
-            total_total_multi_gift = sum(item['total_multi_gift'] for item in grouped_data)
-            total_targetOffer = sum(item['targetOffer'] for item in grouped_data)
-    
+                grouped_df = df.groupby('salesgroup').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
 
-            return render_template('newyear.html',offer_id=offer_id,total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,dict_NYDlist=dict_NYDlist)
+                grouped_data = grouped_df.to_dict(orient='records')
+
+                # total_salesgroup = sum(item['salesgroup'] for item in grouped_data)
+                total_total_multi_gift = sum(item['total_multi_gift'] for item in grouped_data)
+                total_targetOffer = sum(item['targetOffer'] for item in grouped_data)
+        
+
+            return render_template('newyear.html',offerID=offerID,from_date=from_date,to_date=to_date,offer_id=offer_id,total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,dict_NYDlist=dict_NYDlist)
         else:
             result = db.session.execute(text('CALL MonsoonOffer();'))
 
@@ -1228,163 +1262,173 @@ def SSC2(offerID,pkey):
         
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
-        # print(df)
+        print(df)
 
+        sales_group_data = {}
+        salesgroups=[]
+        counts = []
+        unique_type_ids = []
+        df_day=None
+        df_year=None
+        df_month=None
+        html_table=""
         # Extract year and month into new columns
-        if 'created_at' in df.columns and 'type_Id' in df.columns:
-            df_year= df['created_at'].dt.year
-            df_month= df['created_at'].dt.month
-            df_day =df['created_at'].dt.day
-            # print("df_day",df_day)
+        if len(df) > 0:
+            if 'created_at' in df.columns and 'type_Id' in df.columns:
+                df_year= df['created_at'].dt.year
+                df_month= df['created_at'].dt.month
+                df_day =df['created_at'].dt.day
+                # print("df_day",df_day)
 
-            selected_start_date = request.args.get('startDate')
-            selected_end_date = request.args.get('endDate')
+                # from_date = request.args.get('startDate')
+                # selected_end_date = request.args.get('endDate')
 
-            if selected_start_date and selected_end_date:
-                # Filter the DataFrame based on the selected date range
-                df = df[(df['created_at'].dt.date >= pd.to_datetime(selected_start_date).date()) & 
-                        (df['created_at'].dt.date <= pd.to_datetime(selected_end_date).date())]
-          
-            
-            salesgroups = df['salesgroup'].unique()
-            unique_type_ids = df2['type_Id'].unique()
-            # total_scheme_count= df['total_scheme_count'].unique()
-            
-            new_columns = list(unique_type_ids) + ['sum']
+                if from_date and to_date:
+                    # Filter the DataFrame based on the selected date range
+                    df = df[(df['created_at'].dt.date >= pd.to_datetime(from_date).date()) & 
+                            (df['created_at'].dt.date <= pd.to_datetime(to_date).date())]
+                
+                
+                salesgroups = df['salesgroup'].unique()
+                unique_type_ids = df2['type_Id'].unique()
+                # total_scheme_count= df['total_scheme_count'].unique()
+                
+                new_columns = list(unique_type_ids) + ['sum']
 
-            
-            # Create an empty DataFrame with salesgroups as index and type_Ids as columns df['type_Id']+["sum"]
-            result_df = pd.DataFrame(index=salesgroups, columns=new_columns)
-
-
-            # Fill the result_df with scheme_count values
-            for index, row in df.iterrows():
-                result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
-                result_df.loc[row['salesgroup'],"sum"]= result_df.loc[row['salesgroup'], "sum"] + row['scheme_count']
-              
-                result_df['sum'] = result_df['sum'].fillna(0)
-            # print(result_df)
-
-            # Convert the DataFrame to HTML table
-            html_table = result_df.to_html()
-            # print("html_table",html_table)
+                
+                # Create an empty DataFrame with salesgroups as index and type_Ids as columns df['type_Id']+["sum"]
+                result_df = pd.DataFrame(index=salesgroups, columns=new_columns)
 
 
-            counts = []
+                # Fill the result_df with scheme_count values
+                for index, row in df.iterrows():
+                    result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+                    result_df.loc[row['salesgroup'],"sum"]= result_df.loc[row['salesgroup'], "sum"] + row['scheme_count']
+                    
+                    result_df['sum'] = result_df['sum'].fillna(0)
+                # print(result_df)
 
-            # Fetch counts for different offers and append to the counts list
-            if offerID == 'SSC2':
-                result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
-                count = result_ssc_count.fetchone()[0]  
-                result_ssc_count.close()
-                counts.append(count)
-            elif offerID == 'SPD1':
-                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'MO':
-                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'WSO':
-                result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'EKS2':
-                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'NYD':
-                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
+                # Convert the DataFrame to HTML table
+                html_table = result_df.to_html()
+                # print("html_table",html_table)
+
+
+                # counts = []
+
+                # Fetch counts for different offers and append to the counts list
+                if offerID == 'SSC2':
+                    result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+                    count = result_ssc_count.fetchone()[0]  
+                    result_ssc_count.close()
+                    counts.append(count)
+                elif offerID == 'SPD1':
+                    result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'MO':
+                    result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'WSO':
+                    result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'EKS2':
+                    result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'NYD':
+                    result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                else:
+                    result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
+                    count = result_monsoon_count.fetchone()[0]
+                    result_monsoon_count.close()
+                    counts.append(count)
+                    # print("ncountsnnnnnn",counts)
+
+                # sales_group_data = {}
+
+                # Populate sales_group_data with sales groups and their Type ID counts
+                for salesgroup in salesgroups:
+                    sales_data = result_df.loc[salesgroup].dropna()
+                    sales_group_data[salesgroup] = sales_data.unique().sum() 
+
+                
+
+
+                # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
+                # return render_template('salegroupdata.html',from_date=from_date,to_date=to_date,selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
             else:
-                result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
-                count = result_monsoon_count.fetchone()[0]
-                result_monsoon_count.close()
-                counts.append(count)
-                # print("ncountsnnnnnn",counts)
+                salesgroups = df['salesgroup'].unique()
+                unique_type_ids = df2['type_Id'].unique()
+                
+                result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
 
-            sales_group_data = {}
+                for index, row in df.iterrows():
+                    result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
+                    
+                html_table = result_df.to_html()
+            
+                
 
-            # Populate sales_group_data with sales groups and their Type ID counts
-            for salesgroup in salesgroups:
-                sales_data = result_df.loc[salesgroup].dropna()
-                sales_group_data[salesgroup] = sales_data.unique().sum() 
+                if offerID == 'SSC2':
+                    result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
+                    count = result_ssc_count.fetchone()[0]  
+                    result_ssc_count.close()
+                    counts.append(count)
+                elif offerID == 'SPD1':
+                    result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'MO':
+                    result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'WSO':
+                    result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'EKS2':
+                    result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                elif offerID == 'NYD':
+                    result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
+                    count = result_wso_count.fetchone()[0]
+                    result_wso_count.close()
+                    counts.append(count)
+                else:
+                    result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
+                    count = result_monsoon_count.fetchone()[0]
+                    result_monsoon_count.close()
+                    counts.append(count)
 
-           
+                
 
-
-            # return render_template('sweetsummer.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
-            return render_template('salegroupdata.html',selected_end_date=selected_end_date,selected_start_date=selected_start_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
-        else:
-            salesgroups = df['salesgroup'].unique()
-            unique_type_ids = df2['type_Id'].unique()
-         
-            result_df = pd.DataFrame(index=salesgroups, columns=df['type_Id'])
-
-            for index, row in df.iterrows():
-                result_df.loc[row['salesgroup'], row['type_Id']] = row['scheme_count']
-             
-            html_table = result_df.to_html()
-       
-            counts = []
-
-            if offerID == 'SSC2':
-                result_ssc_count = db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
-                count = result_ssc_count.fetchone()[0]  
-                result_ssc_count.close()
-                counts.append(count)
-            elif offerID == 'SPD1':
-                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'MO':
-                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'WSO':
-                result_wso_count = db.session.execute(text('CALL GetWinterOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'EKS2':
-                result_wso_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            elif offerID == 'NYD':
-                result_wso_count = db.session.execute(text('CALL GetSpdOfferDistinctOutletCount()'))
-                count = result_wso_count.fetchone()[0]
-                result_wso_count.close()
-                counts.append(count)
-            else:
-                result_monsoon_count = db.session.execute(text('CALL GetMonsoonOfferDistinctOutletCount(); ;'))
-                count = result_monsoon_count.fetchone()[0]
-                result_monsoon_count.close()
-                counts.append(count)
- 
-            sales_group_data = {}
-
-            for salesgroup in salesgroups:
-                sales_data = result_df.loc[salesgroup].dropna()
-                sales_group_data[salesgroup] = sales_data.unique().sum() 
-                # print(sales_group_data[salesgroup])
-                # print("SSwww",sales_group_data)
+                for salesgroup in salesgroups:
+                    sales_data = result_df.loc[salesgroup].dropna()
+                    sales_group_data[salesgroup] = sales_data.unique().sum() 
+                    # print(sales_group_data[salesgroup])
+                    # print("SSwww",sales_group_data)
 
 
-           
+            
 
             # Render the template without the HTML table
             # return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
-            return render_template('salegroupdata.html',sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
+        # return render_template('salegroupdata.html',sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
+        return render_template('salegroupdata.html',from_date=from_date,to_date=to_date,df_day=df_day,offerID=offerID,df_month=df_month,df_year=df_year,sales_group_data=sales_group_data,counts=counts,dict_list_type=dict_list_type,dict_list=dict_list,html_table=html_table,unique_type_ids=unique_type_ids,salesgroups=salesgroups,offer_id=offer_id)
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:pkey>')
@@ -1401,14 +1445,14 @@ def salesgroup(salesgroup,pkey):
         dict_list_type=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
         # print("Ss",dict_list_type)
 
-        if offer_id == 5:
-            resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
-            datakey = resultType.keys()
-            data = resultType.fetchall()
-            resultType.close()
-            dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-            type_ids = [item['type_Id'] for item in dict_list_type]
-            print("Type IDs:", type_ids)
+        # if offer_id == 5:
+        #     resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
+        #     datakey = resultType.keys()
+        #     data = resultType.fetchall()
+        #     resultType.close()
+        #     dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        #     type_ids = [item['type_Id'] for item in dict_list_type]
+        #     print("Type IDs:", type_ids)
         
 
 
@@ -1425,32 +1469,42 @@ def salesgroup(salesgroup,pkey):
             result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
 
         elif offer_id == 5:
-            result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1BySalesgroup('{salesgroup}');"))
+            # GetEkSeBadhkarEkOfferSeason1BySalesgroup first apply
+            result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2BySalesgroup('{salesgroup}');"))
 
         elif offer_id == 6:
+            from_date = request.args.get('from_date') 
+            to_date =request.args.get('to_date')        
+            total_targetOffer=0
+            total_total_multi_gift=0
+            grouped_data=[]
+            dict_NYDlist=[]
+            if from_date and to_date:
+                result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletIDWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+            else:
            
-            result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('{salesgroup}');"))
-            datakey = result.keys()
-            data = result.fetchall()
-            result.close()
-            dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+                result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParam('{salesgroup}');"))
+                datakey = result.keys()
+                data = result.fetchall()
+                result.close()
+                dict_NYDlist = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-            df = pd.DataFrame(dict_NYDlist)
-            grouped_df = df.groupby(['payerId','salesgroup','beatname', 'stokist_name']).agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
-            unique_payer_df =df.groupby('payerId').first().reset_index()
-            grouped_data = unique_payer_df.to_dict(orient='records')
+                df = pd.DataFrame(dict_NYDlist)
+                grouped_df = df.groupby(['payerId','salesgroup','beatname', 'stokist_name']).agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+                unique_payer_df =df.groupby('payerId').first().reset_index()
+                grouped_data = unique_payer_df.to_dict(orient='records')
 
-            # grouped_df = df.groupby('payerId').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
+                # grouped_df = df.groupby('payerId').agg({'total_multi_gift': 'sum', 'targetOffer': 'sum'}).reset_index()
 
-            # grouped_data = grouped_df.to_dict(orient='records')
+                # grouped_data = grouped_df.to_dict(orient='records')
 
-           
+            
 
 
-            total_total_multi_gift = unique_payer_df['total_multi_gift'].sum()
-            total_targetOffer = unique_payer_df['targetOffer'].sum()
+                total_total_multi_gift = unique_payer_df['total_multi_gift'].sum()
+                total_targetOffer = unique_payer_df['targetOffer'].sum()
             # print(grouped_data)
-            return render_template('newyearsalegruop.html',total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,offer_id=offer_id,dict_NYDlist=dict_NYDlist)
+            return render_template('newyearsalegruop.html',salesgroup=salesgroup,to_date=to_date,from_date=from_date,total_targetOffer=total_targetOffer,total_total_multi_gift=total_total_multi_gift,grouped_data=grouped_data,offer_id=offer_id,dict_NYDlist=dict_NYDlist)
         
         else:
             result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
@@ -1527,13 +1581,13 @@ def PayerId(payer,pkey):
             dict_list_type=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
             # print("Ss",dict_list_type)
 
-            if offer_id == 5:
-                resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
-                datakey = resultType.keys()
-                data = resultType.fetchall()
-                resultType.close()
-                dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-                type_ids = [item['type_Id'] for item in dict_list_type]
+            # if offer_id == 5:
+            #     resultType = db.session.execute(text('CALL GetOldOfferCoupenType();'))
+            #     datakey = resultType.keys()
+            #     data = resultType.fetchall()
+            #     resultType.close()
+            #     dict_list_type = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+            #     type_ids = [item['type_Id'] for item in dict_list_type]
                 # print("Type IDs:", type_ids)
             
 
@@ -1551,7 +1605,8 @@ def PayerId(payer,pkey):
                 result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
 
             elif offer_id == 5:
-                result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason1ByPayerId('{payer}');"))
+                #  GetEkSeBadhkarEkOfferSeason1ByPayerId first apply
+                result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2ByPayerId('{payer}');"))
 
             elif offer_id== 6:
                 result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingPayerId('{payer}');"))
@@ -1658,16 +1713,15 @@ def saledata(page=1):
 @app.route('/api/GetWinterOfferByPayerId', methods=['GET'])
 def menulist():
     try:
-        # result=db.session.execute(text(f"CALL TotalClosingStockSummaryForEachSalesgroup('2024-01-31')"))
+        # result=db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2ByPayerId('NIM001')"))
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
         # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))
         # result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2023-11-15");'))
-        result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
-        # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1')"))
+        # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
+        # result=db.session.execute(text(f"CALL GetAchievementDataByPayerIdNewWithFromAndToMonthYear(12, 2023, 2, 2024, 'ALP002')"))
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
-
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
-        # result=db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletID()"))
+        # result=db.session.execute(text(f"CALL MonsoonOfferWithDateParams('2023-06-1','2024-1-30')"))
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))
         # result=db.session.execute(text(f"CALL GetTotalAchievementDataBySalesGroupNew(7, 2023, 8, 2023, 'COASTAL')"))
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroupUpdated('2024-02-01')))
@@ -1676,7 +1730,7 @@ def menulist():
         # result = db.session.execute(text(f"CALL  GetSalesAndTargetDataBySalesgroup(2, 2024)"))
         # result = db.session.execute(text(f"CALL GetDistinctSalesgroupWithPayerIdAndEmployeeCount()"))
         # result = db.session.execute(text(f"CALL GetEmployeeInfo('S2358')"))   #GetMonsoonOfferByPayerId('SHR097')  GetEkSeBadhkarEkOfferSeason1
-        # result = db.session.execute(text("CALL GetEmployeeData();"))
+        result = db.session.execute(text("CALL TotalNYDSalesGroupByoutletID();"))
         # result =db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('HAN001');"))
         # result.count()
         # print("result_data",result_data)
