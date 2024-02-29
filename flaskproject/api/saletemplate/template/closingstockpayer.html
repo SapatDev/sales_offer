@@ -13,7 +13,7 @@
       <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title">Closing Stock PayerId</h4>
+            <h4 class="card-title">Closing Stock PayerId In {{salesgroups}}</h4>
             <!-- <p class="card-description">
                 Add class <code>.table-bordered</code>
               </p> -->
@@ -33,6 +33,31 @@
                 </div>
               </div>
             </div> -->
+
+            <div class="col-md-6">
+              <form action="/stocksales/{{ salesgroup }}" method="get">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label" for="date">
+                    <h5>Selected Date:</h5>
+                  </label>
+                  <div class="col-sm-6">
+                    <select class="form-control" id="date" name="date">
+                      <option value="2023-12-31">2023-01-31</option>
+                      <option value="2023-12-31">2023-12-31</option>
+                      <option value="2023-11-30">2023-11-30</option>
+                      <option value="2023-11-15">2023-11-15</option>
+                      <option value="2023-10-31">2023-10-31</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3">
+                    <button type="submit" class="btn btn-sm btn-secondary">Search</button>
+                  </div>
+                  <a href="/stocksales/{{ salesgroup }}"><button type="button">Remove</button></a> 
+                </div>
+              </form>
+            </div>
+
+
 
             <div class="num_rows">
               <div class="form-group">
@@ -61,6 +86,11 @@
 
                     <th>PayerId</th>
                     <th>Stockist Name</th>
+                    <th>Opening</th>
+                    <th>Primary Stock</th>
+                    <th>Closing</th>
+                    <th>Secondary</th>
+
                    
 
                   </tr>
@@ -74,6 +104,10 @@
                     <td><a href="{{ url_for('closingstockgrade',  payerId=item['payerId'],date=date, _external=True) }}"
                         class="offer-link">{{item['payerId']}}</a></td>
                     <td>{{item['stokist_name']}}</td>
+                    <td>{{(item['Opening']|float)|int}}</td>
+                    <td>{{(item['Primary_Stock']|float)|int}}</td>
+                    <td>{{(item['Closing']|float)|int}}</td>
+                    <td>{{(item['Secondary']|float)|int}}</td>
                     
                   </tr>
                   {% endfor %}

@@ -19,6 +19,18 @@
                 <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download as Excel</button>
              </div>
 
+
+              <form action="/offer_payer/{{ payer }}/{{ offer_id }}" method="GET">
+              <label for="from_date">From Date:</label>
+              <input type="date" id="from_date" name="from_date" value="{{from_date}}">
+          
+              <label for="to_date">To Date:</label>
+              <input type="date" id="to_date" name="to_date" value="{{to_date}}">
+          
+              <button type="submit">Search</button> 
+              <a href="/offer_payer/{{ payer }}/{{offer_id}}?offer_id={{offer_id}}"><button type="button">Remove</button></a> 
+          </form>
+
              
           <div class="num_rows">
             <div class="form-group">
@@ -91,11 +103,18 @@
                     <td>
                       {% set difference = item['total_multi_gift'] - item['targetOffer'] %}
                       <div class="progress">
-                          <div class="progress-bar bg-info" role="progressbar" style="width: {{ difference }}%;" aria-valuenow="{{ difference }}" aria-valuemin="0" aria-valuemax="100">
-                              {{ difference }}%
-                          </div>
+                          {% if difference > 100 %}
+                              <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                  100%
+                              </div>
+                          {% else %}
+                              <div class="progress-bar bg-danger" role="progressbar" style="width: {{ difference }}%;" aria-valuenow="{{ difference }}" aria-valuemin="0" aria-valuemax="100">
+                                  {{ difference }}%
+                              </div>
+                          {% endif %}
                       </div>
                   </td>
+                  
                   
                     
                 </tr>
@@ -106,9 +125,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td></td>
+             
                 <td>{{total_target_offer}}</td>
                 <td>{{total_total_multi_gift}}</td>
+                <td></td>
             </tr>
            
             

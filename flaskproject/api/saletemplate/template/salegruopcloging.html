@@ -49,24 +49,24 @@
         </div>
     </div>
     <div class="row">
-       
+        {% for item in dict_list1 %}
         <div class="col-xl-3 col-md-6">
             <div class="card bg-primary text-white mb-4">
                 <div class="card-body">Opening</div>
-                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(opening|float)|int}}kg</h4>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(item['Opening']|float)|int}}kg</h4>
             </div>
         </div>
        
         <div class="col-xl-3 col-md-6">
             <div class="card bg-warning text-white mb-4">
                 <div class="card-body">Primary</div>
-                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(primary|float)|int}}kg</h4>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(item['Primary_Stock']|float)|int}}kg</h4>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="card bg-success text-white mb-4">
                 <div class="card-body">Closing</div>
-                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(closing|float)|int}}kg</h4>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(item['Closing']|float)|int}}kg</h4>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -74,10 +74,10 @@
                 <div class="card-body">
                 <div class="float-start">Secondary</div>
                 <div class="float-end"><h5>  </h5></div></div>
-                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(secondary|float)|int}}kg </h4>
+                <h4 class="card-footer d-flex align-items-center justify-content-between">{{(item['Secondary']|float)|int}}kg </h4>
             </div>
         </div>
-       
+        {% endfor %}
 
     </div>
     <hr>
@@ -113,7 +113,7 @@
            
             <div class="card bg-white text-black mb-4">
                 <div style="padding: 10px 15px;" class="bg-dark">
-                    <div class="float-start text-white"><b><a style="font-size:18px;" class="bmw" href="{{ url_for('stock_salesgroup', salesgroup=item['Salesgroup']) }}">{{ item['Salesgroup'] }}</a></b></div>
+                    <div class="float-start text-white"><b><a style="font-size:18px;" class="bmw" href="{{ url_for('stock_salesgroup', salesgroup=item['Salesgroup'],date=date, _external=True) }}">{{ item['Salesgroup'] }}</a></b></div>
                 </div> 
                 <div style="padding: 3px 15px;background: #f7f7f7;">
                     <div class="float-start">Opening</div> <td>

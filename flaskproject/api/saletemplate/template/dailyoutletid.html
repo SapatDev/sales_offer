@@ -71,8 +71,8 @@
                             <th>Salesgroup</th>
                             <th>TargetSale</th>
                             <th>MonthSale</th>
-                            <th>LYSales</th>
                             <th>TGTGap</th>
+                            <th>LYSales</th>
                             <th>Tgyv/s(%)</th>
                             <th>Lyv/sTy(%)</th>
                            
@@ -90,13 +90,20 @@
                             <td>{{ item['salesgroup']}}</td>
                             <td>{{ (item['Total Target Sale']|float)|int }}</td>
                             <td>{{ (item['Total Month Sale']|float)|int }}</td>
-                            <td>{{ (item['LY_Sales']|float)|int }}</td>
                             <td>{{ (item['Target Gap']|float)|int}}</td>
-                            <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td> 
+                            <td>{{ (item['LY_Sales']|float)|int }}</td>
+                            <!-- <td>{{ '%.1f'|format(item['Achievement Percentage'])}}%</td>  -->
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {% if item['Achievement Percentage'] > 99 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ '%.1f'|format(item['Achievement Percentage']) }}%
+                                    </div>
+                                </div>
+                            </td>
                           
                             <td>
                                 <div class="progress">
-                                    <div class="progress-bar {% if item['LY_Sales'] != 0 %}{% if ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 > 100 %}bg-success{% else %}bg-danger{% endif %}{% endif %}" role="progressbar" style="width: {% if item['LY_Sales'] != 0 %}{{ ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;"
+                                    <div class="progress-bar {% if item['LY_Sales'] != 0 %}{% if ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 > 99 %}bg-success{% else %}bg-danger{% endif %}{% endif %}" role="progressbar" style="width: {% if item['LY_Sales'] != 0 %}{{ ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;"
                                         aria-valuenow="{% if item['LY_Sales'] != 0 %}{{ ((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100 }}{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
                                         {% if item['LY_Sales'] != 0 %}{{ '%.1f'|format(((item['Total Month Sale']|float) / (item['LY_Sales']|float)) * 100) }}{% else %}N/A{% endif %}%
                                     </div>
@@ -127,8 +134,8 @@
                         <td></td>
                         <td>{{ total_tgt_sale|int }}</td>
                         <td>{{ total_month_sale|int }}</td>
-                        <td>{{ LY_Sales|int }}</td>
                         <td>{{ total_tgt_gap|int }}</td>
+                        <td>{{ LY_Sales|int }}</td>
                         <td>{{ '%.2f'|format(average_achievement_percentage) }}%</td>
                     </tr>
              
