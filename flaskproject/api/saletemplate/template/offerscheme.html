@@ -15,7 +15,7 @@
             {% for item in dict_list %}
             <div class="col-md-4">
               <a id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
-                href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
+                href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}&from_date={{ from_date }}&to_date={{ to_date }}"
                 class="card-link offer-link">
                 <div class="bg-white text-black mb-4">
 
@@ -30,7 +30,7 @@
 
                   <p style="margin: 0px; padding: 0px 15px;color: #000;" class="text-center">
                     <a style="color: #000;text-shadow: 0px 3px 4px rgba(0,0,0,0.6);" id="{{ item['offer_name'] }}" onclick="setOfferName(id)"
-                      href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
+                      href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }},from_date={{from_date}} & to_date={{to_date}}"
                       class="offer-link"><b>OfferID:</b> {{ item['offer_id'] }}</a>
                   </p>
 

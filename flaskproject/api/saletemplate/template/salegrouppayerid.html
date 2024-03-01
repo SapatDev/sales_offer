@@ -85,7 +85,7 @@
 
                 {% for payer ,progress_value in payerid_data.items() %}
                 <tr>
-                  <td><a href="/offer_payer/{{ payer }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{payer
+                  <td><a href="/offer_payer/{{ payer }}/{{offer_id}}?offer_id={{offer_id}},from_date={{from_date}} & to_date={{to_date}}" class="offer-link">{{payer
                       }}</a></td>
                   <td>{{ salesgroups[0] }}</td>
                   <td>

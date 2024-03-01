@@ -62,7 +62,7 @@
                     {% for item in grouped_data %}
                     
                 <tr>
-                    <td><a href="/offer_details/{{ item['salesgroup'] }}/{{offer_id}}?offer_id={{offer_id}}" class="offer-link">{{ item['salesgroup'] }}</a></td>
+                    <td><a href="/offer_details/{{ item['salesgroup'] }}/{{offer_id}}?offer_id={{offer_id}}&from_date={{ from_date }}&to_date={{ to_date }}" class="offer-link">{{ item['salesgroup'] }}</a></td>
                     <!-- <td>{{ item['salesgroup'] }}</td>  -->
                     <td>{{ item['targetOffer'] }}</td> 
                     <td>{{ item['total_multi_gift'] }}</td> 

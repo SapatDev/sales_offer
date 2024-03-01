@@ -28,21 +28,14 @@ import os
 from datetime import datetime, timedelta
 from werkzeug.exceptions import BadRequestKeyError
 from functools import wraps
+import dateutil.relativedelta as rl
 
 
 
 
 ###################################### Sales data 
 
-@app.route('/Newyear')
-def Newyear():
-    result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
-    datakey = result.keys()
-    data = result.fetchall()
-    result.close()
-    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-    
-    return render_template('newyeardata.html', dict_list=dict_list)
+
 
    
 # Define your static credentials
@@ -119,10 +112,7 @@ def login_required(func):
         return func(*args, **kwargs)
     return wrapper
 
-@app.route('/protected')
-@login_required  # Apply the login decorator to this route
-def protected_route():
-    return 'This is a protected route, only accessible to logged-in users.'
+
 
 @app.route('/employee_payerId1')
 def employee_payerId1():
@@ -139,6 +129,7 @@ def employee_payerId1():
 #         return render_template('index.html')
 
 @app.route('/empdaa')
+@login_required
 def newempoffer():
         result = db.session.execute(text('CALL GetEmployeeData();'))
         datakey = result.keys()
@@ -149,7 +140,16 @@ def newempoffer():
         return render_template('empmain.html',dict_list=dict_list) 
 
 
-
+@app.route('/Newyear')
+@login_required
+def Newyear():
+    result = db.session.execute(text('CALL TotalNYDSalesGroupByoutletID();'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    
+    return render_template('newyeardata.html', dict_list=dict_list)
 
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
@@ -206,8 +206,9 @@ def sales():
 #     dict_list  = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 #     return render_template('closingstockpayer.html',dict_list=dict_list)
     
-
+ 
 @app.route('/closingsale')
+@login_required
 def closingsale():
     date = request.args.get('date')
 
@@ -233,13 +234,13 @@ def closingsale():
         secondary = [int(str(round(float(item['Secondary'])))) for item in dict_list1]
     else:
         # If date is not provided, use today's date
-        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroupUpdated("2024-01-31");'))
+        result = db.session.execute(text('CALL TotalClosingStockSummaryForEachSalesgroupUpdated("2024-02-29");'))
         datakey = result.keys()
         data = result.fetchall()
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
 
-        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-01-31");'))
+        result = db.session.execute(text('CALL TotalClosingStockSummaryAllSalesgroups("2024-02-29");'))
         datakey = result.keys()
         data = result.fetchall()
         result.close()
@@ -277,6 +278,7 @@ def closingsale():
     return render_template('salegruopcloging.html',date=date,secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
 
 @app.route('/stocksales/<salesgroup>')
+@login_required
 def stock_salesgroup(salesgroup):
         date = request.args.get('date')
         if date:
@@ -327,6 +329,7 @@ def stock_salesgroup(salesgroup):
 
 
 @app.route('/closingstockgrade/<payerId>')
+@login_required
 def closingstockgrade(payerId):
 
     date = request.args.get('date') 
@@ -337,6 +340,7 @@ def closingstockgrade(payerId):
         today = datetime.now()
         last_day_of_previous_month = today.replace(day=1) -timedelta(days=1)
         last_day_of_previous_month_str = last_day_of_previous_month.strftime("%Y-%m-%d")
+        print("last_day_of_previous_month_str",last_day_of_previous_month_str)
         
         result = db.session.execute(text('CALL GetStockSummaryForPayerAndDateUpdated(:payerId, :date);').params(payerId=payerId, date=last_day_of_previous_month_str))
         # # today_date = "2024-01-31"
@@ -422,6 +426,7 @@ def closingstockgrade(payerId):
 
 #################  Daily saledata
 @app.route('/dailysalesgroup')
+@login_required
 def dailysalesgroup():
     # payer_id = request.args.get('payerId')
     result = db.session.execute(text(f"CALL GetDistinctSalesgroup();"))
@@ -433,6 +438,7 @@ def dailysalesgroup():
 
 
 @app.route('/dailysalesdata')
+@login_required
 def dailysalesgroupdata():
   
     month = request.args.get('month')
@@ -444,6 +450,7 @@ def dailysalesgroupdata():
     else:
         # result = db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupUpdated(2, 24,:salesgroup);').params(salesgroup=salesgroup))
         result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:month, :year);').params( month=datetime.now().month, year=datetime.now().year))
+        print(result)
   
     # if date:
     #     result = db.session.execute(text('CALL GetSalesAndTargetDataBySalesgroup(:date);').params(date=date))
@@ -482,6 +489,7 @@ def dailysalesgroupdata():
 
 
 @app.route('/dailysale/<salesgroup>')
+@login_required
 def dailysales(salesgroup):
    
    
@@ -538,6 +546,7 @@ def dailysales(salesgroup):
 
 
 @app.route('/targetsale/<payerId>')
+@login_required
 def targetsales(payerId):
 
     from_month=request.args.get('from_month')
@@ -604,6 +613,7 @@ def targetsales(payerId):
 
 
 @app.route('/api/GetSalesDataPerYearPerMonthUsingParameter', methods=['GET'])
+@login_required
 def GetSalesDataPerYearPerMonthUsingParameter():
     try:
         result=db.session.execute(text('CALL GetSalesDataPerDateWithCreatedAtParameter("2024-01-01");'))
@@ -642,6 +652,7 @@ def getOfferCouponTypedata():
 
 
 @app.route('/api/targetcoupn', methods=['GET'])  #GetTotalAchievementData(1, 2024)
+@login_required
 def totaltarget():
     try:
         result=db.session.execute(text('CALL GetTotalAchievementDataBySalesGroupNewWithFromAndToMonthYearDemo(4, 2023, 2, 2024, "COASTAL");'))
@@ -657,6 +668,7 @@ def totaltarget():
 
 
 @app.route('/api/getOfferCouponType', methods=['GET'])
+@login_required
 def getOfferCouponType():
     try:
         result=db.session.execute(text('CALL GetAchievementDataByPayerIdNew(12, 2023, "ABH003");'))
@@ -671,6 +683,7 @@ def getOfferCouponType():
     
 ################################ Dashboard 
 @app.route('/dashboard')
+@login_required
 def Dashboard():
     # Check if user is logged in
     if 'username' in session:
@@ -735,12 +748,12 @@ def Dashboard():
         primary_stock_stock = [int(item['Primary_Stock']) if item['Primary_Stock'] is not None else None for item in dict_stock]
         
         stock_closing = int(sum(value for value in closing_stock if value is not None))
-        print("stock_closing",stock_closing)
+        # print("stock_closing",stock_closing)
         stock_secondary = int(sum(value for value in Secondary_stock if value is not None))
         stock_opening = int(sum(value for value in opening_stock if value is not None))
-        print("stock_opening",stock_opening)
+        # print("stock_opening",stock_opening)
         stock_primary_stock = int(sum(value for value in primary_stock_stock if value is not None))
-        print("stock_primary_stock",stock_primary_stock)
+        # print("stock_primary_stock",stock_primary_stock)
 
 
 
@@ -857,7 +870,7 @@ def Dashboard():
 
 
 
-        import dateutil.relativedelta as rl
+        
 
         current_date = datetime.now()
 
@@ -899,7 +912,7 @@ def Dashboard():
 
         percentage_last_year = round(percentage_last_year, 2)
 
-        # e-Commerce month year 
+        ############ e-Commerce month year 
         # result = db.session.execute(text('CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(2,2024);'))
         # datakey = result.keys()
         # data = result.fetchall()
@@ -969,6 +982,7 @@ def Dashboard():
     # return render_template('dashboard.html',dict_list=dict_list)
 
 @app.route('/get_Datedata', methods=['GET'])
+@login_required
 def get_Datedata():
     try:
         from_date = request.args.get('from_date') 
@@ -1018,6 +1032,7 @@ def get_offer_count(offer_id):
     return count
 
 @app.route('/saleoffer')
+@login_required
 def OfferDetailsdisplay():
 
     offer_id = request.args.get('offer_id', type=str)
@@ -1081,6 +1096,7 @@ def OfferDetailsdisplay():
     
 
 @app.route('/api/offerdetails', methods=['GET'])
+@login_required
 def OfferDetails():
     try:
         result=db.session.execute(text('CALL GetSweetSummerOfferDistinctOutletCount();'))
@@ -1098,6 +1114,7 @@ def OfferDetails():
 #############################  NewOffer 
 
 @app.route('/newoffer')
+@login_required
 def newoffer():
     result = db.session.execute(text('CALL NewOffer;'))
      
@@ -1132,6 +1149,7 @@ def NewOffer():
 ##################### salesmonth 
 
 @app.route('/api/salesmonth', methods=['GET'])
+@login_required
 def salesmonth():
     try:
         result=db.session.execute(text('CALL GetSalesDataPerYearPerMonthWithCreatedAt();'))
@@ -1146,6 +1164,7 @@ def salesmonth():
     
 ########################################### Employee Name Display #############
 @app.route('/employee')
+@login_required
 def employeename():
         result = db.session.execute(text('CALL GetEmployeeData();'))
         datakey = result.keys()
@@ -1158,6 +1177,7 @@ def employeename():
 
 
 @app.route('/employee_info')
+@login_required
 def employee_info():
     employee_id = request.args.get('empId')
     result = db.session.execute(text(f"CALL GetEmployeeInfoUpdated('{employee_id}');"))
@@ -1173,6 +1193,7 @@ def employee_info():
 
 
 @app.route('/employee_payerId')
+@login_required
 def employee_payerId():
     payer_id = request.args.get('payerId')
     result = db.session.execute(text(f"CALL GetEmployeeInfoBypayerId('{payer_id}');"))
@@ -1187,6 +1208,7 @@ def employee_payerId():
 
 
 @app.route('/api/emp', methods=['GET'])
+@login_required
 def employeelist():
     try:
         # result=db.session.execute(text(f"CALL GetEmployeeData()"))
@@ -1206,6 +1228,7 @@ def employeelist():
 
 ######################  Totalsales
 @app.route('/totalsales')
+@login_required
 def totalsales():
         result = db.session.execute(text('CALL GetTotalSalesData();'))
         datakey = result.keys()
@@ -1219,6 +1242,7 @@ def totalsales():
 
 ########### SweetSummerOffer  html template created only 
 @app.route('/offer/<offerID>/<int:offer_id>')
+@login_required
 def SSC2(offerID,offer_id):
     
     # print("/offer/<offerID>/<int:pkey>", request.args.get('offer_name', type=int))
@@ -1485,6 +1509,7 @@ def SSC2(offerID,offer_id):
 
 ######################################### click on salesgroup regarding 
 @app.route('/offer_details/<salesgroup>/<int:offer_id>')
+@login_required
 def salesgroup(salesgroup,offer_id):
         # print("/offer/<offerID>/<string:pkey>", request.args.get('salesgroup', type=int))
         # print("/offer_details/<salesgroup>/<int:pkey>", request.args.get('offer_name', type=int))
@@ -1667,6 +1692,7 @@ def salesgroup(salesgroup,offer_id):
 
 ########################################## click on payerID releted data
 @app.route('/offer_payer/<payer>/<int:offer_id>')
+@login_required
 def PayerId(payer,offer_id):
         try:
             # print("/offer/<offerID>/<string:pkey>", request.args.get('salesgroup', type=int))
@@ -1836,6 +1862,7 @@ def PayerId(payer,offer_id):
 
 ####################### Saledata per year month
 @app.route('/saledata/<int:page>')
+@login_required
 def saledata(page=1):
        
         items_per_page = 20  # Define how many items to display per page
@@ -1861,8 +1888,8 @@ def menulist():
     try:
         # result=db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2ByPayerId('NIM001')"))
         # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
-        result=db.session.execute(text(f"CALL TotalClosingStockSummaryAllSalesgroups('2023-11-30')"))
-        # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockUpdated("KHANDESH - 1","2024-01-31");'))
+        # result=db.session.execute(text(f"CALL TotalClosingStockSummaryAllSalesgroups('2024-02-29')"))
+        result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockUpdated("KHANDESH - 1","2024-01-31");'))
         # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
         # result=db.session.execute(text(f"CALL GetTotalAchievementDataAsPerFinancialYearGradeCodeUpdated(2, 2024, 2, 2024, 'ABH003')"))
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
