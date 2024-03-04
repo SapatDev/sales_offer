@@ -102,7 +102,7 @@
                   </td> -->
                   <td>
                     <div class="progress">
-                        <div class="progress-bar {% if item['Achievement_Percentage'] > 99 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar {% if item['Achievement_Percentage'] > 99.99 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                             {{ '%.1f'|format(item['Achievement_Percentage']) }}%
                         </div>
                     </div>

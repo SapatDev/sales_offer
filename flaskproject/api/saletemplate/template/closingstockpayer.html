@@ -90,6 +90,8 @@
                     <th>Primary Stock</th>
                     <th>Closing</th>
                     <th>Secondary</th>
+                    <th>Secondary Amount</th>
+                    <!-- <th>Total</th> -->
 
                    
 
@@ -97,8 +99,7 @@
                 </thead>
 
                 <tbody>
-
-
+                  
                   {% for item in dict_list %}
                   <tr>
                     <td><a href="{{ url_for('closingstockgrade',  payerId=item['payerId'],date=date, _external=True) }}"
@@ -108,23 +109,28 @@
                     <td>{{(item['Primary_Stock']|float)|int}}</td>
                     <td>{{(item['Closing']|float)|int}}</td>
                     <td>{{(item['Secondary']|float)|int}}</td>
+                    <td>{{(item['Grand_Total_Secondary_Amount']|float)|int}}</td>
+                    <!-- <td>{{ (item['Opening']|float) + (item['Primary_Stock']|float)|int + (item['Closing']|float)|int + (item['Secondary']|float)|int + (item['Grand_Total_Secondary_Amount']|float)|int }}</td> -->
                     
                   </tr>
                   {% endfor %}
+
+                  <tr>
+                    <td><strong>Grand Total:</strong></td>
+                    <td></td>
+                    <td><strong>{{ Opening|int }}</strong></td>
+                    <td><strong>{{ Primary_Stock|int }}</strong></td>
+                    <td><strong>{{ Closing|int }}</strong></td>
+                    <td><strong>{{ Secondary|int }}</strong></td>
+                    <td><strong>{{ Grand_Total_Secondary_Amount|int }}</strong></td>
+                  </tr>
+
 
                 </tbody>
               </table>
 
              
-              <!-- <div class='pagination-container' >
-                <nav>
-                  <ul class="pagination">
-                  
-                  </ul>
-                </nav>
-              </div>
-              <div class="rows_count">Showing 11 to 20 of 91 entries</div> -->
-
+             
             </div>
 
             

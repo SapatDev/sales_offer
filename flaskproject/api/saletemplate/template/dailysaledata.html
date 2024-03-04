@@ -35,12 +35,28 @@
               </form>
           </div> -->
 
+         
+
 
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title">Daily Sales Data</h4>
-                  <h3>Current Month :- {{current_month}}</h3>
+
+                  <form action="{{ url_for('dailysalesgroupdata') }}" method="GET">
+                    <label for="from_month">From Month:</label>
+                    <input type="number" id="from_month" name="from_month" value="{{ from_month }}">
+                    <label for="from_year">From Year:</label>
+                    <input type="number" id="from_year" name="from_year" value="{{ from_year }}">
+                    <label for="month">Month:</label>
+                    <input type="number" id="end_month" name="end_month" value="{{ end_month }}">
+                    <label for="year">Year:</label>
+                    <input type="number" id="end_year" name="end_year" value="{{ end_year }}">
+                    <button type="submit">Search</button>
+                    <a href="{{ url_for('dailysalesgroupdata') }}"><button type="button">Remove</button></a> 
+                </form>
+                
+                  <!-- <h3>Current Month :- {{current_month}}</h3> -->
                   <!-- <p class="card-description">
                     Add class <code>.table-striped</code>
                   </p> -->
@@ -61,7 +77,7 @@
                       <tbody>
                       {% for item in dict_list %}
                       <tr>
-                        <td><a href="{{ url_for('dailysales',  salesgroup=item['salesgroup']) }}" >{{item['salesgroup']}}</a></td>
+                        <td><a href="{{ url_for('dailysales',  salesgroup=item['salesgroup'],from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year, _external=True) }}" >{{item['salesgroup']}}</a></td>
                         <td>{{item['employee_count']}}</td>
                         <td>{{item['payerId_count']}}</td>
                         <td>
