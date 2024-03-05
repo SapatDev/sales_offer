@@ -10,14 +10,7 @@
      
 
 
-      <!-- <form action="/dailysalesdata" method="GET">
-        <label for="month">Month:</label>
-        <input type="text" name="month" id="month" value="{{ month }}">
-        <label for="year">Year:</label>
-        <input type="text" name="year" id="year" value="{{ year }}">
-        <button type="submit">Search</button>
-    </form> -->
-
+     
       <!-- <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
@@ -42,6 +35,10 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title">Daily Sales Data</h4>
+
+                  {% if not from_month or not end_month %}
+                      <h4>Current Month: {{ current_month }}</h4>
+                  {% endif %}
 
                   <form action="{{ url_for('dailysalesgroupdata') }}" method="GET">
                     <label for="from_month">From Month:</label>

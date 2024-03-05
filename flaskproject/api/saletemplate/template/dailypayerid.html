@@ -11,6 +11,9 @@
         <div class="card-body">
           <h4 class="card-title">Employee payerId data</h4>
 
+          {% if not from_month or not end_month %}
+              <h4>Current Month: {{ current_month }}</h4>
+          {% endif %}
           <!-- <h3>Current Month :- {{current_month}}</h3> -->
 
           <div style="display: flex; justify-content: flex-end;  margin-bottom: 15px;">

@@ -562,7 +562,9 @@ def dailysales(salesgroup):
     
     average_achievement_percentage = sum(item['Achievement_Percentage'] for item in dict_list) / len(dict_list) if dict_list else 0
     
+  
     current_date = datetime.now()
+    current_month = current_date.strftime('%B')
     # Format the current date to get the month name
    
     # Pass the totals to the template
@@ -571,7 +573,7 @@ def dailysales(salesgroup):
     #                     total_month_sale=total_month_sale,
     #                     total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,month=month,year=year,
     #                     average_achievement_percentage=average_achievement_percentage)
-    return render_template('dailypayerid.html', dict_list=dict_list,
+    return render_template('dailypayerid.html', dict_list=dict_list,current_month=current_month,
                         total_tgt_sale=total_tgt_sale, 
                         total_month_sale=total_month_sale,
                         total_tgt_gap=total_tgt_gap,salesgroup=salesgroup,Sum_of_LY_Sales=Sum_of_LY_Sales,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
@@ -635,9 +637,12 @@ def targetsales(payerId):
     else:
         average_achievement_percentage = 0 
 
+    current_date = datetime.now()
+    current_month = current_date.strftime('%B')
+
 
     return render_template('dailyoutletid.html', dict_list=dict_list,payerId=payerId,stokist_name=stokist_name,
-                            total_tgt_sale=total_tgt_sale, 
+                            total_tgt_sale=total_tgt_sale,current_month=current_month, 
                             total_month_sale=total_month_sale,from_month=from_month,from_year=from_year,end_month=end_month,end_year=end_year,
                             total_tgt_gap=total_tgt_gap,LY_Sales=LY_Sales,
                             average_achievement_percentage=average_achievement_percentage)
