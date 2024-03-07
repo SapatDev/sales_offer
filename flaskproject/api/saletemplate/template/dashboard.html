@@ -171,10 +171,11 @@
                   <div class="col-sm-12">
                     {% for item in dict_list1 %}
                     <div class="d-flex justify-content-between mb-4">
-
+                      <!-- this apply for first  href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}" -->
                       <div class="text-secondary font-weight-medium"><a id="{{ item['offer_name'] }}"
                           onclick="setOfferName(id)"
-                          href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}"
+                          href="/offer/{{ item['offer_id'] }}/{{ item['id'] }}?offer_name={{ item['id'] }}&from_date={{ from_date }}&to_date={{ to_date }}"
+                          
                           class="offer-link"> {{ item['offer_name'] }}</a></div>
                       <div class="small"><h5>{{ item['offer_id'] }}</h4></div>
                     </div>
