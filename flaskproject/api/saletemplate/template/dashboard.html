@@ -45,8 +45,11 @@
               <div class="col-12">
                 <div class="row">
                   <div class="col-lg-6">
-                    <div id="circleProgress6" class="progressbar-js-circle rounded p-3"></div>
+                    <!-- <div id="circleProgress6" class="progressbar-js-circle rounded p-3"></div> -->
+                    <canvas id="myDoughnutChart" width="250" height="300"></canvas>
+
                   </div>
+                  
                   <div class="col-lg-6">
                     <ul class="session-by-channel-legend">
                       <li>
@@ -65,20 +68,22 @@
                         <div class="update-trigger" onclick="updateScore({{winter_count_data}})">WinterSpecialoffer
                         </div>
                         <div style="margin-left: 10px;">10113</div>
-                        <!-- {{winter_count_data}} -->
+                        
                       </li>
                       <li>
                         <div class="update-trigger" onclick="updateScore({{ek_se_count_data}})">Eksebadhkarek2</div>
-                        <div style="margin-left: 10px;">31604</div>
-                        <!--  -->
+                        <div style="margin-left: 10px;">32394</div>
+                     
                       </li>
                       <li>
                         <div class="update-trigger" onclick="updateScore({{ek_se_count_data}})">NewYearDhamaka</div>
-                        <div style="margin-left: 10px;">161285</div>
-                        <!--  -->
+                        <div style="margin-left: 10px;">176585</div>
+                    
                       </li>
                     </ul>
                   </div>
+
+
                 </div>
               </div>
             </div>
@@ -742,6 +747,8 @@
 
 </script>
 
+<!-- Sale Analytics    -->
+
 <script>
   $(document).ready(
     function () {
@@ -870,11 +877,7 @@
 
 
 
-<!-- new -->
-
-
-
-
+<!-- new  Closing Stock Report-->
 
 <script>
   $(document).ready(
@@ -1019,6 +1022,48 @@
 }
 )
 </script>
+
+
+
+<!-- doughnut chart Scheme summary -->
+<script>
+  const data = {
+    // labels: ['SweetSummerOffer2', 'SpecialDiscountoffer', 'Mansoonoffer', 'WinterSpecialoffer', 'Eksebadhkarek2', 'NewYearDhamaka'],
+    datasets: [{
+      labels: ['SweetSummerOffer2', 'SpecialDiscountoffer', 'Mansoonoffer', 'WinterSpecialoffer', 'Eksebadhkarek2', 'NewYearDhamaka'],
+      data: [58506, 31479, 25832, 10113, 32394, 176585],
+      backgroundColor: [
+        '#FF0000',
+        '#FFA500',
+        '#90EE90',
+        '#32CD32',
+        '#0000CD',
+        '#FFD700'
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+      borderWidth: 1
+    }]
+  };
+
+  // Draw the doughnut chart
+  const ctx = document.getElementById('myDoughnutChart').getContext('2d');
+  const myDoughnutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: data,
+    options: {
+      responsive: false, 
+      maintainAspectRatio: false,
+    }
+  });
+</script>
+
 
 
 {% endblock %}

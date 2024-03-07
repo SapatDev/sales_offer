@@ -286,7 +286,7 @@ def closingsale():
 
     
 
-    return render_template('salegruopcloging.html',date=date,secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
+    return render_template('salegroupcloging.html',date=date,secondary=secondary,primary=primary,closing=closing,opening=opening,dict_list=dict_list,dict_list1=dict_list1)
 
 @app.route('/stocksales/<salesgroup>')
 @login_required
