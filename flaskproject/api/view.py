@@ -1213,13 +1213,14 @@ def showtable():
 @app.route('/api/checktableshow', methods=['GET'])
 def checktable():
     try:
-        result=db.session.execute(text('SELECT * from salesoffer.stock_sku ;'))
+        # result=db.session.execute(text('SELECT * from salesoffer.stock_sku ;'))
+        result = db.session.execute(text('SELECT DISTINCT gradecode FROM salesoffer.stock_sku ;'))  # this only this table one value get regarding
         # result=db.session.execute(text('SELECT DISTINCT salesgroup FROM salesoffer.diwali_offer_payer;'))
         datakey=result.keys()
         data=result.fetchall()
         result.close()
         dict_list=[{item:tup[i] for i,item in enumerate(datakey)}for tup in data]
-        print(dict_list)
+        # print(dict_list)
 
         return jsonify({"code": 200, "status": True, "result": dict_list}), 200
     except Exception as e:
@@ -1375,7 +1376,9 @@ def SSC2(offerID,offer_id):
             if from_date and to_date:
                 result = db.session.execute(text('CALL NewOfferWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
             else:
-                result = db.session.execute(text('CALL NewOffer();')) 
+                result = db.session.execute(text('CALL NewWinterOfferUpdated();')) 
+                # NewOffer() old
+
         elif(offerID=="EKS2"):
             if from_date and to_date:
                 result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason2WithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
@@ -1582,8 +1585,6 @@ def SSC2(offerID,offer_id):
                     # print("SSwww",sales_group_data)
 
 
-            
-
             # Render the template without the HTML table
             # return render_template('sweetsummer.html', sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
         # return render_template('salegroupdata.html',sales_group_data=sales_group_data, counts=counts, dict_list_type=dict_list_type, dict_list=dict_list, unique_type_ids=unique_type_ids, salesgroups=salesgroups, offer_id=offer_id)
@@ -1642,7 +1643,8 @@ def salesgroup(salesgroup,offer_id):
             if from_date and to_date:
                 result = db.session.execute(text('CALL GetWinterSalesgroupDataWithDateParams(:salesgroup,:from_date,:to_date);').params(salesgroup=salesgroup,from_date=from_date,to_date=to_date))
             else:
-                result = db.session.execute(text(f"CALL GetSalesgroupData('{salesgroup}');"))
+                result = db.session.execute(text(f"CALL GetNewWinterOfferUpdatedBySalesgroup('{salesgroup}');"))
+                # GetSalesgroupData
 
         elif offer_id == 5:
             if from_date and to_date:
@@ -1711,6 +1713,7 @@ def salesgroup(salesgroup,offer_id):
         data = result.fetchall()
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+        print("dict_listss",dict_list)
 
         df = pd.DataFrame(dict_list)
         df2=pd.DataFrame(dict_list_type)
@@ -1807,25 +1810,29 @@ def PayerId(payer,offer_id):
                 if from_date and to_date:
                     result = db.session.execute(text('CALL GetNewSweetSummerOfferBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
-                    result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerId('{payer}');"))
+                    result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerIdDemo('{payer}');"))
+                    # GetNewSweetSummerOfferBypayerId
 
             elif offer_id == 2:
                 if from_date and to_date:
                     result = db.session.execute(text('CALL GetSpdOfferDetailsBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
-                    result = db.session.execute(text(f"CALL GetSpdOfferDetailsBypayerId('{payer}');"))
+                    result = db.session.execute(text(f"CALL GetSpdOfferDetailsBypayerIdDemo('{payer}');"))
+                    # GetSpdOfferDetailsBypayerId
             
             elif offer_id == 3:
                 if from_date and to_date:
                     result = db.session.execute(text('CALL GetMonsoonOfferByPayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
-                    result = db.session.execute(text(f"CALL GetNewMonsoonOfferByPayerId('{payer}');"))
+                    result = db.session.execute(text(f"CALL GetNewMonsoonOfferByPayerIdDemo('{payer}');"))
+                    # GetNewMonsoonOfferByPayerId
 
             elif offer_id == 4:
                 if from_date and to_date:
                     result = db.session.execute(text('CALL GetWinterOfferBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
-                    result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerId('{payer}');"))
+                    result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerIdDemo('{payer}');"))
+                    # GetNewWinterOfferBypayerId old
 
             elif offer_id == 5:
                 if from_date and to_date:
@@ -1935,7 +1942,7 @@ def PayerId(payer,offer_id):
             # except KeyError as e:
             #                 error_message = f"KeyError: {str(e)} occurred."
             #                 return render_template('payerdata.html', error_message=error_message)
-            return render_template('salegroupoutlet.html',payer=payer,unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
+            return render_template('salegroupoutlet.html',from_date=from_date,to_date=to_date,payer=payer,unique_outletName=unique_outletName,unique_coupon_type=unique_coupon_type,outletId=outletId,dict_list_type=dict_list_type,unique_beatname=unique_beatname,dict_list=dict_list,unique_type=unique_type,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
         except KeyError as e:
                         error_message = f"KeyError: {str(e)} occurred."
                         return render_template('salegroupoutlet.html', error_message=error_message)
@@ -1974,7 +1981,11 @@ def menulist():
         # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockUpdated("KHANDESH - 1","2024-02-29");'))
         # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockNew("KHANDESH - 1","2024-02-29");'))
         # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
-        result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupLatest(3, 2024, 3, 2024)"))
+        # result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupLatest(3, 2024, 3, 2024)"))
+        
+        # result=db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerIdDemo('ALP002')"))
+        result=db.session.execute(text(f"CALL GetNewWinterOfferUpdatedBySalesgroup('MARATHWADA - 1')"))
+        
         
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
         # result=db.session.execute(text(f"CALL GetTotalMonthSaleAndTargetSaleForAllSalesgroup(1,2024)"))   
