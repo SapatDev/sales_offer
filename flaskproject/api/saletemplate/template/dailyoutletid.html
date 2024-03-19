@@ -100,7 +100,7 @@
 
                             <td>
                             <div class="progress">
-                            <div class="progress-bar {% if item['Achievement_Percentage'] > 99.99 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar {% if item['Achievement_Percentage'] > 99.99 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item['Achievement_Percentage'] }}%;" aria-valuenow="{{ item['Achievement_Percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                             {{ '%.1f'|format(item['Achievement_Percentage']) }}%
                             </div>
                             </div>
@@ -110,7 +110,7 @@
 
                             <td>
                             <div class="progress">
-                            <div class="progress-bar {% if item['Sum_of_LY_Sales'] != 0 %}{% if ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 > 99 %}bg-success{% else %}bg-danger{% endif %}{% endif %}" role="progressbar" style="width: {% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;"
+                            <div class="progress-bar {% if item['Sum_of_LY_Sales'] != 0 %}{% if ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 > 99 %}bg-danger{% else %}bg-success{% endif %}{% endif %}" role="progressbar" style="width: {% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}%;"
                             aria-valuenow="{% if item['Sum_of_LY_Sales'] != 0 %}{{ ((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100 }}{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
                             {% if item['Sum_of_LY_Sales'] != 0 %}{{ '%.1f'|format(((item['Sum_of_Total_Month_Sale']|float) / (item['Sum_of_LY_Sales']|float)) * 100) }}{% else %}N/A{% endif %}%
                             </div>

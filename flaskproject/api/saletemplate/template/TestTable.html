@@ -4,224 +4,165 @@
 {% block content %}
 
 <style>
-    #div1, #div2 {
-      /* float: left;
+  #divCount,
+  #divCol,
+  #divSum,
+  #div4 {
+    /* float: left;
       width: 100px; */
-      height: 57px;
-      padding: 13px 5px;
-      margin: 10px 0px;
-      /* margin: 10px;
+    /* height: 57px;
+    padding: 20px 15px;
+    margin: 10px 20px; */
+    /* margin: 10px;
       padding: 10px; */
-      border: 1px solid #c3bfbf;
-    }
-    </style>
+    border: 1px solid #fdf4f4;
+  }
+
+  .loader {
+    margin-top: 20px;
+  border: 8px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 8px solid #3498db;
+  width: 70px;
+  height: 70px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  /* .sonet{
+    padding: 10px;
+    margin-right: 5px;
+    box-shadow: 0px 1px 1px #000;
+    background: #e8eff9;
+    border-radius: 17px;
+  } */
+ 
+
+</style>
 
 <div class="main-panel">
-<div class="content-wrapper">
+  <div class="content-wrapper">
+    <div class="row">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Report Maker</h4>
+          <p class="card-description">
+            Sapat Query: <code>Reports</code>
+          </p>
+          <div class="row">
+            <!-- <div class="col-md-12" id="divCol" ondrop="drop(event,'divCol')" ondragover="allowDrop(event)">
 
+            </div> -->
+            <div class="col-12 mb-2">
+              <div class="p-3" id="divCol" ondrop="drop(event,'divCol')" ondragover="allowDrop(event)" style="border: 1px solid #e3e2e2;">
+                  <!-- <button id="drag1" draggable="true" ondragstart="drag(event)" class="btn btn-sm btn-primary m-1">id</button> -->
+               </div>
+            </div>  
 
+            <div class="col-6 mb-2">
+              <div class="p-3" id="divSum" ondrop="drop(event,'divSum')" ondragover="allowDrop(event)" style="border: 1px solid #e3e2e2;">
+                  <!-- <button id="drag1" draggable="true" ondragstart="drag(event)" class="btn btn-sm btn-primary m-1">id</button> -->
+               </div>
+            </div>  
+            
+            <div class="col-6 mb-2">
+              <div class="p-3" id="divCount" ondrop="drop(event,'divCount')" ondragover="allowDrop(event)" style="border: 1px solid #e3e2e2;">
+                  <!-- <button id="drag1" draggable="true" ondragstart="drag(event)" class="btn btn-sm btn-primary m-1">id</button> -->
+               </div>
+            </div>     
 
-  <div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Striped Table</h4>
-        <p class="card-description">
-          Add class <code>.table-striped</code>
-        </p>
+            <div class="col-12 mb-2">
+              <div class="p-3" id="div4" ondrop="drop(event)" ondragover="allowDrop(event)" style="border: 1px solid #e3e2e2;">
+                  <!-- <button id="drag1" draggable="true" ondragstart="drag(event)" class="btn btn-sm btn-primary m-1">id</button> -->
+               </div>
+            </div>    
 
-        <div class="row" style="padding: 12px;">
-            <div class="col-md-12" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <img src="{{ url_for('static', filename='images/sapat_logo.png') }}" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
-                 <a id="drag2" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31" value="aaa">Kunal</a>
               
-              </div>
-              
-              <div class="col-md-5" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <img src="{{ url_for('static', filename='images/sapat_logo.png') }}" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
-                 <a id="drag2" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31" value="aaa">Kunal</a>
-              
-              </div>
-              <div class="ml-4 col-md-5" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <img src="{{ url_for('static', filename='images/sapat_logo.png') }}" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
-                 <a id="drag2" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31" value="aaa">Kunal</a>
-              </div>
-
-          
+            
             
 
-            
-              <div class="col-md-12" style="height: 165px;" id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <!-- <div class="col-md-5" id="divSum" ondrop="drop(event,'divSum')" ondragover="allowDrop(event)"></div> -->
+
+            <!-- <div class="ml-4 col-md-5" id="divCount" ondrop="drop(event,'divCount')" ondragover="allowDrop(event)"></div> -->
+
+
+            <!-- <div class="col-md-12" style="height: 165px;" id="div4" ondrop="drop(event)" ondragover="allowDrop(event)"> -->
+
+              <!-- <a class="sonet" id="drag2" draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31" value="aaa">offer_name</a> -->
+             
             </div>
 
 
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>
-                  User
-                </th>
-                <th>
-                  First name
-                </th>
-                <th>
-                  Progress
-                </th>
-                <th>
-                  Amount
-                </th>
-                <th>
-                  Deadline
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face1.jpg" alt="image"/>
-                </td>
-                <td>
-                  Herman Beck
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $ 77.99
-                </td>
-                <td>
-                  May 15, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face2.jpg" alt="image"/>
-                </td>
-                <td>
-                  Messsy Adam
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $245.30
-                </td>
-                <td>
-                  July 1, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face3.jpg" alt="image"/>
-                </td>
-                <td>
-                  John Richards
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $138.00
-                </td>
-                <td>
-                  Apr 12, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face4.jpg" alt="image"/>
-                </td>
-                <td>
-                  Peter Meggik
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $ 77.99
-                </td>
-                <td>
-                  May 15, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face5.jpg" alt="image"/>
-                </td>
-                <td>
-                  Edward
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $ 160.25
-                </td>
-                <td>
-                  May 03, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face6.jpg" alt="image"/>
-                </td>
-                <td>
-                  John Doe
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $ 123.21
-                </td>
-                <td>
-                  April 05, 2015
-                </td>
-              </tr>
-              <tr>
-                <td class="py-1">
-                  <img src="../../images/faces/face7.jpg" alt="image"/>
-                </td>
-                <td>
-                  Henry Tom
-                </td>
-                <td>
-                  <div class="progress">
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td>
-                  $ 150.00
-                </td>
-                <td>
-                  June 16, 2015
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <!-- <div id="loader" class="loader"></div> -->
+            <div class="table-responsive">
+              <div style="display: flex; justify-content: flex-end;  margin-bottom: 5px;">
+                <button class="btn btn-sm btn-secondary" role="button"  onclick="tableToExcel()">Download With Excel</button>
+             </div>
+              <table class="table table-striped" id="dataTable">
+                <!-- <thead>
+                  <tr>
+                    <th>
+                      User
+                    </th>
+                    <th>
+                      First name
+                    </th>
+                    <th>
+                      Progress
+                    </th>
+                    <th>
+                      Amount
+                    </th>
+                    <th>
+                      Deadline
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+
+                    <td>
+                      Henry Tom
+                    </td>
+
+                    <td>
+                      $ 150.00
+                    </td>
+                    <td>
+                      June 16, 2015
+                    </td>
+                    <td>
+                      June 16, 2015
+                    </td>
+                    <td>
+                      June 16, 2015
+                    </td>
+                  </tr>
+                </tbody> -->
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
-
-</div>
 </div>
 
 
-
-<!-- <body>
+  <!-- <body>
 
     <h2>Drag and Drop</h2>
     <p>Drag the image back and forth between the two div elements.</p>
@@ -236,24 +177,382 @@
     
     </body> -->
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <script type="text/javascript">
+    var flaskData = {{ dict_list| tojson | safe }};
+    console.log("data", flaskData)
+    var divParent = document.getElementById('div4');
+    document.addEventListener('DOMContentLoaded', function () {
+     
+      flaskData.forEach(function (entry, index) {
+        var a = document.createElement('a');
+        a.className  ="btn btn-sm btn-warning m-1";
+        a.textContent = entry.COLUMN_NAME; // Set the text content of the <a> element
+        a.draggable = true; // Make it draggable
+        a.ondragstart = drag; // Assign drag event handler
+        a.width = '88';
+        a.height = '31';
+        a.id = 'dd' + index;
+        if (entry.REFERENCED_TABLE_NAME != null){
+          a.onclick= function() {
+            console.log(entry.REFERENCED_TABLE_NAME)
+            onMoreColumns(entry.REFERENCED_TABLE_NAME);
+        };
+        }
+          
+       
+
+        // Append the <a> element to the <div>
+        divParent.appendChild(a);
+
+
+
+      });
+
+      // console.log("ddddddddd", data)
+
+      // Loop through the data array and create <a> elements
+      // for (var i = 0; i < data.length; i++) {
+      //     var a = document.createElement('a');
+      //     a.textContent = data[i]; // Set the text content of the <a> element
+      //     a.draggable = true; // Make it draggable
+      //     a.ondragstart = drag; // Assign drag event handler
+      //     a.width = '88';
+      //     a.height = '31';
+      //     a.value = 'aaa';
+      //     a.id ='dd'+i
+
+      //     // Append the <a> element to the <div>
+      //     div4.appendChild(a);
+      // }
+    });
+
+    var col_list=[]
+    var sum_list=[]
+    var count_list=[]
+    var fk_list=[]
+
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+  
+   async function drop(ev,divID) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      ev.target.appendChild(document.getElementById(data));
+     
+      console.log("a", ev);
+      console.log("b", divID);
+      
+      if(divID=="divCol")
+    { 
+   
+       col_list.push(document.getElementById(data).innerText);
+   
+    }
+      else if(divID=="divSum")
+      sum_list.push(document.getElementById(data).innerText);
+      else if(divID=="divCount")      
+      count_list.push(document.getElementById(data).innerText);
+      else{  
+        col_list = col_list.filter((item) => {
+          return item !== document.getElementById(data).innerText
+        })
+        sum_list = sum_list.filter((item) => {
+          return item !== document.getElementById(data).innerText
+        })
+        count_list = count_list.filter((item) => {
+          return item !== document.getElementById(data).innerText
+        })
+      }
+
+      // console.log("sss========",document.getElementById(data).innerText)
+
+     await onDropCall()
+      AddHeader();
+    }
+
+ 
+    function AddHeader() {
+      document.getElementById("dataTable").innerHTML = ""
+      const loaderContainer = document.createElement("div")
+      loaderContainer.setAttribute("id", "tableLoader")
+      loaderContainer.className = "loader"
+      document.getElementById("dataTable").appendChild(loaderContainer)
+
+
+    var tableHead = document.getElementById("dataTable").getElementsByTagName("thead")[0];
+
+    if (!tableHead) {
+        tableHead = document.createElement("thead");
+        tableHead.appendChild(document.createElement("tr"));
+        document.getElementById("dataTable").appendChild(tableHead);
+    }
+
+    var headerRow = tableHead.getElementsByTagName("tr")[0];
+    var allDroppedFields = col_list.concat(sum_list, count_list);
+
+    allDroppedFields.forEach(function(field) {
+    
+        var existingHeader = headerRow.querySelector("th[data-field='" + field + "']");
+        if (!existingHeader) {
+            var th = document.createElement("th");
+            th.textContent = field;
+            th.setAttribute("data-field", field); // Add a data attribute for identification
+            headerRow.appendChild(th);
+        }
+    });
+}
+
+
+
+    function loadTable(datalist) {
+      
+
+      var tableBody = document.getElementById('dataTable');
+      tableBody.innerHTML = '';
+
+      
+      var data_list =  JSON.parse(datalist) ;
+       console.log("data_list", data_list)
+
+      // tableBody.innerHTML = '';
+
+
+       
+      // var groupedData = {};
+      AddHeader();
+
+      data_list.forEach(function (items, index) {
+        console.log('Items:', items);
+      
+
+        var newRow = tableBody.insertRow();
+        // var rowHTML = '<tr>';
+
+      //   newRow.innerHTML = '<tr><td scope="row">' + items.outletId_id + '</td> <tr><td scope="row">' + items.scheme_id + '</td>'
+     
+      // })
+      // var fieldsToDisplay = ['outletId_id', 'scheme_id', 'coupon_no','id','book_no','velchi','created_at','updated_at']; // Add the fields you want to display
+    
+      // var newCell = newRow.insertCell(); 
+      // var d = ""; // .split(".")[1]
+      console.log('col_list[co]',col_list[0])
+      for(co=0;co<col_list.length;co++)
+      {
+      //       newRow.innerHTML+= '<tr><td scope="row">' +items[col_list[co].split(".")[1]] +'</td></tr>'
+      // }
+      var columnName = col_list[co];
+      if (columnName.includes(".")) {
+          var fieldName = columnName.split(".")[1];
+          newRow.innerHTML += '<tr><td scope="row">' + items[fieldName] + '</td></tr>';
+      } else {
+          // If column name does not contain a dot, use it directly
+          newRow.innerHTML += '<tr><td scope="row">' + items[columnName] + '</td></tr>';
+      }
+  }
+    
+      for(co=0;co<count_list.length;co++)
+      {
+      //       newRow.innerHTML+= '<tr><td scope="row">' +items[count_list[co]] +'</td></tr>'
+      // }
+      var columnName = count_list[co];
+      if (columnName.includes(".")) {
+          var fieldName = columnName.split(".")[1];
+          newRow.innerHTML += '<tr><td scope="row">' + items[fieldName] + '</td></tr>';
+      } else {
+          // If column name does not contain a dot, use it directly
+          newRow.innerHTML += '<tr><td scope="row">' + items[columnName] + '</td></tr>';
+      }
+  }
+    
+
+      newRow.innerHTML = newRow.innerHTML;
+     
+    
+});
+
+
+
+//       for (var key in items) {
+//         if (items.hasOwnProperty(key)) {
+//             var newCell = newRow.insertCell(); // Insert new cell for each key
+//             newCell.textContent = items[key]; // Set cell content to the value of the current key
+//         }
+//     }
+// });
+    
+
+
+    }
+
+    
+
+
+
+    function onMoreColumns(tbName) {
+      // console.log("Clicked on:", event.target.textContent);
+    
+    var xhr = new XMLHttpRequest();
+    // console.log(tbName)
+    fk_list.push({"table":tbName,"fkName":event.target.textContent})
+    // console.log("fk_list",fk_list)
+    xhr.open('POST', '/more-columns/'+ tbName, true);
+
+    xhr.setRequestHeader('Content-Type', 'application/json'); 
+
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        console.log('moredata----:', typeof xhr.responseText);
+        var flaskresponces =  JSON.parse(xhr.responseText);
+        console.log("flaskresponces",flaskresponces)
+
+        
+        flaskresponces.forEach(function (entry, index) {
+        var a = document.createElement('a');
+        a.className  ="btn btn-sm btn-warning m-1";
+        a.textContent =tbName+ "."+ entry.COLUMN_NAME; 
+        a.draggable = true; 
+        a.ondragstart = drag; 
+        a.width = '88';
+        a.height = '31';
+        a.value = 'aaa';
+        a.id = 'cd'+tbName + index;
+        if (entry.REFERENCED_TABLE_NAME != null){
+          a.onclick= function() {
+            console.log(entry.REFERENCED_TABLE_NAME)
+            onMoreColumns(entry.REFERENCED_TABLE_NAME);
+        };
+        }
+
+       
+        divParent.appendChild(a);
+      });
+      } else {
+        console.error('Request failed with status:', xhr.status);
+      }
+    };
+    xhr.send();
+  }
+
+
+
+    function onDropCall() {
+    
+      var xhr = new XMLHttpRequest();
+
+      // Step 2: Open a connection to the server
+      xhr.open('POST', '/get-data', true);
+
+      // Step 3: Set the request method
+      xhr.setRequestHeader('Content-Type', 'application/json'); // Step 4: Set any headers
+
+      // Step 5: Define a function to handle the response
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // Request was successful
+          console.log('Response:', xhr.responseText);
+          loadTable(xhr.responseText)
+        } else {
+          // Request failed
+          console.error('Request failed with status:', xhr.status);
+        }
+        
+        const loader = document.getElementById("tableLoader")
+        loader.remove()
+      };
+      xhr.send(JSON.stringify({"col":col_list,"sum":sum_list,"count":count_list,"fkey":fk_list}));
+    }
+
+    // var data = {key1: 'value1', key2: 'value2'};  // Example data
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/get-data",
+    //             contentType: "application/json",
+    //             data: JSON.stringify(data),
+    //             success: function(response) {
+    //                 console.log(response);
+    //                 // alert(response.message);
+    //             },
+    //             error: function(xhr, status, error) {
+    //                 console.error(xhr.responseText);
+    //                 // alert("Error: " + xhr.responseText);
+    //             }
+    //         });
+    //     }
+
+
+  </script>
 
 <script>
-    function allowDrop(ev) {
-        ev.preventDefault();
+  
+function tableToExcel() {
+    // Get the content of the card title
+    const cardTitle = document.querySelector('.card-title').textContent;
+
+    // Get the table data
+    const table = document.getElementById('dataTable');
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Add the card title and table data to the same worksheet
+    const wsTitle = 'Sales Data';
+    const wsData = [];
+
+    // Add the card title as the first row in the worksheet
+    wsData.push([cardTitle]);
+
+    // Add the table headings
+    const tableHeadings = [];
+    table.querySelectorAll('th').forEach(heading => {
+        tableHeadings.push(heading.innerText);
+    });
+    wsData.push(tableHeadings);
+
+    // Add the table data
+    const tableRows = table.querySelectorAll('tr');
+    tableRows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            rowData.push(cell.innerText);
+        });
+        wsData.push(rowData);
+    });
+
+    // Convert data to worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, wsTitle);
+
+    // Generate Excel file
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+
+    // Function to convert string to array buffer
+    function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
     }
-    
-    function drag(ev) {
-        ev.dataTransfer.setData("text", ev.target.id);
-    
-    }
-    
-    function drop(ev) {
-        ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        ev.target.appendChild(document.getElementById(data));
-        // console.log("Hi99999",data)
-    }
+
+    // Save the file
+    saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'sales_data.xlsx');
+}
+
+
 </script>
 
-{% endblock %}
+
+  {% endblock %}

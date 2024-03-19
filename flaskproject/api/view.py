@@ -1,11 +1,11 @@
 import calendar
+from requests import JSONDecodeError
 from sqlalchemy import text
 # from decode import encrypt_message
 # from encryt import encrypt_data
 from config import *
 from flask import Flask, render_template
 import pandas
-from flask import Flask, render_template, request
 import pandas as pd
 from collections import defaultdict
 import matplotlib
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
 from flask import send_file
-from flask import render_template, request,session,make_response
+from flask import render_template, request,session,make_response,Flask
 import io
 import base64
 from flask_sqlalchemy import Pagination
@@ -127,8 +127,82 @@ def employee_payerId1():
 
 @app.route("/Testtable")
 def Testtable():
-    return render_template("TestTable.html")
+    # result = db.session.execute(text('desc salesoffer.offer_couponssclaim;'))
+    result =db.session.execute(text('SELECT C.COLUMN_NAME,  C.DATA_TYPE, KCU.REFERENCED_TABLE_NAME, KCU.REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS AS C LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU ON C.TABLE_SCHEMA = KCU.TABLE_SCHEMA AND C.TABLE_NAME = KCU.TABLE_NAME AND C.COLUMN_NAME = KCU.COLUMN_NAME WHERE C.TABLE_SCHEMA = "salesoffer" AND C.TABLE_NAME = "offer_couponssclaim";'))
 
+
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    # print(dict_list)
+
+    return render_template("TestTable.html",dict_list=dict_list)
+
+
+@app.route("/get-data",methods=["POST"])
+def getdata():
+    try:
+        data_received = request.get_json()
+      
+        print("query list-----",data_received)
+    except Exception as e:
+            print('Error:', e)
+            return jsonify({'error': 'Failed to process data'}), 400
+    qury_str_col=""
+    qury_str_count=""
+    qury_str_sum=""
+    tableList=[]
+    for n in range(len(data_received['col'])):
+        if "." in data_received['col'][n]:
+
+            period_index = data_received['col'][n].index('.')
+            tableList.append(data_received['col'][:period_index])
+            # print("tableList",tableList)
+        c=","
+        if n==len(data_received['col'])-1 and len(data_received['count'])==0:
+            c=""
+        qury_str_col=qury_str_col+data_received['col'][n]+c
+    
+    for n in range(len(data_received['count'])):
+        c=","
+        if n==len(data_received['count'])-1:
+            c=""
+        qury_str_count=qury_str_count+"count("+data_received['count'][n]+") as "+data_received['count'][n]+c
+    # print("-------------------wqqq",qury_str)
+    if len(tableList)>0:
+        final_qury='select '+qury_str_col+qury_str_count+' FROM offer_couponssclaim JOIN '+data_received['fkey'][0]['table']+' ON '+data_received['fkey'][0]['fkName'] +'= '+tableList[0][0]+' group by '+ qury_str_col.rstrip(',')
+    else:
+        final_qury='select '+qury_str_col+qury_str_count+' FROM offer_couponssclaim group by '+ qury_str_col.rstrip(',')
+    result = db.session.execute(text(final_qury))
+    # result = db.session.execute(text('SELECT distinct '+data_received['col'][0]+', count(offer_couponssclaim.scheme_id) AS scheme_id FROM user_retailor JOIN offer_couponssclaim ON  user_retailor.outletId = offer_couponssclaim.outletId_id GROUP BY '+data_received['col'][0]))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    print(dict_list)
+    return jsonify(dict_list)
+
+
+@app.route('/more-columns/<tbName>', methods=['POST'])
+def more_columns(tbName):
+    # data = request.json
+    # clicked_column_name = data.get('clickedColumnName')
+    result =db.session.execute(text('SELECT C.COLUMN_NAME,  C.DATA_TYPE, KCU.REFERENCED_TABLE_NAME, KCU.REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS AS C LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU ON C.TABLE_SCHEMA = KCU.TABLE_SCHEMA AND C.TABLE_NAME = KCU.TABLE_NAME AND C.COLUMN_NAME = KCU.COLUMN_NAME WHERE C.TABLE_SCHEMA = "salesoffer" AND C.TABLE_NAME = "'+str(tbName)+'";'))
+    # result =db.session.execute(text('SELECT drp.salesgroup,oct.type_Id,COUNT(occ.scheme_id) AS scheme_count FROM offer_couponclaim occ JOIN user_retailor ur ON occ.outletId_id = ur.outletId JOIN diwali_offer_payer drp ON ur.payer_id = drp.id JOIN offer_coupenscheme ocs ON occ.scheme_id = ocs.price_Id JOIN offer_coupentype oct ON ocs.coupon_type_id = oct.id JOIN offer_offerdetails od ON oct.offer_id = od.id WHERE od.offer_id = "WSO" AND drp.salesgroup = salesgroup  GROUP BY drp.salesgroup,oct.type_Id ORDER BY drp.salesgroup ASC;'))
+    # result = db.session.execute(text('desc salesoffer.'+str(tbName)+';'))
+    datakey = result.keys()
+    data = result.fetchall()
+    result.close()
+    dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
+    # print("dict_list----------------------",dict_list)
+    return jsonify(dict_list)
+   
+    # print("Clicked column:", clicked_column_name)
+    # return jsonify({'message': 'Data received successfully'})
+
+
+   
 @app.route('/empdaa')
 @login_required
 def newempoffer():
@@ -1374,10 +1448,11 @@ def SSC2(offerID,offer_id):
                 result = db.session.execute(text('CALL MonsoonOffer();'))
         elif(offerID=='WSO'):
             if from_date and to_date:
-                result = db.session.execute(text('CALL NewOfferWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
+                result = db.session.execute(text('CALL NewWinterOfferUpdatedWithDateParams(:from_date,:to_date);').params(from_date=from_date,to_date=to_date))
             else:
                 result = db.session.execute(text('CALL NewWinterOfferUpdated();')) 
-                # NewOffer() old
+                # NewOffer() old NewWinterOfferUpdated this all data
+                #  NewOfferWithDateParams in  date 
 
         elif(offerID=="EKS2"):
             if from_date and to_date:
@@ -1437,6 +1512,7 @@ def SSC2(offerID,offer_id):
         # Extract year and month into new columns
         if len(df) > 0:
             if 'created_at' in df.columns and 'type_Id' in df.columns:
+                df['created_at'] = pd.to_datetime(df['created_at'])
                 df_year= df['created_at'].dt.year
                 df_month= df['created_at'].dt.month
                 df_day =df['created_at'].dt.day
@@ -1468,7 +1544,7 @@ def SSC2(offerID,offer_id):
                     result_df.loc[row['salesgroup'],"sum"]= result_df.loc[row['salesgroup'], "sum"] + row['scheme_count']
                     
                     result_df['sum'] = result_df['sum'].fillna(0)
-                # print(result_df)
+                print(result_df)
 
                 # Convert the DataFrame to HTML table
                 html_table = result_df.to_html()
@@ -1641,10 +1717,11 @@ def salesgroup(salesgroup,offer_id):
 
         elif offer_id == 4:
             if from_date and to_date:
-                result = db.session.execute(text('CALL GetWinterSalesgroupDataWithDateParams(:salesgroup,:from_date,:to_date);').params(salesgroup=salesgroup,from_date=from_date,to_date=to_date))
+                result = db.session.execute(text('CALL GetNewWinterOfferUpdatedBySalesgroupWithDates(:salesgroup,:from_date,:to_date);').params(salesgroup=salesgroup,from_date=from_date,to_date=to_date))
             else:
                 result = db.session.execute(text(f"CALL GetNewWinterOfferUpdatedBySalesgroup('{salesgroup}');"))
-                # GetSalesgroupData
+                # GetSalesgroupData     
+                # GetWinterSalesgroupDataWithDateParams in date param
 
         elif offer_id == 5:
             if from_date and to_date:
@@ -1683,7 +1760,7 @@ def salesgroup(salesgroup,offer_id):
             else:
            
                 result = db.session.execute(text(f"CALL TotalNYDSalesGroupByoutletIDUsingSalesgroupParamUpdated('{salesgroup}');"))
-                print("ddd",result)
+                # print("ddd",result)
                 datakey = result.keys()
                 data = result.fetchall()
                 result.close()
@@ -1713,9 +1790,10 @@ def salesgroup(salesgroup,offer_id):
         data = result.fetchall()
         result.close()
         dict_list = [{item: tup[i] for i, item in enumerate(datakey)} for tup in data]
-        print("dict_listss",dict_list)
+        # print("dddddict_listss",dict_list)
 
         df = pd.DataFrame(dict_list)
+        print("sss",df)
         df2=pd.DataFrame(dict_list_type)
         # idtype=df['id'].unique()
         # print("dfddddddddddddddddddddddddddddddd",df)
@@ -1729,23 +1807,57 @@ def salesgroup(salesgroup,offer_id):
 
 
         if len(df) > 0:
-
+            
             salesgroups = df['salesgroup'].unique()
             payerId = df['payerId'].unique()
             scheme_count=df['scheme_count']
             unique_type_ids = df2['type_Id'].unique()
             stokist_name_Id=df['stokist_name'].unique()
 
+            print("unique_type_ids", unique_type_ids)
+
+            print(scheme_count)
+           
+
+            df = df.groupby(['payerId', 'type_Id'])['scheme_count'].sum().reset_index(name='total')
+
+            # df.fillna(0)
+
+            # print(df)
+
+            # salesgroups = df['salesgroup'].unique()
+            # payerId = df['payerId'].unique()
+            # scheme_count=df['scheme_count']
             # unique_type_ids = df2['type_Id'].unique()
+            # stokist_name_Id=df['stokist_name'].unique()
+
+            unique_type_ids = df2['type_Id'].unique()
             # Get the selected month and year from the request parameters
 
-            new_columns = list(unique_type_ids) + ['sum']
+        
+
+
+            new_columns = list(unique_type_ids) + ['Sum']
             result_df = pd.DataFrame(index=payerId, columns=new_columns)
             for index, row in df.iterrows():
-                result_df.loc[row['payerId'], row['type_Id']] = row['scheme_count']
-                result_df.loc[row['payerId'],"sum"]= result_df.loc[row['payerId'], "sum"] + row['scheme_count']
+                result_df.loc[row['payerId'], row['type_Id']] = row['total']    
+            
+            result_df["Sum"].fillna(0, inplace=True)
+            for column in unique_type_ids:
+                result_df[column].fillna(0, inplace=True)
+
+            result_df['Sum'] = result_df.iloc[:, 0:4].sum(axis=1)
+
+
+            print("sales",result_df)
+
+            # new_columns = list(unique_type_ids) + ['sum']
+            # result_df = pd.DataFrame(index=payerId, columns=new_columns)
+            # for index, row in df.iterrows():
+            #     result_df.loc[row['payerId'], row['type_Id']] = row['scheme_count']
+            #     result_df.loc[row['payerId'],"sum"]= result_df.loc[row['payerId'], "sum"] + row['scheme_count']
                 
-                result_df['sum'] = result_df['sum'].fillna(0)    
+            #     result_df['sum'] = result_df['sum'].fillna(0)   
 
 
 
@@ -1767,10 +1879,13 @@ def salesgroup(salesgroup,offer_id):
             payerid_data = {}
 
             for payer in payerId:
-                sales_data = result_df.loc[payer].dropna()
-                payerid_data[payer] = sales_data.unique().sum() 
+                # sales_data = result_df.loc[payer].dropna()
+                payerid_data[payer] = result_df.loc[payer, 'Sum']
                 # print("payerid_data",payerid_data)
             
+            print("payeriddata",payerid_data)
+            
+
         
         # return render_template('newsweetsummer.html',dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
         return render_template('salegrouppayerid.html',salesgroup=salesgroup,from_date=from_date,to_date=to_date,payerid_data=payerid_data,dict_list_type=dict_list_type,stokist_name_Id=stokist_name_Id,payerId=payerId,salesgroups=salesgroups,dict_list=dict_list,unique_type_ids=unique_type_ids,html_table=html_table,scheme_counts=scheme_count,offer_id=offer_id)
@@ -1808,38 +1923,42 @@ def PayerId(payer,offer_id):
         
             if offer_id == 1:
                 if from_date and to_date:
-                    result = db.session.execute(text('CALL GetNewSweetSummerOfferBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
+                    result = db.session.execute(text('CALL GetNewSweetSummerOfferBypayerIdWithDates(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
                     result = db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerIdDemo('{payer}');"))
                     # GetNewSweetSummerOfferBypayerId
+                    # date param  GetNewSweetSummerOfferBypayerIdWithDateParams
 
             elif offer_id == 2:
                 if from_date and to_date:
-                    result = db.session.execute(text('CALL GetSpdOfferDetailsBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
+                    result = db.session.execute(text('CALL GetSpdOfferDetailsBypayerIdWithDatesDemo(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
                     result = db.session.execute(text(f"CALL GetSpdOfferDetailsBypayerIdDemo('{payer}');"))
                     # GetSpdOfferDetailsBypayerId
+                    # GetSpdOfferDetailsBypayerIdWithDateParams
             
             elif offer_id == 3:
                 if from_date and to_date:
-                    result = db.session.execute(text('CALL GetMonsoonOfferByPayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
+                    result = db.session.execute(text('CALL GetNewMonsoonOfferByPayerIdWithDates(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
                     result = db.session.execute(text(f"CALL GetNewMonsoonOfferByPayerIdDemo('{payer}');"))
                     # GetNewMonsoonOfferByPayerId
+                    # GetMonsoonOfferByPayerIdWithDateParams
 
             elif offer_id == 4:
                 if from_date and to_date:
-                    result = db.session.execute(text('CALL GetWinterOfferBypayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
+                    result = db.session.execute(text('CALL GetNewWinterOfferByPayerIdWithDates(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
                     result = db.session.execute(text(f"CALL GetNewWinterOfferBypayerIdDemo('{payer}');"))
                     # GetNewWinterOfferBypayerId old
+                    # GetWinterOfferBypayerIdWithDateParams
 
             elif offer_id == 5:
                 if from_date and to_date:
                     result = db.session.execute(text('CALL GetEkSeBadhkarEkOfferSeason2ByPayerIdWithDateParams(:payer,:from_date,:to_date);').params(payer=payer,from_date=from_date,to_date=to_date))
                 else:
-                #  GetEkSeBadhkarEkOfferSeason1ByPayerId first apply
                     result = db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2ByPayerId('{payer}');"))
+                #  GetEkSeBadhkarEkOfferSeason1ByPayerId first apply
 
             elif offer_id== 6:
                 from_date = request.args.get('from_date') 
@@ -1976,15 +2095,15 @@ def saledata(page=1):
 def menulist():
     try:
         # result=db.session.execute(text(f"CALL GetEkSeBadhkarEkOfferSeason2ByPayerId('NIM001')"))
-        # result=db.session.execute(text(f"CALL GetGrandTotalForStockSummaryByGradeWithParamsUpdated('HAJ002','2024-01-31')"))
+        result=db.session.execute(text(f"CALL NewWinterOfferUpdatedWithDateParams('2023-12-01','2023-12-31')"))
         # result=db.session.execute(text(f"CALL TotalClosingStockSummaryAllSalesgroups('2024-02-29')"))
-        # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockUpdated("KHANDESH - 1","2024-02-29");'))
+        # result = db.session.execute(text('CALL GetNewWinterOfferUpdatedBySalesgroupWithDates("MARATHWADA - 1", "2023-12-01", "2023-12-31");'))
         # result = db.session.execute(text('CALL GetPayerAndStokistBySalesgroupForClosingStockNew("KHANDESH - 1","2024-02-29");'))
         # result=db.session.execute(text(f"CALL GetPayerAndStokistBySalesgroupForClosingStock('KHANDESH - 1')"))
         # result=db.session.execute(text(f"CALL GetSalesAndTargetDataBySalesgroupLatest(3, 2024, 3, 2024)"))
         
         # result=db.session.execute(text(f"CALL GetNewSweetSummerOfferBypayerIdDemo('ALP002')"))
-        result=db.session.execute(text(f"CALL GetNewWinterOfferUpdatedBySalesgroup('MARATHWADA - 1')"))
+        # result=db.session.execute(text(f"CALL GetNewWinterOfferUpdatedBySalesgroup('MARATHWADA - 1')"))
         
         
         # CALL GetTotalAchievementDataBySalesGroupAsPerFinancialYearUpdated(12, 2023, 2, 2024, 'KHANDESH - 1');
